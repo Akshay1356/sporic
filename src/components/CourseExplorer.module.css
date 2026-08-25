@@ -1,0 +1,135 @@
+/* CourseExplorer.module.css - Pure White & Crisp Black Theme */
+.explorer {
+  width: 100%;
+}
+
+.controlsCard {
+  background: #FFFFFF;
+  border: 1px solid #E5E5E5;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  border-radius: var(--radius-lg);
+  margin-bottom: 2.5rem;
+}
+
+.controlsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  align-items: flex-end;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #555555;
+  font-weight: 700;
+}
+
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input,
+.select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #FFFFFF;
+  border: 1px solid #CCCCCC;
+  border-radius: var(--radius-md);
+  color: #111111;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  outline: none;
+}
+
+.input::placeholder {
+  color: #999999;
+}
+
+.input:focus,
+.select:focus {
+  border-color: #000000;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06);
+}
+
+.select option {
+  background: #FFFFFF;
+  color: #111111;
+}
+
+.clearSearch {
+  position: absolute;
+  right: 0.75rem;
+  color: #888888;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.clearSearch:hover {
+  color: #111111;
+}
+
+.clearBtnGroup {
+  display: flex;
+}
+
+.clearBtn {
+  width: 100%;
+  justify-content: center;
+  padding: 0.7rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+}
+
+.resultsHeader {
+  margin-bottom: 1.5rem;
+}
+
+.countText {
+  font-family: var(--font-tech);
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #111111;
+  font-weight: 700;
+}
+
+.coursesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.gridItem {
+  display: flex;
+}
+
+.noResults {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: #FFFFFF;
+  border: 1px solid #E5E5E5;
+  border-radius: var(--radius-lg);
+}
+
+.noResults h3 {
+  font-size: 1.5rem;
+  color: #111111;
+  margin-bottom: 0.5rem;
+  font-weight: 800;
+}
+
+.noResults p {
+  color: #555555;
+}

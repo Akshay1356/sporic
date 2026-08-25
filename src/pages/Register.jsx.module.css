@@ -1,0 +1,94 @@
+/* Register.jsx.module.css - Pure White & Crisp Black Theme */
+.registerPage {
+  background: #FFFFFF;
+  min-height: 100vh;
+  padding-top: var(--nav-height);
+  position: relative;
+  overflow: hidden;
+}
+
+.formCard {
+  width: 100%;
+  max-width: 580px;
+  background: #FFFFFF;
+  border: 1px solid #E5E5E5;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-lg);
+}
+
+.stepper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 0 1rem;
+}
+
+.step {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #F5F5F5;
+  border: 1px solid #E5E5E5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #888888;
+  transition: all var(--transition-base);
+}
+
+.activeStep {
+  background: #000000;
+  border-color: #000000;
+  color: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.connector {
+  flex-grow: 1;
+  height: 2px;
+  background: #E5E5E5;
+  margin: 0 0.5rem;
+}
+
+.form {
+  text-align: left;
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #111111;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: #555555;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.input,
+.select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #FFFFFF;
+  border: 1px solid #CCCCCC;
+  border-radius: var(--radius-md);
+  color: #111111;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.input:focus,
+.select:focus {
+  border-color: #000000;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06);
+}

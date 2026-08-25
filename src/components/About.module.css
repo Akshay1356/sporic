@@ -1,0 +1,199 @@
+/* About.module.css */
+.aboutSection {
+  background: var(--bg-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 3rem;
+  align-items: stretch;
+}
+
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  justify-content: space-between;
+}
+
+.flipCardContainer {
+  perspective: 1000px;
+  height: 200px;
+  width: 100%;
+}
+
+.flipCard {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flipCardContainer:hover .flipCard {
+  transform: rotateY(180deg);
+}
+
+.flipCardInner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.flipCardFront,
+.flipCardBack {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.flipCardFront {
+  background: #FFFFFF;
+  border: 1px solid #E5E5E5;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.flipCardBack {
+  background: #111111;
+  border: 1px solid #333333;
+  transform: rotateY(180deg);
+}
+
+.cardTitle {
+  font-family: var(--font-brand);
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #111111;
+  margin-bottom: 1rem;
+}
+
+.flipIndicator {
+  font-family: var(--font-tech);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: #888888;
+  text-transform: uppercase;
+  border: 1px solid #E5E5E5;
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+}
+
+.cardDesc {
+  font-size: 1rem;
+  color: #FFFFFF;
+  text-align: center;
+  line-height: 1.7;
+}
+
+.missionList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+.missionList li {
+  font-size: 0.9rem;
+  color: #DDDDDD;
+  position: relative;
+  padding-left: 1.25rem;
+  line-height: 1.5;
+}
+
+.missionList li::before {
+  content: '▪';
+  position: absolute;
+  left: 0;
+  color: #FFFFFF;
+  font-size: 0.8rem;
+}
+
+.rightCol {
+  display: flex;
+}
+
+.credentialsCard {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #FFFFFF;
+  border: 1px solid #E5E5E5;
+}
+
+.credentialsTitle {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #111111;
+  border-bottom: 1px solid #E5E5E5;
+  padding-bottom: 0.75rem;
+}
+
+.credentialsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+}
+
+.credentialItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.checkIcon {
+  color: #111111;
+  font-weight: bold;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+.credentialText {
+  font-size: 0.92rem;
+  color: #555555;
+}
+
+@media (max-width: 991px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  
+  .leftCol {
+    flex-direction: row;
+    gap: 1.5rem;
+  }
+  
+  .flipCardContainer {
+    height: 180px;
+  }
+}
+
+@media (max-width: 600px) {
+  .leftCol {
+    flex-direction: column;
+  }
+}

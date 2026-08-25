@@ -1,0 +1,128 @@
+/* Login.module.css - Pure White & Crisp Black Theme */
+.loginPage {
+  background: #FFFFFF;
+  min-height: 100vh;
+  padding-top: var(--nav-height);
+  position: relative;
+  overflow: hidden;
+}
+
+.formCard {
+  width: 100%;
+  max-width: 480px;
+  background: #FFFFFF;
+  border: 1px solid #E5E5E5;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-lg);
+}
+
+.form {
+  text-align: left;
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #111111;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: #555555;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.errorBanner {
+  background: #FEF2F2;
+  border: 1px solid #FEE2E2;
+  color: #991B1B;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #555555;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #FFFFFF;
+  border: 1px solid #CCCCCC;
+  border-radius: var(--radius-md);
+  color: #111111;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.input::placeholder {
+  color: #999999;
+}
+
+.input:focus {
+  border-color: #000000;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06);
+}
+
+.actionRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+}
+
+.rememberMe {
+  display: flex;
+  align-items: center;
+  color: #555555;
+  cursor: pointer;
+}
+
+.forgot {
+  color: #111111;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.forgot:hover {
+  text-decoration: underline;
+}
+
+.signupPrompt {
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  color: #666666;
+  text-align: center;
+}
+
+.signupPrompt a {
+  color: #000000;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.signupPrompt a:hover {
+  text-decoration: underline;
+}

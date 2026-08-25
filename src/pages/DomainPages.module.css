@@ -1,0 +1,44 @@
+/* DomainPages.module.css - Pure White & Crisp Black Theme */
+.domainPage {
+  background: #FFFFFF;
+  min-height: 100vh;
+  padding-top: var(--nav-height);
+}
+
+.banner {
+  position: relative;
+  padding: 5rem 0 3rem 0;
+  text-align: center;
+  background: #FAFAFA;
+  border-bottom: 1px solid #E5E5E5;
+  overflow: hidden;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 800;
+  color: #111111;
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: #555555;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.glowOrb,
+.glowOrbCyan,
+.glowOrbViolet {
+  position: absolute;
+  top: -50%;
+  left: 30%;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  filter: blur(120px);
+  background: rgba(0, 0, 0, 0.02);
+  pointer-events: none;
+}
