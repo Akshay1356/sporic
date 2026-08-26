@@ -8,7 +8,7 @@ import styles from './Navbar.module.css';
 const navLinks = [
   { label: 'Home', path: '/' },
   { label: 'About', path: '/about' },
-  { label: 'Courses', path: '/courses' },
+  { label: 'Programs', path: '/courses' },
   { label: 'Technology', path: '/technology' },
   { label: 'Management', path: '/management' },
   { label: 'Leadership', path: '/leadership' },
@@ -21,7 +21,7 @@ export default function Navbar() {
   const scrollY = useScrollPosition();
   const location = useLocation();
   const navigate = useNavigate();
-  const isScrolled = scrollY > 40;
+  const isScrolled = scrollY > 30;
 
   // Check login state on location change
   useEffect(() => {
@@ -55,10 +55,14 @@ export default function Navbar() {
         className={`${styles.navbar} ${isScrolled ? styles.scrolled : ''}`}
         role="banner"
       >
-        <div className={styles.navInner} style={{ paddingLeft: '16px', paddingRight: '24px', maxWidth: '100%' }}>
-          {/* Logo */}
+        <div className={styles.navInner}>
+          {/* Logo & Brand */}
           <Link to="/" className={styles.logo} aria-label="VIT-TEC Home">
             <img src="/vit_logo.png" alt="Vellore Institute of Technology" className={styles.vitLogoImg} />
+            <div className={styles.brandText}>
+              <span className={styles.brandTitle}>VIT-TEC</span>
+              <span className={styles.brandSubtitle}>Technology Enhancement Centre</span>
+            </div>
           </Link>
 
           {/* Desktop nav links */}
@@ -88,10 +92,10 @@ export default function Navbar() {
                     alignItems: 'center',
                     gap: '0.5rem',
                     textDecoration: 'none',
-                    padding: '0.4rem 0.8rem',
+                    padding: '0.45rem 0.9rem',
                     borderRadius: '8px',
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    background: 'rgba(255, 255, 255, 0.12)',
+                    border: '1px solid rgba(255, 255, 255, 0.25)',
                     color: '#fff',
                     fontSize: '0.85rem',
                     fontWeight: '600',
@@ -100,9 +104,9 @@ export default function Navbar() {
                   <span>Hi, {currentUser.name?.split(' ')[0]}</span>
                   <span
                     style={{
-                      padding: '0.1rem 0.4rem',
+                      padding: '0.15rem 0.45rem',
                       borderRadius: '4px',
-                      background: 'var(--accent-violet)',
+                      background: 'var(--primary-light)',
                       fontSize: '0.7rem',
                       fontWeight: '700',
                       textTransform: 'uppercase',
@@ -114,7 +118,7 @@ export default function Navbar() {
                 <button
                   onClick={handleLogout}
                   className="btn btn-ghost"
-                  style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
+                  style={{ padding: '0.45rem 0.9rem', fontSize: '0.85rem', color: '#fff' }}
                 >
                   Logout
                 </button>
@@ -124,8 +128,8 @@ export default function Navbar() {
                 <Link to="/login" className={`btn btn-ghost ${styles.loginBtn}`}>
                   Login
                 </Link>
-                <Link to="/register" className={`btn btn-primary ${styles.registerBtn}`}>
-                  Register
+                <Link to="/register" className={`btn ${styles.applyBtn}`}>
+                  Apply / Enquire
                 </Link>
               </>
             )}
@@ -161,7 +165,7 @@ export default function Navbar() {
           >
             <div className={styles.mobileMenuInner}>
               <div className={styles.mobileMenuHeader}>
-                <img src="/vit_logo.png" alt="Vellore Institute of Technology" className={styles.vitLogoImgMobile} />
+                <img src="/vit_logo.png" alt="Vellore Institute of Technology" style={{ height: '40px' }} />
                 <button
                   className={styles.closeBtn}
                   onClick={() => setMobileOpen(false)}
@@ -208,7 +212,7 @@ export default function Navbar() {
                       Login
                     </Link>
                     <Link to="/register" className={`btn btn-primary ${styles.mobileCTA}`}>
-                      Register
+                      Apply / Enquire
                     </Link>
                   </>
                 )}

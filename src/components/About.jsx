@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import GlassCard from './GlassCard';
+import { Link } from 'react-router-dom';
 import styles from './About.module.css';
 
 const credentials = [
@@ -10,78 +10,86 @@ const credentials = [
   '90+ Courses & 3 Learning Domains',
   '200+ proven Industry solutions',
   '500+ trained Corporates',
-  'Globally recognized advanced technical courses',
+  'Globally recognized technical courses',
   'Well researched learning resources',
-  'Highly Qualified & Dedicated Professionals',
+  'Highly Qualified Professionals',
   'Expertise in Diversified Domains',
-  'Industry Sponsored Centre of Excellence',
-  'Custom Designed Training Programs',
-  'Basics-to-Advanced Levels of Training',
-  'Face-to-Face & Blended mode Training',
+  'Industry Sponsored CoE',
+  'Custom Designed Training',
+  'Basics-to-Advanced Training',
+  'Face-to-Face & Blended mode',
 ];
 
 export default function About() {
   const containerRef = useRef(null);
-  const isInView = useInView(containerRef, { once: true, margin: '-100px' });
-
-  const containerVariants = {
-    hidden: {},
-    visible: {
-      transition: { staggerChildren: 0.1 }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: 'easeOut' }
-    }
-  };
+  const isInView = useInView(containerRef, { once: true, margin: '-80px' });
 
   return (
-    <section className={`section ${styles.aboutSection}`} id="about" ref={containerRef}>
-      <div className="glow-orb glow-blue" style={{ top: '20%', left: '10%', width: '300px', height: '300px' }} />
-      <div className="glow-orb glow-cyan" style={{ bottom: '20%', right: '10%', width: '300px', height: '300px' }} />
-      
+    <section className={styles.aboutSection} id="about" ref={containerRef}>
       <div className="container">
-        <div className={styles.sectionHeader}>
-          <span className="section-label">Institutional Credibility</span>
-          <h2 className="section-title">About VIT-TEC</h2>
-          <p className="section-subtitle">
-            VIT Technology Enhancement Centre is dedicated to upskilling, reskilling, and providing professional development programs aligned with global industry needs.
-          </p>
+        {/* Main Editorial Split */}
+        <div className={styles.aboutGrid}>
+          {/* Left Column: Heading & Story */}
+          <motion.div
+            className={styles.leftCol}
+            initial={{ opacity: 0, x: -30 }}
+            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <span className={styles.eyebrow}>ABOUT VIT-TEC</span>
+            <h2 className={styles.title}>
+              Building Competence.<br />Creating Impact.
+            </h2>
+            <p className={styles.description}>
+              VIT-TEC offers industry-focused programs and solutions designed to bridge
+              the gap between academia and industry. We empower learners and professionals
+              with future-ready skills and technologies.
+            </p>
+            <Link to="/about" className={styles.knowMoreBtn}>
+              Know More About Us →
+            </Link>
+          </motion.div>
+
+          {/* Right Column: Campus Image */}
+          <motion.div
+            className={styles.rightCol}
+            initial={{ opacity: 0, x: 30 }}
+            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }}
+            transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className={styles.imageWrapper}>
+              <img
+                src="https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=1200&auto=format&fit=crop"
+                alt="VIT Campus Architecture"
+                className={styles.campusImg}
+              />
+            </div>
+          </motion.div>
         </div>
 
-        <motion.div 
-          className={styles.grid}
-          variants={containerVariants}
-          initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
-        >
-          {/* Left Column - Vision & Mission Cards */}
-          <div className={styles.leftCol}>
-            <motion.div variants={itemVariants} className={styles.flipCardContainer}>
+        {/* Secondary Subgrid: Vision & Mission 3D Flip Cards + Credentials */}
+        <div className={styles.subGrid}>
+          <div>
+            <div className={styles.flipCardContainer}>
               <div className={styles.flipCard}>
                 <div className={styles.flipCardInner}>
-                  <div className={`${styles.flipCardFront} glass`}>
+                  <div className={styles.flipCardFront}>
                     <h3 className={styles.cardTitle}>Vision</h3>
                     <div className={styles.flipIndicator}>Hover to Reveal</div>
                   </div>
                   <div className={styles.flipCardBack}>
                     <p className={styles.cardDesc}>
-                      Impart skills to enhance performance, productivity and global competence.
+                      Impart skills to enhance performance, productivity and global competence across industries.
                     </p>
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div variants={itemVariants} className={styles.flipCardContainer}>
+            <div className={styles.flipCardContainer}>
               <div className={styles.flipCard}>
                 <div className={styles.flipCardInner}>
-                  <div className={`${styles.flipCardFront} glass`}>
+                  <div className={styles.flipCardFront}>
                     <h3 className={styles.cardTitle}>Mission</h3>
                     <div className={styles.flipIndicator}>Hover to Reveal</div>
                   </div>
@@ -93,24 +101,22 @@ export default function About() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
 
-          {/* Right Column - Credentials list */}
-          <motion.div variants={itemVariants} className={styles.rightCol}>
-            <GlassCard padding="lg" glow className={styles.credentialsCard}>
-              <h3 className={styles.credentialsTitle}>VIT-TEC Credentials</h3>
-              <div className={styles.credentialsGrid}>
-                {credentials.map((cred, idx) => (
-                  <div key={idx} className={styles.credentialItem}>
-                    <span className={styles.checkIcon}>✓</span>
-                    <span className={styles.credentialText}>{cred}</span>
-                  </div>
-                ))}
-              </div>
-            </GlassCard>
-          </motion.div>
-        </motion.div>
+          {/* Credentials Card */}
+          <div className={styles.credentialsCard}>
+            <h3 className={styles.credentialsTitle}>VIT-TEC Credentials &amp; Standards</h3>
+            <div className={styles.credentialsGrid}>
+              {credentials.map((cred, idx) => (
+                <div key={idx} className={styles.credentialItem}>
+                  <span className={styles.checkIcon}>✓</span>
+                  <span className={styles.credentialText}>{cred}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

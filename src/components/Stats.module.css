@@ -1,56 +1,96 @@
-/* Stats.module.css - Pure White & Crisp Black Theme */
-.statsSection {
+/* Stats.module.css - Theme 05 Statistics Strip */
+.statsWrapper {
   position: relative;
-  background: #FAFAFA;
-  border-top: 1px solid #E5E5E5;
-  border-bottom: 1px solid #E5E5E5;
+  z-index: 10;
+  margin-top: -2.5rem;
+  padding: 0 1.5rem;
 }
 
-.grid {
+.statsContainer {
+  max-width: var(--container-max);
+  margin: 0 auto;
+}
+
+.statsCard {
+  background: #FFFFFF;
+  border-radius: var(--radius-lg);
+  border: 1px solid #E4E7EC;
+  box-shadow: 0 12px 32px rgba(11, 42, 111, 0.08);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  padding: 1.75rem 2rem;
   gap: 1.5rem;
 }
 
-.statCard {
-  text-align: center;
-  padding: 2rem 1.5rem;
-  background: #FFFFFF;
-  border: 1px solid #E5E5E5;
-  border-radius: var(--radius-md);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.5rem 1rem;
+  position: relative;
 }
 
-.statValue {
-  font-family: var(--font-tech);
-  font-size: clamp(2rem, 4vw, 3rem);
+.statItem:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 15%;
+  height: 70%;
+  width: 1px;
+  background-color: #E4E7EC;
+}
+
+.iconWrapper {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  background: #EFF6FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1D4ED8;
+  flex-shrink: 0;
+}
+
+.statContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.statNumber {
+  font-family: var(--font-heading);
+  font-size: 2rem;
   font-weight: 800;
-  color: #111111;
-  line-height: 1;
-  margin-bottom: 0.5rem;
+  color: #101828;
+  line-height: 1.1;
 }
 
 .statLabel {
-  font-family: var(--font-heading);
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #111111;
-  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #667085;
+  margin-top: 0.25rem;
 }
 
-.statDesc {
-  font-size: 0.75rem;
-  color: #555555;
-}
-
-@media (max-width: 768px) {
-  .grid {
+@media (max-width: 991px) {
+  .statsWrapper {
+    margin-top: 1.5rem;
+  }
+  .statsCard {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  .statItem:nth-child(2)::after {
+    display: none;
   }
 }
 
-@media (max-width: 420px) {
-  .grid {
+@media (max-width: 580px) {
+  .statsCard {
     grid-template-columns: 1fr;
+    padding: 1.5rem;
+  }
+  .statItem:not(:last-child)::after {
+    display: none;
   }
 }

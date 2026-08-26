@@ -1,14 +1,15 @@
-/* CourseExplorer.module.css - Pure White & Crisp Black Theme */
+/* CourseExplorer.module.css - Theme 05 Deep Navy & White */
 .explorer {
   width: 100%;
 }
 
 .controlsCard {
   background: #FFFFFF;
-  border: 1px solid #E5E5E5;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  border: 1px solid #E4E7EC;
+  box-shadow: 0 4px 20px rgba(11, 42, 111, 0.04);
   border-radius: var(--radius-lg);
   margin-bottom: 2.5rem;
+  padding: 1.5rem;
 }
 
 .controlsGrid {
@@ -26,10 +27,10 @@
 
 .label {
   font-family: var(--font-heading);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #555555;
+  color: #475467;
   font-weight: 700;
 }
 
@@ -44,9 +45,9 @@
   width: 100%;
   padding: 0.75rem 1rem;
   background: #FFFFFF;
-  border: 1px solid #CCCCCC;
+  border: 1px solid #D0D5DD;
   border-radius: var(--radius-md);
-  color: #111111;
+  color: #101828;
   font-family: var(--font-body);
   font-size: 0.875rem;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
@@ -54,30 +55,30 @@
 }
 
 .input::placeholder {
-  color: #999999;
+  color: #98A2B3;
 }
 
 .input:focus,
 .select:focus {
-  border-color: #000000;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06);
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
 }
 
 .select option {
   background: #FFFFFF;
-  color: #111111;
+  color: #101828;
 }
 
 .clearSearch {
   position: absolute;
   right: 0.75rem;
-  color: #888888;
+  color: #98A2B3;
   font-size: 0.75rem;
   cursor: pointer;
 }
 
 .clearSearch:hover {
-  color: #111111;
+  color: #101828;
 }
 
 .clearBtnGroup {
@@ -97,11 +98,11 @@
 }
 
 .countText {
-  font-family: var(--font-tech);
-  font-size: 0.8rem;
+  font-family: var(--font-heading);
+  font-size: 0.825rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #111111;
+  color: var(--primary-light);
   font-weight: 700;
 }
 
@@ -119,17 +120,17 @@
   text-align: center;
   padding: 4rem 2rem;
   background: #FFFFFF;
-  border: 1px solid #E5E5E5;
+  border: 1px solid #E4E7EC;
   border-radius: var(--radius-lg);
 }
 
 .noResults h3 {
   font-size: 1.5rem;
-  color: #111111;
+  color: #101828;
   margin-bottom: 0.5rem;
   font-weight: 800;
 }
 
 .noResults p {
-  color: #555555;
+  color: #667085;
 }

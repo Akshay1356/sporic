@@ -1,18 +1,18 @@
-/* Footer.module.css - High Contrast Deep Black Palette */
+/* Footer.module.css - Theme 05 Deep Navy Institutional Footer */
 .footer {
-  background: #111111;
+  background: #071B4A;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 4.5rem 0 2rem 0;
+  padding: 5rem 0 2rem 0;
   position: relative;
   z-index: 10;
-  color: #CCCCCC;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .topGrid {
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr 1fr;
   gap: 3rem;
-  margin-bottom: 3rem;
+  margin-bottom: 3.5rem;
 }
 
 .infoCol {
@@ -35,28 +35,27 @@
   font-size: 1.5rem;
   font-weight: 800;
   color: #FFFFFF;
-  letter-spacing: 0.03em;
+  letter-spacing: -0.01em;
 }
 
 .logoDot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #FFFFFF;
+  background: #38BDF8;
 }
 
 .logoDesc {
-  font-size: 0.85rem;
-  color: #CCCCCC;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.75);
   line-height: 1.6;
   margin-bottom: 1.5rem;
-  opacity: 0.9;
 }
 
 .address {
-  font-size: 0.82rem;
-  color: #AAAAAA;
-  line-height: 1.5;
+  font-size: 0.825rem;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.55;
 }
 
 .recipient {
@@ -74,7 +73,7 @@
 
 .colTitle {
   font-family: var(--font-heading);
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-weight: 700;
   color: #FFFFFF;
   margin-bottom: 1.25rem;
@@ -86,23 +85,27 @@
   position: absolute;
   bottom: -0.5rem;
   left: 0;
-  width: 32px;
+  width: 28px;
   height: 2px;
-  background: #FFFFFF;
+  background: var(--primary-light);
+  border-radius: 2px;
 }
 
 .linksList {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .linksList li {
-  font-size: 0.85rem;
+  font-size: 0.875rem;
 }
 
 .linksList a {
-  color: #AAAAAA;
+  color: rgba(255, 255, 255, 0.7);
   transition: color var(--transition-fast);
   text-decoration: none;
 }
@@ -116,7 +119,7 @@
   font-size: 0.7rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #888888;
+  color: rgba(255, 255, 255, 0.5);
   margin-right: 0.5rem;
   font-weight: 600;
 }
@@ -124,36 +127,37 @@
 .emailBtn {
   display: inline-block;
   margin-top: 0.5rem;
-  padding: 0.45rem 1.1rem;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 0.5rem 1.1rem;
+  background: rgba(29, 78, 216, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: #FFFFFF !important;
   border-radius: var(--radius-sm);
   font-size: 0.825rem !important;
   font-weight: 600;
+  transition: all var(--transition-fast);
 }
 
 .emailBtn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: #FFFFFF;
+  background: var(--primary-light);
+  border-color: var(--primary-light);
 }
 
 .bottomBar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1.75rem;
 }
 
 .copyright {
-  font-size: 0.8rem;
-  color: #888888;
+  font-size: 0.825rem;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .bottomLinks a {
-  font-size: 0.8rem;
-  color: #888888;
+  font-size: 0.825rem;
+  color: rgba(255, 255, 255, 0.65);
   transition: color var(--transition-fast);
 }
 

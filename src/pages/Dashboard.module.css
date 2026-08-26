@@ -1,10 +1,10 @@
-/* Dashboard.module.css - Pure White & Crisp Black Theme */
+/* Dashboard.module.css - Theme 05 Deep Navy & White */
 .dashboardPage {
   position: relative;
   min-height: calc(100vh - var(--nav-height));
   padding-top: calc(var(--nav-height) + 2rem);
   padding-bottom: 4rem;
-  background: #FFFFFF;
+  background: #F6F8FC;
 }
 
 .header {
@@ -17,9 +17,9 @@
   gap: 0.5rem;
   padding: 0.35rem 0.85rem;
   border-radius: 9999px;
-  background: #F5F5F5;
-  border: 1px solid #E5E5E5;
-  color: #111111;
+  background: #EFF6FF;
+  border: 1px solid #DBEAFE;
+  color: var(--primary-light);
   font-size: 0.85rem;
   font-weight: 600;
   margin-bottom: 0.75rem;
@@ -28,7 +28,7 @@
 .roleTag {
   padding: 0.15rem 0.5rem;
   border-radius: 4px;
-  background: #000000;
+  background: #0B2A6F;
   color: #FFFFFF;
   font-size: 0.75rem;
   font-weight: 700;
@@ -38,13 +38,13 @@
 .title {
   font-size: 2.25rem;
   font-weight: 800;
-  color: #111111;
+  color: #101828;
   margin-bottom: 0.5rem;
   letter-spacing: -0.01em;
 }
 
 .subtitle {
-  color: #555555;
+  color: #667085;
   font-size: 1rem;
   max-width: 800px;
 }
@@ -61,14 +61,15 @@
   flex-direction: column;
   justify-content: space-between;
   background: #FFFFFF;
-  border: 1px solid #E5E5E5;
+  border: 1px solid #E4E7EC;
   border-radius: var(--radius-lg);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 20px rgba(11, 42, 111, 0.04);
+  padding: 1.5rem;
 }
 
 .metricTitle {
   font-size: 0.75rem;
-  color: #888888;
+  color: #667085;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -78,12 +79,12 @@
 .metricValue {
   font-size: 2rem;
   font-weight: 800;
-  color: #111111;
+  color: #101828;
 }
 
 .metricSubtext {
   font-size: 0.8rem;
-  color: #555555;
+  color: #475467;
   font-weight: 500;
   margin-top: 0.25rem;
 }
@@ -91,7 +92,7 @@
 .tabsHeader {
   display: flex;
   gap: 0.5rem;
-  border-bottom: 1px solid #E5E5E5;
+  border-bottom: 1px solid #E4E7EC;
   margin-bottom: 2rem;
   overflow-x: auto;
   padding-bottom: 0;
@@ -102,7 +103,7 @@
   background: transparent;
   border: none;
   border-bottom: 2.5px solid transparent;
-  color: #666666;
+  color: #667085;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -112,14 +113,14 @@
 }
 
 .tabBtn:hover {
-  color: #000000;
-  background: #FAFAFA;
+  color: var(--primary-light);
+  background: #F8FAFC;
 }
 
 .tabBtnActive {
-  color: #000000 !important;
-  border-bottom: 2.5px solid #000000 !important;
-  background: #F5F5F5;
+  color: var(--primary-light) !important;
+  border-bottom: 2.5px solid var(--primary-light) !important;
+  background: #EFF6FF;
   border-radius: 6px 6px 0 0;
   font-weight: 700;
 }
@@ -138,20 +139,20 @@
 .dataTable th,
 .dataTable td {
   padding: 1rem;
-  border-bottom: 1px solid #E5E5E5;
+  border-bottom: 1px solid #E4E7EC;
 }
 
 .dataTable th {
-  color: #666666;
+  color: #475467;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 700;
-  background: #FAFAFA;
+  background: #F6F8FC;
 }
 
 .dataTable td {
-  color: #111111;
+  color: #101828;
   font-size: 0.9rem;
 }
 
@@ -185,7 +186,7 @@
 .modalBackdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(7, 27, 74, 0.6);
   backdrop-filter: blur(4px);
   z-index: 1000;
   display: flex;
@@ -200,7 +201,8 @@
   max-height: 90vh;
   overflow-y: auto;
   background: #FFFFFF;
-  border: 1px solid #E5E5E5;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+  border: 1px solid #E4E7EC;
+  box-shadow: 0 16px 40px rgba(11, 42, 111, 0.15);
   border-radius: var(--radius-lg);
+  padding: 2rem;
 }

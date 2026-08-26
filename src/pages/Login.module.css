@@ -1,19 +1,24 @@
-/* Login.module.css - Pure White & Crisp Black Theme */
+/* Login.module.css - Theme 05 Deep Navy & White */
 .loginPage {
-  background: #FFFFFF;
+  background: #F6F8FC;
   min-height: 100vh;
-  padding-top: var(--nav-height);
+  padding-top: calc(var(--nav-height) + 2rem);
+  padding-bottom: 4rem;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .formCard {
   width: 100%;
   max-width: 480px;
   background: #FFFFFF;
-  border: 1px solid #E5E5E5;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.05);
-  border-radius: var(--radius-lg);
+  border: 1px solid #E4E7EC;
+  box-shadow: 0 16px 40px rgba(11, 42, 111, 0.08);
+  border-radius: var(--radius-xl);
+  padding: 2.5rem;
 }
 
 .form {
@@ -21,16 +26,16 @@
 }
 
 .title {
-  font-size: 1.6rem;
+  font-size: 1.75rem;
   font-weight: 800;
-  color: #111111;
+  color: #101828;
   margin-bottom: 0.5rem;
   text-align: center;
 }
 
 .subtitle {
-  font-size: 0.9rem;
-  color: #555555;
+  font-size: 0.925rem;
+  color: #667085;
   line-height: 1.5;
   margin-bottom: 2rem;
   text-align: center;
@@ -56,20 +61,20 @@
 
 .label {
   font-family: var(--font-heading);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #555555;
+  color: #475467;
 }
 
 .input {
   width: 100%;
   padding: 0.75rem 1rem;
   background: #FFFFFF;
-  border: 1px solid #CCCCCC;
+  border: 1px solid #D0D5DD;
   border-radius: var(--radius-md);
-  color: #111111;
+  color: #101828;
   font-family: var(--font-body);
   font-size: 0.9rem;
   outline: none;
@@ -77,12 +82,12 @@
 }
 
 .input::placeholder {
-  color: #999999;
+  color: #98A2B3;
 }
 
 .input:focus {
-  border-color: #000000;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.06);
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
 }
 
 .actionRow {
@@ -96,12 +101,12 @@
 .rememberMe {
   display: flex;
   align-items: center;
-  color: #555555;
+  color: #667085;
   cursor: pointer;
 }
 
 .forgot {
-  color: #111111;
+  color: var(--primary-light);
   text-decoration: none;
   font-weight: 600;
 }
@@ -113,12 +118,12 @@
 .signupPrompt {
   margin-top: 1.5rem;
   font-size: 0.85rem;
-  color: #666666;
+  color: #667085;
   text-align: center;
 }
 
 .signupPrompt a {
-  color: #000000;
+  color: var(--primary-light);
   text-decoration: none;
   font-weight: 700;
 }

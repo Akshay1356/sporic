@@ -1,10 +1,10 @@
-/* Marquee.module.css */
+/* Marquee.module.css - Theme 05 Deep Navy Palette */
 .marqueeSection {
-  background: #FAFAFA;
+  background: #FFFFFF;
   padding: 3rem 0;
   overflow: hidden;
-  border-top: 1px solid #E5E5E5;
-  border-bottom: 1px solid #E5E5E5;
+  border-top: 1px solid #E4E7EC;
+  border-bottom: 1px solid #E4E7EC;
 }
 
 .wrapper {
@@ -29,7 +29,7 @@
   justify-content: space-around;
   gap: 2rem;
   min-width: 100%;
-  animation: scrollMarquee 25s linear infinite;
+  animation: scrollMarquee 28s linear infinite;
 }
 
 .reverse .group {
@@ -37,11 +37,11 @@
 }
 
 .item {
-  font-family: var(--font-brand);
-  font-size: clamp(1.2rem, 3vw, 2.2rem);
+  font-family: var(--font-heading);
+  font-size: clamp(1.1rem, 2.5vw, 1.8rem);
   font-weight: 800;
   text-transform: uppercase;
-  color: #111111;
+  color: #0B2A6F;
   letter-spacing: 0.05em;
   display: flex;
   align-items: center;
@@ -51,16 +51,14 @@
 }
 
 .item:hover {
-  color: #000000;
-  opacity: 0.7;
+  color: var(--primary-light);
 }
 
 .dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #000000;
-  opacity: 0.4;
+  background: #38BDF8;
 }
 
 @keyframes scrollMarquee {
@@ -73,7 +71,6 @@
   100% { transform: translateX(0); }
 }
 
-/* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   .group {
     animation: none;
