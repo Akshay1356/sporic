@@ -59,8 +59,8 @@ export default function About() {
           >
             <div className={styles.imageWrapper}>
               <img
-                src="https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=1200&auto=format&fit=crop"
-                alt="VIT Campus Architecture"
+                src="/vit_chennai_campus.jpg"
+                alt="VIT University Chennai Campus"
                 className={styles.campusImg}
               />
             </div>
