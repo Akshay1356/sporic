@@ -148,10 +148,22 @@ img {
   padding: 0 1.5rem;
 }
 
+@media (max-width: 580px) {
+  .container {
+    padding: 0 1rem;
+  }
+}
+
 .section {
   padding: var(--section-padding);
   position: relative;
   overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 3.5rem 0;
+  }
 }
 
 .section-alt {
@@ -167,6 +179,12 @@ img {
   text-align: center;
   max-width: 760px;
   margin: 0 auto 3.5rem;
+}
+
+@media (max-width: 768px) {
+  .section-header {
+    margin: 0 auto 2.25rem;
+  }
 }
 
 .section-header-left {
@@ -187,11 +205,12 @@ img {
 }
 
 .section-title {
-  font-size: clamp(2rem, 3.5vw, 2.75rem);
+  font-size: clamp(1.85rem, 5vw, 2.75rem);
   font-weight: 800;
   color: var(--text-primary);
   margin-bottom: 0.85rem;
   letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
 .section-dark .section-title {

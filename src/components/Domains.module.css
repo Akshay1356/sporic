@@ -12,7 +12,7 @@
 
 .title {
   font-family: var(--font-heading);
-  font-size: clamp(2.2rem, 3.5vw, 2.75rem);
+  font-size: clamp(1.85rem, 3.5vw, 2.75rem);
   font-weight: 800;
   color: #101828;
   margin-bottom: 0.75rem;
@@ -142,14 +142,33 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+  .domainsSection {
+    padding: 4rem 0;
+  }
+  .sectionHeader {
+    margin-bottom: 2.25rem;
+  }
   .programsGrid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2rem;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 580px) {
+  .domainsSection {
+    padding: 3rem 0;
+  }
   .programsGrid {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .imageWrapper {
+    height: 160px;
+  }
+  .viewAllBtn {
+    width: 100%;
+    justify-content: center;
   }
 }

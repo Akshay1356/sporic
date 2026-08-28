@@ -15,7 +15,7 @@
 
 .title {
   font-family: var(--font-heading);
-  font-size: clamp(2.2rem, 3.5vw, 2.75rem);
+  font-size: clamp(1.85rem, 3.5vw, 2.75rem);
   font-weight: 800;
   color: #FFFFFF;
   margin-bottom: 0.75rem;
@@ -39,7 +39,7 @@
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-lg);
-  padding: 2.25rem 1.25rem;
+  padding: 2rem 1.25rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -56,8 +56,8 @@
 }
 
 .iconCircle {
-  width: 58px;
-  height: 58px;
+  width: 56px;
+  height: 56px;
   border-radius: 14px;
   background: rgba(29, 78, 216, 0.25);
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -90,12 +90,25 @@
 }
 
 @media (max-width: 768px) {
+  .benefitsSection {
+    padding: 4rem 0;
+  }
+  .sectionHeader {
+    margin-bottom: 2.25rem;
+  }
   .grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  .featureCard {
+    padding: 1.5rem 1rem;
   }
 }
 
 @media (max-width: 480px) {
+  .benefitsSection {
+    padding: 3rem 0;
+  }
   .grid {
     grid-template-columns: 1fr;
   }

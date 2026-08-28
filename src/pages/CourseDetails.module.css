@@ -317,9 +317,26 @@
   .bodyGrid {
     grid-template-columns: 1fr;
     gap: 2rem;
+    padding: 2.5rem 0;
   }
   
   .rightCol {
     position: static;
+  }
+}
+
+@media (max-width: 580px) {
+  .heroSection {
+    padding: 3rem 0 2rem 0;
+  }
+  .title {
+    font-size: 1.65rem;
+  }
+  .desc {
+    font-size: 0.95rem;
+  }
+  .detailCard,
+  .enrollPanel {
+    padding: 1.5rem 1rem;
   }
 }

@@ -32,12 +32,13 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 0.75rem;
   text-decoration: none;
+  max-width: 75%;
 }
 
 .vitLogoImg {
-  height: 44px;
+  height: 42px;
   width: auto;
   object-fit: contain;
 }
@@ -45,6 +46,7 @@
 .brandText {
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .brandTitle {
@@ -54,6 +56,7 @@
   color: #FFFFFF;
   letter-spacing: -0.01em;
   line-height: 1.1;
+  white-space: nowrap;
 }
 
 .brandSubtitle {
@@ -62,16 +65,19 @@
   font-weight: 500;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .desktopNav {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
 }
 
 .navLink {
-  padding: 0.5rem 0.85rem;
+  padding: 0.45rem 0.75rem;
   font-family: var(--font-heading);
   font-size: 0.875rem;
   font-weight: 500;
@@ -101,7 +107,7 @@
 .loginBtn {
   color: #FFFFFF !important;
   font-size: 0.875rem;
-  padding: 0.55rem 1rem;
+  padding: 0.5rem 0.9rem;
 }
 
 .loginBtn:hover {
@@ -112,7 +118,7 @@
   background-color: var(--primary-light) !important;
   color: #FFFFFF !important;
   border: 1px solid var(--primary-light);
-  padding: 0.55rem 1.25rem;
+  padding: 0.5rem 1.15rem;
   font-size: 0.875rem;
   font-weight: 600;
   border-radius: var(--radius-md);
@@ -131,12 +137,12 @@
   display: none;
   flex-direction: column;
   justify-content: space-around;
-  width: 28px;
-  height: 24px;
+  width: 32px;
+  height: 26px;
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 0;
+  padding: 2px;
   z-index: 1001;
 }
 
@@ -149,7 +155,7 @@
 }
 
 .hamOpen1 {
-  transform: rotate(45deg) translate(5px, 6px);
+  transform: rotate(45deg) translate(6px, 6px);
 }
 
 .hamOpen2 {
@@ -157,7 +163,7 @@
 }
 
 .hamOpen3 {
-  transform: rotate(-45deg) translate(5px, -6px);
+  transform: rotate(-45deg) translate(6px, -6px);
 }
 
 /* Mobile Menu */
@@ -166,49 +172,68 @@
   top: 0;
   right: 0;
   bottom: 0;
-  width: 100%;
-  max-width: 320px;
+  width: 85%;
+  max-width: 340px;
   background: #071B4A;
   z-index: 1002;
-  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.4);
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .mobileMenuInner {
-  padding: 2rem 1.5rem;
+  padding: 1.5rem 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
+  min-height: 100%;
 }
 
 .mobileMenuHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 1rem;
 }
 
 .closeBtn {
-  background: transparent;
-  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: #FFFFFF;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
 }
 
+.mobileNavList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
 .mobileNavLink {
-  display: block;
+  display: flex;
+  align-items: center;
   padding: 0.75rem 1rem;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.85);
   border-radius: var(--radius-md);
-  margin-bottom: 0.25rem;
+  text-decoration: none;
+  transition: all var(--transition-fast);
 }
 
 .mobileNavLinkActive {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(29, 78, 216, 0.25);
+  border: 1px solid rgba(29, 78, 216, 0.4);
   color: #FFFFFF !important;
 }
 
@@ -216,19 +241,43 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  margin-top: 1rem;
+  margin-top: auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .mobileCTA {
   width: 100%;
   text-align: center;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
 }
 
 @media (max-width: 991px) {
-  .desktopNav {
-    display: none;
+  .desktopNav,
+  .navActions {
+    display: none !important;
   }
+  
   .hamburger {
     display: flex;
+  }
+
+  .navInner {
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .vitLogoImg {
+    height: 34px;
+  }
+
+  .brandTitle {
+    font-size: 1rem;
+  }
+
+  .brandSubtitle {
+    display: none;
   }
 }

@@ -247,6 +247,32 @@
 }
 
 @media (max-width: 580px) {
+  .registerPage {
+    padding-top: calc(var(--nav-height) + 1rem);
+    padding-bottom: 2.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .formCard {
+    padding: 1.5rem 1rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .stepper {
+    padding: 0;
+    margin-bottom: 1.5rem;
+  }
+
+  .step {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+
   .formGrid {
     grid-template-columns: 1fr;
   }
