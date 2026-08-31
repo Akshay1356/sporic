@@ -1,6 +1,6 @@
 import AboutSection from '../components/About';
 import Benefits from '../components/Benefits';
-import IndustryTraining from '../components/IndustryTraining';
+import CorporateTrainingTable from '../components/CorporateTrainingTable';
 import styles from './About.module.css';
 
 export default function About() {
@@ -20,7 +20,7 @@ export default function About() {
 
       {/* Main Core Components */}
       <AboutSection />
-      <IndustryTraining />
+      <CorporateTrainingTable />
       <Benefits />
     </div>
   );
