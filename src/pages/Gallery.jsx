@@ -59,7 +59,7 @@ export default function Gallery() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
           >
-            <span className="section-label">Corporate Partnerships & Training Cohorts</span>
+            <span className="section-label">Corporate Training & Executive Development</span>
             <h1 className={styles.title}>GALLERY</h1>
             <p className={styles.subtitle}>
               Moments, events and activities at SPORIC
@@ -99,12 +99,12 @@ export default function Gallery() {
                   initial={{ opacity: 0, scale: 0.95, y: 20 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                  transition={{ duration: 0.4, delay: index * 0.06 }}
+                  transition={{ duration: 0.4, delay: index * 0.05 }}
                   className={styles.galleryCard}
                   onClick={() => openLightbox(index)}
                   tabIndex={0}
                   role="button"
-                  aria-label={`View photo: ${photo.title} (${photo.company})`}
+                  aria-label={`View photo: ${photo.title}`}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
@@ -116,7 +116,7 @@ export default function Gallery() {
                   <div className={styles.imageFrame}>
                     <img
                       src={photo.src}
-                      alt={`${photo.title} - ${photo.company}`}
+                      alt={photo.title}
                       className={styles.galleryImg}
                       loading="lazy"
                     />
@@ -132,7 +132,6 @@ export default function Gallery() {
                         </svg>
                       </div>
                       <div className={styles.overlayBottom}>
-                        <span className={styles.overlayCompany}>{photo.company}</span>
                         <span className={styles.overlayCategory}>{photo.category}</span>
                       </div>
                     </div>
@@ -141,10 +140,7 @@ export default function Gallery() {
                   {/* Card Caption Info */}
                   <div className={styles.cardDetails}>
                     <div className={styles.cardMetaRow}>
-                      <span className={styles.companyBadge}>
-                        🏢 {photo.company}
-                      </span>
-                      <span className={styles.categoryTag}>
+                      <span className={styles.categoryBadge}>
                         {photo.category}
                       </span>
                     </div>
@@ -212,16 +208,13 @@ export default function Gallery() {
               >
                 <img
                   src={filteredPhotos[lightboxIndex].src}
-                  alt={`${filteredPhotos[lightboxIndex].title} - ${filteredPhotos[lightboxIndex].company}`}
+                  alt={filteredPhotos[lightboxIndex].title}
                   className={styles.lightboxImg}
                 />
                 
                 {/* Caption Bar */}
                 <div className={styles.captionBar}>
                   <div className={styles.captionMeta}>
-                    <span className={styles.captionCompany}>
-                      🏢 {filteredPhotos[lightboxIndex].company}
-                    </span>
                     <span className={styles.captionTag}>
                       {filteredPhotos[lightboxIndex].category}
                     </span>

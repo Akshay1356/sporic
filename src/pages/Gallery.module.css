@@ -168,17 +168,10 @@
   text-align: left;
 }
 
-.overlayCompany {
-  font-family: var(--font-heading);
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: #FFFFFF;
-}
-
 .overlayCategory {
   font-family: var(--font-heading);
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #38BDF8;
@@ -195,31 +188,21 @@
 
 .cardMetaRow {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.65rem;
-  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
 }
 
-.companyBadge {
-  font-family: var(--font-heading);
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: #0B2A6F;
-  background: #EFF6FF;
-  padding: 0.25rem 0.65rem;
-  border-radius: 6px;
-  border: 1px solid #DBEAFE;
-}
-
-.categoryTag {
+.categoryBadge {
   font-family: var(--font-heading);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #667085;
+  color: var(--primary-light);
+  background: #EFF6FF;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+  border: 1px solid #DBEAFE;
 }
 
 .photoTitle {
@@ -366,24 +349,16 @@
 .captionMeta {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
   margin-bottom: 0.35rem;
-}
-
-.captionCompany {
-  font-family: var(--font-heading);
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: #38BDF8;
 }
 
 .captionTag {
   font-family: var(--font-heading);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: rgba(255, 255, 255, 0.7);
+  color: #38BDF8;
 }
 
 .captionTitle {
