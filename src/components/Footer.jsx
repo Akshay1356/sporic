@@ -43,9 +43,9 @@ export default function Footer() {
             <h4 className={styles.colTitle}>Corporate Solutions</h4>
             <ul className={styles.linksList}>
               <li><Link to="/about">About VIT-TEC</Link></li>
+              <li><Link to="/gallery">Photo Gallery</Link></li>
               <li><Link to="/courses">Custom Executive Training</Link></li>
               <li><Link to="/register">Corporate Enrolment</Link></li>
-              <li><Link to="/courses">Faculty & Expert Led</Link></li>
               <li><Link to="/contact">Industrial Consultancy</Link></li>
               <li><Link to="/contact">Request Training Proposal</Link></li>
             </ul>

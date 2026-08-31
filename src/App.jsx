@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Courses from './pages/Courses';
 import CourseDetails from './pages/CourseDetails';
+import Gallery from './pages/Gallery';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import StudentLogin from './pages/StudentLogin';
@@ -43,6 +44,7 @@ export default function App() {
             <Route path="/about" element={<About />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/courses/:courseId" element={<CourseDetails />} />
+            <Route path="/gallery" element={<Gallery />} />
             
             {/* Redirect deprecated domain pages to courses catalog */}
             <Route path="/technology" element={<Navigate to="/courses" replace />} />
