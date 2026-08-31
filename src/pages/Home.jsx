@@ -1,7 +1,7 @@
 import Hero from '../components/Hero';
 import Stats from '../components/Stats';
 import About from '../components/About';
-import Domains from '../components/Domains';
+import CorporateTrainingGraph from '../components/CorporateTrainingGraph';
 import Marquee from '../components/Marquee';
 import Benefits from '../components/Benefits';
 import Certification from '../components/Certification';
@@ -14,7 +14,7 @@ export default function Home() {
       <Hero />
       <Stats />
       <About />
-      <Domains />
+      <CorporateTrainingGraph />
       <Marquee />
       <Benefits />
       <Certification />

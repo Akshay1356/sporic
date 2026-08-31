@@ -1,0 +1,543 @@
+/* CorporateTrainingGraph.module.css - Theme 05 Deep Navy & White */
+.section {
+  background-color: #F6F8FC;
+  padding: 5.5rem 0;
+  position: relative;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 3.5vw, 2.75rem);
+  font-weight: 800;
+  color: #101828;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1.05rem;
+  color: #667085;
+  font-weight: 500;
+}
+
+/* Main Chart Card */
+.chartCard {
+  background: #FFFFFF;
+  border-radius: var(--radius-xl);
+  border: 1px solid #E4E7EC;
+  box-shadow: 0 12px 36px rgba(11, 42, 111, 0.06);
+  padding: 2.5rem 2.25rem 2rem 2.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Top Legend & Metrics */
+.chartTopBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #E4E7EC;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.legendDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.progDot {
+  background: #0B2A6F;
+}
+
+.amtDot {
+  background: #1D4ED8;
+}
+
+.legendLabel {
+  font-family: var(--font-heading);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #344054;
+}
+
+.summaryBadges {
+  display: flex;
+  gap: 1rem;
+}
+
+.badge {
+  background: #EFF6FF;
+  border: 1px solid #DBEAFE;
+  border-radius: var(--radius-md);
+  padding: 0.45rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.badgeVal {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0B2A6F;
+  line-height: 1.1;
+}
+
+.badgeLabel {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #1D4ED8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Chart Viewport Structure */
+.chartViewport {
+  display: flex;
+  align-items: stretch;
+  height: 380px;
+  position: relative;
+  margin-bottom: 2.5rem;
+  padding-top: 1.5rem;
+}
+
+.yAxisLeft,
+.yAxisRight {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 70px;
+  padding-bottom: 2.5rem;
+  color: #667085;
+  font-family: var(--font-heading);
+  font-size: 0.75rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.yAxisLeft {
+  text-align: right;
+  padding-right: 0.85rem;
+}
+
+.yAxisRight {
+  text-align: left;
+  padding-left: 0.85rem;
+}
+
+.axisTitle {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #475467;
+  margin-bottom: 0.5rem;
+}
+
+.axisTicks {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+/* Central Canvas */
+.chartCanvas {
+  flex-grow: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  border-left: 1px solid #D0D5DD;
+  border-right: 1px solid #D0D5DD;
+  padding: 0 1.5rem;
+}
+
+.gridLines {
+  position: absolute;
+  inset: 0;
+  bottom: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.gridLine {
+  width: 100%;
+  height: 1px;
+  background: #F2F4F7;
+  border-top: 1px dashed #E4E7EC;
+}
+
+.gridLineBase {
+  width: 100%;
+  height: 1px;
+  background: #D0D5DD;
+}
+
+/* Bars Container */
+.barsContainer {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  height: 100%;
+  position: relative;
+  z-index: 2;
+  align-items: flex-end;
+  padding-bottom: 2.5rem;
+}
+
+.yearGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  cursor: pointer;
+  position: relative;
+}
+
+.barsWrapper {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  height: calc(100% - 1.5rem);
+  padding: 0 0.5rem;
+}
+
+.barColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: 45%;
+  max-width: 48px;
+  height: 100%;
+  position: relative;
+}
+
+.barValue {
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+  white-space: nowrap;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.progValue {
+  color: #0B2A6F;
+}
+
+.amtValue {
+  color: #1D4ED8;
+}
+
+.yearGroup:hover .barValue {
+  transform: translateY(-2px);
+}
+
+.bar {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  transition: filter 0.2s ease, transform 0.2s ease;
+  min-height: 4px;
+}
+
+.progBar {
+  background: linear-gradient(180deg, #163B8F 0%, #0B2A6F 100%);
+  box-shadow: 0 4px 12px rgba(11, 42, 111, 0.15);
+}
+
+.amtBar {
+  background: linear-gradient(180deg, #2563EB 0%, #1D4ED8 100%);
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.2);
+}
+
+.yearGroup:hover .bar {
+  filter: brightness(1.1);
+  transform: scaleY(1.02);
+  transform-origin: bottom;
+}
+
+.yearLabel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.yearText {
+  font-family: var(--font-heading);
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: #101828;
+  letter-spacing: 0.02em;
+  background: #F8FAFC;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid #E2E8F0;
+  transition: all 0.2s ease;
+}
+
+.yearGroup:hover .yearText {
+  background: #0B2A6F;
+  color: #FFFFFF;
+  border-color: #0B2A6F;
+}
+
+/* Interactive Floating Tooltip */
+.interactiveTooltip {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  background: rgba(7, 27, 74, 0.95);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1.15rem;
+  color: #FFFFFF;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  z-index: 10;
+  pointer-events: none;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tooltipHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 0.35rem;
+}
+
+.tooltipYear {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #38BDF8;
+}
+
+.tooltipTag {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.tooltipRows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.tooltipRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.tooltipDotProg {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: #38BDF8;
+}
+
+.tooltipDotAmt {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: #60A5FA;
+}
+
+.tooltipLabel {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.tooltipVal {
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-left: auto;
+}
+
+/* Footer & Notes */
+.chartFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #E4E7EC;
+  padding-top: 1.25rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footerNote {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.825rem;
+  color: #667085;
+}
+
+.infoIcon {
+  font-weight: 800;
+  color: var(--primary-light);
+}
+
+.growthTag {
+  font-size: 0.85rem;
+  color: #0B2A6F;
+  background: #EFF6FF;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid #DBEAFE;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 991px) {
+  .section {
+    padding: 4rem 0;
+  }
+
+  .chartCard {
+    padding: 1.75rem 1.25rem 1.5rem 1.25rem;
+  }
+
+  .chartViewport {
+    height: 320px;
+  }
+
+  .barsContainer {
+    gap: 1rem;
+  }
+
+  .barColumn {
+    max-width: 36px;
+  }
+
+  .barValue {
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .section {
+    padding: 3rem 0;
+  }
+
+  .chartTopBar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .legend {
+    gap: 1rem;
+  }
+
+  .summaryBadges {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .badge {
+    flex: 1;
+    align-items: center;
+  }
+
+  .chartViewport {
+    height: 280px;
+  }
+
+  .yAxisLeft,
+  .yAxisRight {
+    width: 48px;
+    font-size: 0.65rem;
+  }
+
+  .chartCanvas {
+    padding: 0 0.5rem;
+  }
+
+  .barsContainer {
+    gap: 0.5rem;
+  }
+
+  .barsWrapper {
+    gap: 0.25rem;
+    padding: 0 0.15rem;
+  }
+
+  .barColumn {
+    max-width: 28px;
+  }
+
+  .barValue {
+    font-size: 0.65rem;
+  }
+
+  .yearText {
+    font-size: 0.72rem;
+    padding: 0.15rem 0.35rem;
+  }
+
+  .interactiveTooltip {
+    top: 0.5rem;
+    right: 0.5rem;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.75rem;
+  }
+
+  .chartFooter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
