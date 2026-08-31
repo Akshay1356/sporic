@@ -263,20 +263,12 @@
   color: #101828;
 }
 
-.trainersList {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.trainerName {
-  font-size: 0.85rem;
+.trainerText {
+  font-size: 0.88rem;
   color: #1E293B;
   font-weight: 500;
-}
-
-.trainerName:hover {
-  color: #0B2A6F;
+  line-height: 1.55;
+  display: block;
 }
 
 .tdTitle {

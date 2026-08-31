@@ -119,13 +119,7 @@ export default function CorporateTrainingTable() {
 
                     {/* Trainers Column */}
                     <td className={styles.tdTrainers}>
-                      <div className={styles.trainersList}>
-                        {row.trainers.split('; ').map((trainer, tIdx) => (
-                          <span key={tIdx} className={styles.trainerName}>
-                            {trainer}
-                          </span>
-                        ))}
-                      </div>
+                      <span className={styles.trainerText}>{row.trainers}</span>
                     </td>
 
                     {/* Title of the Corporate Training Column */}
