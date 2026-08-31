@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
+import crypto from 'crypto';
 
-// In-memory OTP storage for serverless lifespan
-global.__SPORIC_OTPS = global.__SPORIC_OTPS || {};
+const SECRET = process.env.JWT_SECRET || 'sporic_otp_secure_hmac_secret_2026';
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -30,20 +30,18 @@ export default async function handler(req, res) {
 
     const normalizedEmail = email.toLowerCase().trim();
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 10 * 60 * 1000;
 
-    // Store in global memory (10 minutes)
-    global.__SPORIC_OTPS[normalizedEmail] = {
-      otp,
-      purpose,
-      expiresAt: Date.now() + 10 * 60 * 1000,
-    };
+    // Cryptographic stateless token
+    const hash = crypto
+      .createHmac('sha256', SECRET)
+      .update(`${normalizedEmail}:${otp}:${expiresAt}`)
+      .digest('hex');
+    const otpToken = `${hash}.${expiresAt}`;
 
     // Check if SMTP environment credentials exist
     const smtpUser = process.env.SMTP_USER;
     const smtpPass = process.env.SMTP_PASS;
-    const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
-    const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
-    const smtpSecure = smtpPort === 465;
 
     let emailDelivered = false;
     let errorMessage = null;
@@ -102,7 +100,7 @@ export default async function handler(req, res) {
         `;
 
         await transporter.sendMail({
-          from: process.env.SMTP_FROM || `"VIT-TEC SpoRIC" <${smtpUser}>`,
+          from: process.env.SMTP_FROM || `"VIT-TEC SpoRIC" <${cleanUser}>`,
           to: normalizedEmail,
           subject,
           text,
@@ -122,6 +120,7 @@ export default async function handler(req, res) {
         ? `A 6-digit verification code has been sent directly to ${normalizedEmail}. Please check your inbox or spam folder.`
         : `Verification code generated for ${normalizedEmail}. ${errorMessage ? `(SMTP note: ${errorMessage})` : ''}`,
       emailDelivered,
+      otpToken,
       otpPreview: !emailDelivered ? otp : undefined,
     };
 

@@ -74,7 +74,11 @@ class ApiService {
         method: 'POST',
         body: JSON.stringify({ email: normalizedEmail, purpose }),
       });
-      return res.data || res;
+      const data = res.data || res;
+      if (data?.otpToken) {
+        sessionStorage.setItem(`otp_token_${normalizedEmail}`, data.otpToken);
+      }
+      return data;
     } catch (err) {
       if (this.isNetworkError(err)) {
         // Fallback for standalone/Vercel static deployment when backend is not connected
@@ -100,11 +104,12 @@ class ApiService {
   async verifyOtp(email, otp, purpose = 'LOGIN') {
     const normalizedEmail = email.toLowerCase().trim();
     const trimmedOtp = otp.trim();
+    const otpToken = sessionStorage.getItem(`otp_token_${normalizedEmail}`) || undefined;
 
     try {
       const res = await this.request('/auth/verify-otp', {
         method: 'POST',
-        body: JSON.stringify({ email: normalizedEmail, otp: trimmedOtp, purpose }),
+        body: JSON.stringify({ email: normalizedEmail, otp: trimmedOtp, otpToken, purpose }),
       });
       return res.data || res;
     } catch (err) {
@@ -130,11 +135,12 @@ class ApiService {
   async loginWithOtp(email, otp, expectedRole = null) {
     const normalizedEmail = email.toLowerCase().trim();
     const trimmedOtp = otp.trim();
+    const otpToken = sessionStorage.getItem(`otp_token_${normalizedEmail}`) || undefined;
 
     try {
       const res = await this.request('/auth/login-otp', {
         method: 'POST',
-        body: JSON.stringify({ email: normalizedEmail, otp: trimmedOtp, expectedRole }),
+        body: JSON.stringify({ email: normalizedEmail, otp: trimmedOtp, otpToken, expectedRole }),
       });
       const data = res.data || res;
       if (data?.token) {
