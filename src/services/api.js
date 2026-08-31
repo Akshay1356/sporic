@@ -27,7 +27,8 @@ class ApiService {
       err.name === 'TypeError' ||
       err.message?.includes('Failed to fetch') ||
       err.message?.includes('NetworkError') ||
-      err.message?.includes('Load failed')
+      err.message?.includes('Load failed') ||
+      err.message?.includes('Unexpected token')
     );
   }
 
@@ -46,6 +47,15 @@ class ApiService {
       ...options,
       headers,
     });
+
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      const text = await response.text();
+      if (!response.ok) {
+        throw new Error(text.slice(0, 80) || `HTTP error ${response.status}`);
+      }
+      return { success: true, text };
+    }
 
     const data = await response.json();
     if (!response.ok) {
@@ -111,7 +121,7 @@ class ApiService {
           return { verified: true, email: normalizedEmail };
         }
 
-        throw new Error('Invalid or expired OTP code. Use the code shown or 123456.');
+        throw new Error('Invalid or expired OTP code. Use the code sent to your email or 123456.');
       }
       throw err;
     }
