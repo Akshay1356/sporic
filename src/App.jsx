@@ -1,14 +1,11 @@
 import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import About from './pages/About';
 import Courses from './pages/Courses';
 import CourseDetails from './pages/CourseDetails';
-import Technology from './pages/Technology';
-import Management from './pages/Management';
-import Leadership from './pages/Leadership';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import StudentLogin from './pages/StudentLogin';
@@ -46,9 +43,12 @@ export default function App() {
             <Route path="/about" element={<About />} />
             <Route path="/courses" element={<Courses />} />
             <Route path="/courses/:courseId" element={<CourseDetails />} />
-            <Route path="/technology" element={<Technology />} />
-            <Route path="/management" element={<Management />} />
-            <Route path="/leadership" element={<Leadership />} />
+            
+            {/* Redirect deprecated domain pages to courses catalog */}
+            <Route path="/technology" element={<Navigate to="/courses" replace />} />
+            <Route path="/management" element={<Navigate to="/courses" replace />} />
+            <Route path="/leadership" element={<Navigate to="/courses" replace />} />
+            
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/login/student" element={<StudentLogin />} />

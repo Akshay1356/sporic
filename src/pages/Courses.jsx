@@ -7,10 +7,10 @@ export default function Courses() {
       <section className={styles.banner}>
         <div className="grid-bg" style={{ opacity: 0.5 }} />
         <div className="container">
-          <span className="section-label">VIT-TEC Catalog</span>
-          <h1 className={styles.title}>All Available Courses</h1>
+          <span className="section-label">Corporate Training & Executive Education</span>
+          <h1 className={styles.title}>Corporate Training Programs</h1>
           <p className={styles.subtitle}>
-            Filter or search by keyword, domain, category, or mode of learning. All program contents are industry-sponsored or expert-led.
+            Industry-customized executive training and workforce development programs designed to upskill corporate teams with cutting-edge expertise.
           </p>
         </div>
       </section>

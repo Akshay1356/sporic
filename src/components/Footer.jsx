@@ -15,7 +15,7 @@ export default function Footer() {
               <span className={styles.logoDot} />
             </Link>
             <p className={styles.logoDesc}>
-              VIT Technology Enhancement Centre (VIT-TEC) is part of the Sponsored Research & Industrial Consultancy (SpoRIC) division at VIT Chennai.
+              VIT Technology Enhancement Centre (VIT-TEC) is part of the Sponsored Research & Industrial Consultancy (SpoRIC) division at VIT Chennai, specializing in corporate training and executive development.
             </p>
             <div className={styles.address}>
               <p className={styles.recipient}>Dean, SpoRIC</p>
@@ -25,29 +25,29 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Column 2: Domains & Categories */}
+          {/* Column 2: Corporate Training Programs */}
           <div className={styles.linksCol}>
-            <h4 className={styles.colTitle}>Technology Categories</h4>
+            <h4 className={styles.colTitle}>Corporate Programs</h4>
             <ul className={styles.linksList}>
-              <li><Link to="/technology?cat=Industry%204.0">Industry 4.0</Link></li>
-              <li><Link to="/technology?cat=Electric%20Vehicles">Electric Vehicles</Link></li>
-              <li><Link to="/technology?cat=Design">Design Engineering</Link></li>
-              <li><Link to="/technology?cat=Renewable%20Energy">Renewable Energy</Link></li>
-              <li><Link to="/technology?cat=Construction%20Technology">Construction Tech</Link></li>
-              <li><Link to="/technology?cat=Quantum%20Computing">Quantum Computing</Link></li>
+              <li><Link to="/courses?cat=Data%20Science">Data Science & AI</Link></li>
+              <li><Link to="/courses?cat=Cyber%20Security">Cyber Security</Link></li>
+              <li><Link to="/courses?cat=Cloud%20Computing">Cloud Computing</Link></li>
+              <li><Link to="/courses?cat=Artificial%20Intelligence">Machine Learning</Link></li>
+              <li><Link to="/courses?cat=Industry%204.0">Industry 4.0 & IoT</Link></li>
+              <li><Link to="/courses">All Corporate Courses</Link></li>
             </ul>
           </div>
 
-          {/* Column 3: Management */}
+          {/* Column 3: Corporate Solutions */}
           <div className={styles.linksCol}>
-            <h4 className={styles.colTitle}>Management & Leadership</h4>
+            <h4 className={styles.colTitle}>Corporate Solutions</h4>
             <ul className={styles.linksList}>
-              <li><Link to="/management?cat=Operations%20Management">Operations Management</Link></li>
-              <li><Link to="/management?cat=Finance">Financial Management</Link></li>
-              <li><Link to="/management?cat=Marketing">Marketing Strategy</Link></li>
-              <li><Link to="/management?cat=Data%20Science">Data Science for Business</Link></li>
-              <li><Link to="/leadership">Leadership Development</Link></li>
-              <li><Link to="/leadership">Interpersonal Development</Link></li>
+              <li><Link to="/about">About VIT-TEC</Link></li>
+              <li><Link to="/courses">Custom Executive Training</Link></li>
+              <li><Link to="/register">Corporate Enrolment</Link></li>
+              <li><Link to="/courses">Faculty & Expert Led</Link></li>
+              <li><Link to="/contact">Industrial Consultancy</Link></li>
+              <li><Link to="/contact">Request Training Proposal</Link></li>
             </ul>
           </div>
 
