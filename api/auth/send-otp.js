@@ -50,13 +50,14 @@ export default async function handler(req, res) {
 
     if (smtpUser && smtpPass) {
       try {
+        const cleanUser = smtpUser.trim();
+        const cleanPass = smtpPass.trim().replace(/\s+/g, '');
+
         const transporter = nodemailer.createTransport({
-          host: smtpHost,
-          port: smtpPort,
-          secure: smtpSecure,
+          service: 'gmail',
           auth: {
-            user: smtpUser,
-            pass: smtpPass,
+            user: cleanUser,
+            pass: cleanPass,
           },
         });
 
