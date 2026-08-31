@@ -133,7 +133,7 @@
 .cardOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(7, 27, 74, 0.8) 0%, rgba(7, 27, 74, 0.2) 40%, transparent 100%);
+  background: linear-gradient(to top, rgba(7, 27, 74, 0.88) 0%, rgba(7, 27, 74, 0.3) 40%, transparent 100%);
   opacity: 0;
   transition: opacity 0.35s ease;
   display: flex;
@@ -161,10 +161,24 @@
   justify-content: center;
 }
 
+.overlayBottom {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  text-align: left;
+}
+
+.overlayCompany {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+
 .overlayCategory {
   font-family: var(--font-heading);
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #38BDF8;
@@ -179,14 +193,33 @@
   text-align: left;
 }
 
-.categoryBadge {
+.cardMetaRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.companyBadge {
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #0B2A6F;
+  background: #EFF6FF;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid #DBEAFE;
+}
+
+.categoryTag {
   font-family: var(--font-heading);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--primary-light);
-  margin-bottom: 0.4rem;
+  color: #667085;
 }
 
 .photoTitle {
@@ -330,15 +363,27 @@
   text-align: left;
 }
 
+.captionMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.captionCompany {
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #38BDF8;
+}
+
 .captionTag {
   font-family: var(--font-heading);
   font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #38BDF8;
-  display: block;
-  margin-bottom: 0.25rem;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .captionTitle {

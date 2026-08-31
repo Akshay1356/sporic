@@ -59,7 +59,7 @@ export default function Gallery() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
           >
-            <span className="section-label">Moments & Highlights</span>
+            <span className="section-label">Corporate Partnerships & Training Cohorts</span>
             <h1 className={styles.title}>GALLERY</h1>
             <p className={styles.subtitle}>
               Moments, events and activities at SPORIC
@@ -99,12 +99,12 @@ export default function Gallery() {
                   initial={{ opacity: 0, scale: 0.95, y: 20 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                  transition={{ duration: 0.4, delay: index * 0.08 }}
+                  transition={{ duration: 0.4, delay: index * 0.06 }}
                   className={styles.galleryCard}
                   onClick={() => openLightbox(index)}
                   tabIndex={0}
                   role="button"
-                  aria-label={`View photo: ${photo.title}`}
+                  aria-label={`View photo: ${photo.title} (${photo.company})`}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
@@ -116,7 +116,7 @@ export default function Gallery() {
                   <div className={styles.imageFrame}>
                     <img
                       src={photo.src}
-                      alt={photo.title}
+                      alt={`${photo.title} - ${photo.company}`}
                       className={styles.galleryImg}
                       loading="lazy"
                     />
@@ -124,20 +124,30 @@ export default function Gallery() {
                     {/* Subtle Hover Overlay */}
                     <div className={styles.cardOverlay}>
                       <div className={styles.zoomIconWrap}>
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <circle cx="11" cy="11" r="8" />
                           <line x1="21" y1="21" x2="16.65" y2="16.65" />
                           <line x1="11" y1="8" x2="11" y2="14" />
                           <line x1="8" y1="11" x2="14" y2="11" />
                         </svg>
                       </div>
-                      <span className={styles.overlayCategory}>{photo.category}</span>
+                      <div className={styles.overlayBottom}>
+                        <span className={styles.overlayCompany}>{photo.company}</span>
+                        <span className={styles.overlayCategory}>{photo.category}</span>
+                      </div>
                     </div>
                   </div>
 
                   {/* Card Caption Info */}
                   <div className={styles.cardDetails}>
-                    <span className={styles.categoryBadge}>{photo.category}</span>
+                    <div className={styles.cardMetaRow}>
+                      <span className={styles.companyBadge}>
+                        🏢 {photo.company}
+                      </span>
+                      <span className={styles.categoryTag}>
+                        {photo.category}
+                      </span>
+                    </div>
                     <h3 className={styles.photoTitle}>{photo.title}</h3>
                     <p className={styles.photoDesc}>{photo.description}</p>
                   </div>
@@ -202,15 +212,20 @@ export default function Gallery() {
               >
                 <img
                   src={filteredPhotos[lightboxIndex].src}
-                  alt={filteredPhotos[lightboxIndex].title}
+                  alt={`${filteredPhotos[lightboxIndex].title} - ${filteredPhotos[lightboxIndex].company}`}
                   className={styles.lightboxImg}
                 />
                 
                 {/* Caption Bar */}
                 <div className={styles.captionBar}>
-                  <span className={styles.captionTag}>
-                    {filteredPhotos[lightboxIndex].category}
-                  </span>
+                  <div className={styles.captionMeta}>
+                    <span className={styles.captionCompany}>
+                      🏢 {filteredPhotos[lightboxIndex].company}
+                    </span>
+                    <span className={styles.captionTag}>
+                      {filteredPhotos[lightboxIndex].category}
+                    </span>
+                  </div>
                   <h4 className={styles.captionTitle}>
                     {filteredPhotos[lightboxIndex].title}
                   </h4>
