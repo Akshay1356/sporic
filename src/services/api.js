@@ -64,7 +64,7 @@ class ApiService {
         method: 'POST',
         body: JSON.stringify({ email: normalizedEmail, purpose }),
       });
-      return res.data;
+      return res.data || res;
     } catch (err) {
       if (this.isNetworkError(err)) {
         // Fallback for standalone/Vercel static deployment when backend is not connected
@@ -96,7 +96,7 @@ class ApiService {
         method: 'POST',
         body: JSON.stringify({ email: normalizedEmail, otp: trimmedOtp, purpose }),
       });
-      return res.data;
+      return res.data || res;
     } catch (err) {
       if (this.isNetworkError(err)) {
         // Fallback verification
@@ -126,10 +126,11 @@ class ApiService {
         method: 'POST',
         body: JSON.stringify({ email: normalizedEmail, otp: trimmedOtp, expectedRole }),
       });
-      if (res.data?.token) {
-        this.setToken(res.data.token);
+      const data = res.data || res;
+      if (data?.token) {
+        this.setToken(data.token);
       }
-      return res.data;
+      return data;
     } catch (err) {
       if (this.isNetworkError(err)) {
         // Verify OTP first
@@ -159,10 +160,11 @@ class ApiService {
         method: 'POST',
         body: JSON.stringify(registrationData),
       });
-      if (res.data?.token) {
-        this.setToken(res.data.token);
+      const data = res.data || res;
+      if (data?.token) {
+        this.setToken(data.token);
       }
-      return res.data;
+      return data;
     } catch (err) {
       if (this.isNetworkError(err)) {
         const mockUser = {
@@ -198,10 +200,11 @@ class ApiService {
         method: 'POST',
         body: JSON.stringify({ email: normalizedEmail, password, expectedRole }),
       });
-      if (res.data?.token) {
-        this.setToken(res.data.token);
+      const data = res.data || res;
+      if (data?.token) {
+        this.setToken(data.token);
       }
-      return res.data;
+      return data;
     } catch (err) {
       if (this.isNetworkError(err)) {
         // Demo credentials fallback

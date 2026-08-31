@@ -72,9 +72,9 @@ export default function Login() {
       setOtpSent(true);
       setTimer(60);
       setInfoMessage(
-        data.otpPreview
-          ? `${data.message} (Test Code: ${data.otpPreview})`
-          : data.message || `A verification OTP has been dispatched to ${email}`
+        data?.otpPreview
+          ? `${data?.message || 'Verification code sent'} (Test Code: ${data.otpPreview})`
+          : data?.message || `A verification OTP has been dispatched to ${email}`
       );
     } catch (err) {
       setLoading(false);

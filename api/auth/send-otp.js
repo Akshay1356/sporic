@@ -115,13 +115,18 @@ export default async function handler(req, res) {
       }
     }
 
-    return res.status(200).json({
+    const responsePayload = {
       success: true,
       message: emailDelivered
         ? `A 6-digit verification code has been sent directly to ${normalizedEmail}. Please check your inbox or spam folder.`
         : `Verification code generated for ${normalizedEmail}. ${errorMessage ? `(SMTP note: ${errorMessage})` : ''}`,
       emailDelivered,
       otpPreview: !emailDelivered ? otp : undefined,
+    };
+
+    return res.status(200).json({
+      ...responsePayload,
+      data: responsePayload,
     });
   } catch (err) {
     console.error('Serverless send-otp error:', err);
