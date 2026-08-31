@@ -1,6 +1,5 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
-import GlassCard from './GlassCard';
 import styles from './Certification.module.css';
 
 export default function Certification() {
@@ -17,7 +16,7 @@ export default function Certification() {
           <motion.div 
             className={styles.infoCol}
             initial={{ opacity: 0, x: -30 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
           >
             <span className="section-label">Validation of Skills</span>
@@ -43,51 +42,22 @@ export default function Certification() {
             </div>
           </motion.div>
 
-          {/* Right: Certificate Mockup */}
+          {/* Right: Certificate Image */}
           <motion.div 
             className={styles.visualCol}
             initial={{ opacity: 0, scale: 0.95 }}
-            animate={isInView ? { opacity: 1, scale: 1 } : {}}
+            animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
           >
             <div className={styles.certPerspectiveWrap}>
-              <GlassCard glow className={styles.certMockup} padding="xl">
-                {/* Gold Border Shimmer */}
-                <div className={styles.shimmer} />
-                
-                {/* Certificate Content */}
-                <div className={styles.certHeader}>
-                  <div className={styles.vitLogoMock}>
-                    <span className={styles.vitText}>Vellore Institute of Technology</span>
-                    <span className={styles.vitSub}>Chennai Campus</span>
-                  </div>
-                  <span className={styles.certId}>ID: VITTEC-CERT-2026</span>
-                </div>
-
-                <div className={styles.certBody}>
-                  <h3 className={styles.certTitle}>Certificate of Completion</h3>
-                  <p className={styles.certSubText}>This is to certify that the candidate has successfully completed</p>
-                  <div className={styles.coursePlaceholder}>Advanced Technology Enhancement Program</div>
-                  <p className={styles.durationPlaceholder}>conducted by VIT-TEC (Vellore Institute of Technology Training & Education Centre)</p>
-                </div>
-
-                <div className={styles.certFooter}>
-                  <div className={styles.signBlock}>
-                    <div className={styles.line} />
-                    <span>Dean, SpoRIC</span>
-                  </div>
-                  <div className={styles.sealBlock}>
-                    <div className={styles.seal}>
-                      <span>VIT-TEC</span>
-                      <span>SEAL</span>
-                    </div>
-                  </div>
-                  <div className={styles.signBlock}>
-                    <div className={styles.line} />
-                    <span>Programme Coordinator</span>
-                  </div>
-                </div>
-              </GlassCard>
+              <div className={styles.certCard}>
+                <img
+                  src="/vit_certificate.png"
+                  alt="VIT-TEC Certificate of Completion"
+                  className={styles.certImg}
+                  loading="lazy"
+                />
+              </div>
             </div>
           </motion.div>
         </div>
