@@ -1,0 +1,297 @@
+/* About.module.css - Theme 05 About Section */
+.aboutSection {
+  background: #FFFFFF;
+  padding: 6rem 0;
+  position: relative;
+}
+
+.aboutGrid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 3.5rem;
+  align-items: center;
+  margin-bottom: 4rem;
+}
+
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.eyebrow {
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary-light);
+  margin-bottom: 0.75rem;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.85rem, 3.5vw, 3rem);
+  font-weight: 800;
+  color: #101828;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.25rem;
+}
+
+.description {
+  font-size: 1.05rem;
+  color: #667085;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+.knowMoreBtn {
+  background-color: var(--primary-light) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--primary-light);
+  padding: 0.8rem 1.75rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 14px rgba(29, 78, 216, 0.3);
+  transition: all var(--transition-base);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.knowMoreBtn:hover {
+  background-color: #1644B8 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(29, 78, 216, 0.4);
+}
+
+.rightCol {
+  position: relative;
+  width: 100%;
+}
+
+.imageWrapper {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(11, 42, 111, 0.1);
+  border: 1px solid #E4E7EC;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.campusImg {
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.6s ease;
+}
+
+.campusImg:hover {
+  transform: scale(1.03);
+}
+
+/* Vision & Mission + Credentials Subgrid */
+.subGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.flipCardContainer {
+  perspective: 1000px;
+  min-height: 200px;
+  height: 200px;
+  margin-bottom: 1.5rem;
+}
+
+.flipCard {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.flipCardInner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.flipCard:hover .flipCardInner {
+  transform: rotateY(180deg);
+}
+
+.flipCardFront,
+.flipCardBack {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.flipCardFront {
+  background: #F6F8FC;
+  border: 1px solid #E4E7EC;
+  align-items: center;
+}
+
+.cardTitle {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #101828;
+  margin-bottom: 0.5rem;
+}
+
+.flipIndicator {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--primary-light);
+  background: #EFF6FF;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid #DBEAFE;
+}
+
+.flipCardBack {
+  background: #071B4A;
+  color: #FFFFFF;
+  transform: rotateY(180deg);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  text-align: left;
+}
+
+.cardDesc {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.5;
+}
+
+.missionList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.missionList li {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.4;
+  position: relative;
+  padding-left: 1.25rem;
+}
+
+.missionList li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: #38BDF8;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+/* Credentials Card */
+.credentialsCard {
+  background: #FFFFFF;
+  border: 1px solid #E4E7EC;
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(11, 42, 111, 0.04);
+}
+
+.credentialsTitle {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #101828;
+  margin-bottom: 1.25rem;
+}
+
+.credentialsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem 1.5rem;
+}
+
+.credentialItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.checkIcon {
+  color: var(--primary-light);
+  font-weight: 800;
+  font-size: 0.95rem;
+  margin-top: 0.1rem;
+}
+
+.credentialText {
+  font-size: 0.875rem;
+  color: #475467;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+@media (max-width: 991px) {
+  .aboutSection {
+    padding: 4rem 0;
+  }
+  .aboutGrid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .subGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 580px) {
+  .aboutSection {
+    padding: 3rem 0;
+  }
+  .title {
+    font-size: 1.75rem;
+  }
+  .description {
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+  }
+  .knowMoreBtn {
+    width: 100%;
+    justify-content: center;
+  }
+  .credentialsCard {
+    padding: 1.5rem 1rem;
+  }
+  .credentialsGrid {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+  .flipCardContainer {
+    height: 220px;
+  }
+}

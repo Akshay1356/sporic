@@ -1,0 +1,280 @@
+/* Certification.module.css - Theme 05 Deep Navy & White Theme */
+.certSection {
+  background: #FFFFFF;
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid #E4E7EC;
+  border-bottom: 1px solid #E4E7EC;
+  padding: 6rem 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 4rem;
+  align-items: center;
+}
+
+.infoCol {
+  text-align: left;
+}
+
+.description {
+  font-size: 1.05rem;
+  color: #667085;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.featureItem {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--primary-light);
+}
+
+.featureItem h4 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: #101828;
+}
+
+.featureItem p {
+  font-size: 0.88rem;
+  color: #667085;
+}
+
+/* Perspective Mockup */
+.visualCol {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.certPerspectiveWrap {
+  perspective: 1200px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.certMockup {
+  width: 100%;
+  background: #FFFFFF;
+  border: 1.5px solid #0B2A6F;
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(11, 42, 111, 0.1);
+  transform: rotateY(-12deg) rotateX(8deg);
+  transition: transform var(--transition-slow), box-shadow var(--transition-slow);
+  padding: 2rem;
+}
+
+.certMockup:hover {
+  transform: rotateY(-4deg) rotateX(4deg);
+  box-shadow: 0 24px 60px rgba(11, 42, 111, 0.15);
+}
+
+/* Shimmer Light Sweeping */
+.shimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(29, 78, 216, 0.04) 50%,
+    rgba(255, 255, 255, 0) 60%,
+    transparent 100%
+  );
+  animation: sweep 6s infinite linear;
+  pointer-events: none;
+}
+
+@keyframes sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.certHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid #E4E7EC;
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+
+.vitLogoMock {
+  text-align: left;
+}
+
+.vitText {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #0B2A6F;
+  display: block;
+}
+
+.vitSub {
+  font-size: 0.65rem;
+  color: #667085;
+  font-weight: 500;
+}
+
+.certId {
+  font-family: var(--font-tech);
+  font-size: 0.65rem;
+  color: #667085;
+  font-weight: 600;
+}
+
+.certBody {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.certTitle {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #0B2A6F;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.certSubText {
+  font-size: 0.75rem;
+  color: #667085;
+  margin-bottom: 1.5rem;
+}
+
+.coursePlaceholder {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #0B2A6F;
+  background: #EFF6FF;
+  padding: 0.6rem 1.25rem;
+  border-radius: var(--radius-sm);
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  border: 1.5px solid #DBEAFE;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+.durationPlaceholder {
+  font-size: 0.75rem;
+  color: #667085;
+}
+
+.certFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.signBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 130px;
+}
+
+.line {
+  width: 100%;
+  height: 1.5px;
+  background: #0B2A6F;
+  margin-bottom: 0.5rem;
+}
+
+.signBlock span {
+  font-size: 0.65rem;
+  color: #475467;
+  font-weight: 600;
+}
+
+.sealBlock {
+  display: flex;
+  justify-content: center;
+}
+
+.seal {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 2px solid #0B2A6F;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
+  font-weight: 800;
+  color: #0B2A6F;
+  background: #EFF6FF;
+  box-shadow: 0 2px 8px rgba(11, 42, 111, 0.08);
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 991px) {
+  .certSection {
+    padding: 4rem 0;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  .certMockup {
+    transform: none !important;
+  }
+  .certMockup:hover {
+    transform: none !important;
+  }
+}
+
+@media (max-width: 580px) {
+  .certSection {
+    padding: 3rem 0;
+  }
+  .certMockup {
+    padding: 1.25rem;
+  }
+  .certTitle {
+    font-size: 1.25rem;
+  }
+  .coursePlaceholder {
+    font-size: 0.95rem;
+    padding: 0.4rem 0.8rem;
+  }
+  .signBlock {
+    width: 90px;
+  }
+  .signBlock span {
+    font-size: 0.55rem;
+  }
+  .seal {
+    width: 46px;
+    height: 46px;
+    font-size: 0.45rem;
+  }
+}

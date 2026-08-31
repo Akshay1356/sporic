@@ -1,0 +1,392 @@
+// Prisma Schema for SPORIC / VIT-TEC Platform
+// Optimized for SQLite & PostgreSQL compatibility
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ----------------------------------------------------
+// 1. Users & Authentication
+// ----------------------------------------------------
+model User {
+  id            String         @id @default(uuid())
+  googleId      String?        @unique
+  email         String         @unique
+  passwordHash  String?
+  name          String
+  profileImage  String?
+  phone         String?
+  organization  String?
+  department    String?
+  designation   String?
+  role          String         @default("STUDENT") // ADMIN, FACULTY, STUDENT
+  accountStatus String         @default("ACTIVE")  // ACTIVE, INACTIVE, SUSPENDED
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  lastLoginAt   DateTime?
+
+  // Relations
+  enrollments         Enrollment[]
+  payments            Payment[]
+  certificates        Certificate[]
+  notifications       Notification[]
+  coursesInstructed   Course[]             @relation("InstructorCourses")
+  fundingApplications FundingApplication[]
+  researchProjects    ResearchProject[]    @relation("PrincipalInvestigator")
+
+  @@index([email])
+  @@index([role])
+}
+
+model OtpVerification {
+  id        String   @id @default(uuid())
+  email     String
+  otp       String
+  purpose   String   @default("LOGIN") // LOGIN, REGISTER, RESET_PASSWORD
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
+// ----------------------------------------------------
+// 2. Categories & Courses
+// ----------------------------------------------------
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  domain      String   // Technology, Management, Leadership & Personality
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  courses     Course[]
+
+  @@index([domain])
+}
+
+model Course {
+  id                 String              @id @default(uuid())
+  courseCode         String              @unique // e.g. TECH004
+  title              String
+  slug               String              @unique
+  categoryId         String
+  shortDescription   String
+  fullDescription    String?
+  durationHours      Int                 @default(20)
+  trainingMode       String              @default("ONLINE") // ONLINE, OFFLINE, BLENDED
+  price              Float               @default(4999.0)
+  discountPercent    Float               @default(0.0)
+  finalPrice         Float               @default(4999.0)
+  contactEmail       String              @default("deancc.sporic@vit.ac.in")
+  contactPerson      String              @default("Dean, SpoRIC")
+  contactNumber      String              @default("73587 82571")
+  thumbnail          String?
+  banner             String?
+  status             String              @default("PUBLISHED") // DRAFT, PUBLISHED, ARCHIVED
+  certificateEnabled Boolean             @default(true)
+  facultyId          String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  publishedAt        DateTime?
+
+  // Relations
+  category           Category            @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  instructor         User?               @relation("InstructorCourses", fields: [facultyId], references: [id], onDelete: SetNull)
+  objectives         LearningObjective[]
+  modules            Module[]
+  sessions           SessionBatch[]
+  enrollments        Enrollment[]
+  payments           Payment[]
+  certificates       Certificate[]
+
+  @@index([courseCode])
+  @@index([categoryId])
+  @@index([status])
+}
+
+model LearningObjective {
+  id        String   @id @default(uuid())
+  courseId  String
+  content   String
+  type      String   @default("LEARN") // LEARN, FEATURE
+  order     Int      @default(0)
+
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([courseId])
+}
+
+model SessionBatch {
+  id          String       @id @default(uuid())
+  courseId    String
+  batchNumber Int          @default(1)
+  startDate   String       // format: DD-MM-YYYY
+  endDate     String?
+  status      String       @default("UPCOMING") // UPCOMING, ONGOING, COMPLETED
+
+  course      Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrollments Enrollment[]
+
+  @@index([courseId])
+}
+
+model Module {
+  id          String   @id @default(uuid())
+  courseId    String
+  title       String
+  description String?
+  order       Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons     Lesson[]
+
+  @@index([courseId])
+}
+
+model Lesson {
+  id              String   @id @default(uuid())
+  moduleId        String
+  title           String
+  description     String?
+  order           Int      @default(1)
+  contentType     String   @default("TEXT") // VIDEO, DOCUMENT, TEXT, LAB
+  contentUrl      String?
+  textContent     String?
+  durationMinutes Int      @default(30)
+  isFreePreview   Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  module          Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@index([moduleId])
+}
+
+// ----------------------------------------------------
+// 3. Enrollments, Progress & Payments
+// ----------------------------------------------------
+model Enrollment {
+  id               String           @id @default(uuid())
+  studentId        String
+  courseId         String
+  batchId          String?
+  paymentId        String?
+  status           String           @default("ACTIVE") // ACTIVE, COMPLETED, CANCELLED
+  progressPercent  Float            @default(0.0)
+  completedLessons String           @default("[]") // JSON string of lesson IDs
+  enrolledAt       DateTime         @default(now())
+  completedAt      DateTime?
+
+  student          User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course           Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  batch            SessionBatch?    @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  payment          Payment?         @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+
+  @@unique([studentId, courseId])
+  @@index([studentId])
+  @@index([courseId])
+}
+
+model Payment {
+  id                String        @id @default(uuid())
+  studentId         String
+  courseId          String
+  razorpayOrderId   String        @unique
+  razorpayPaymentId String?       @unique
+  razorpaySignature String?
+  amount            Float
+  currency          String        @default("INR")
+  status            String        @default("PENDING") // PENDING, SUCCESS, FAILED, REFUNDED
+  receiptNumber     String        @unique
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  student           User          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course            Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrollments       Enrollment[]
+
+  @@index([studentId])
+  @@index([courseId])
+  @@index([razorpayOrderId])
+}
+
+// ----------------------------------------------------
+// 4. Faculty Funding Opportunities & Applications
+// ----------------------------------------------------
+model FundingOpportunity {
+  id            String               @id @default(uuid())
+  title         String
+  description   String
+  eligibility   String
+  guidelines    String
+  deadline      DateTime
+  fundingAmount Float
+  status        String               @default("OPEN") // OPEN, CLOSED, ARCHIVED
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  applications  FundingApplication[]
+
+  @@index([status])
+}
+
+model FundingApplication {
+  id                    String             @id @default(uuid())
+  applicationNumber     String             @unique // e.g. SPORIC-APP-2026-001
+  facultyId             String
+  fundingOpportunityId  String
+  title                 String
+  researchArea          String
+  problemStatement      String
+  objectives            String
+  methodology           String
+  expectedOutcomes      String
+  durationMonths        Int                @default(12)
+  budget                Float
+  equipmentRequirements String?
+  teamMembers           String?            // JSON string array or text
+  previousResearch      String?
+  patentInformation     String?
+  documentsUrl          String?
+  declarationAccepted   Boolean            @default(true)
+  status                String             @default("DRAFT") // DRAFT, SUBMITTED, UNDER_REVIEW, APPROVED, REJECTED
+  reviewerComments      String?
+  submittedAt           DateTime?
+  reviewedAt            DateTime?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  faculty               User               @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+  fundingOpportunity    FundingOpportunity @relation(fields: [fundingOpportunityId], references: [id], onDelete: Cascade)
+
+  @@index([facultyId])
+  @@index([fundingOpportunityId])
+  @@index([status])
+}
+
+// ----------------------------------------------------
+// 5. Research Projects, Patents & Publications
+// ----------------------------------------------------
+model ResearchProject {
+  id                      String        @id @default(uuid())
+  title                   String
+  description             String
+  researchArea            String
+  principalInvestigatorId String
+  startDate               DateTime
+  endDate                 DateTime?
+  fundingSource           String        @default("SpoRIC Industry Partner")
+  budget                  Float?
+  objectives              String?
+  methodology             String?
+  outcomes                String?
+  status                  String        @default("ONGOING") // ONGOING, COMPLETED
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+
+  principalInvestigator   User          @relation("PrincipalInvestigator", fields: [principalInvestigatorId], references: [id], onDelete: Cascade)
+  publications            Publication[]
+
+  @@index([principalInvestigatorId])
+}
+
+model Patent {
+  id                String       @id @default(uuid())
+  title             String
+  patentNumber      String?      @unique
+  applicationNumber String       @unique
+  filingDate        DateTime
+  grantDate         DateTime?
+  status            String       @default("PENDING") // APPLIED, PENDING, GRANTED, EXPIRED
+  inventors         String       // Comma separated or JSON string
+  assignee          String       @default("Vellore Institute of Technology")
+  abstract          String
+  documentUrl       String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([status])
+  @@index([applicationNumber])
+}
+
+model Publication {
+  id              String           @id @default(uuid())
+  title           String
+  authors         String
+  journalName     String
+  publicationDate DateTime
+  doi             String?          @unique
+  abstract        String?
+  link            String?
+  projectId       String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  project         ResearchProject? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+}
+
+// ----------------------------------------------------
+// 6. Certificates & Verification
+// ----------------------------------------------------
+model Certificate {
+  id                String            @id @default(uuid())
+  certificateNumber String            @unique // e.g. VITTEC-CERT-2026-1001
+  studentId         String
+  courseId          String
+  studentName       String
+  courseName        String
+  issueDate         DateTime          @default(now())
+  verificationHash  String            @unique
+  certificateUrl    String?
+  status            String            @default("VALID") // VALID, REVOKED
+  createdAt         DateTime          @default(now())
+
+  student           User              @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course            Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([certificateNumber])
+  @@index([verificationHash])
+  @@index([studentId])
+}
+
+// ----------------------------------------------------
+// 7. Notifications & Contact Inquiries
+// ----------------------------------------------------
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      String   @default("SYSTEM") // ENROLLMENT, PAYMENT, FUNDING, SYSTEM, ANNOUNCEMENT
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+}
+
+model ContactInquiry {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  status    String   @default("NEW") // NEW, IN_PROGRESS, RESOLVED
+  createdAt DateTime @default(now())
+
+  @@index([status])
+}

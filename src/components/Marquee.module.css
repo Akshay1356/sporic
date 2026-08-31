@@ -1,0 +1,78 @@
+/* Marquee.module.css - Theme 05 Deep Navy Palette */
+.marqueeSection {
+  background: #FFFFFF;
+  padding: 3rem 0;
+  overflow: hidden;
+  border-top: 1px solid #E4E7EC;
+  border-bottom: 1px solid #E4E7EC;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.marquee {
+  display: flex;
+  overflow: hidden;
+  user-select: none;
+  gap: 2rem;
+  width: 100%;
+}
+
+.group {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 2rem;
+  min-width: 100%;
+  animation: scrollMarquee 28s linear infinite;
+}
+
+.reverse .group {
+  animation-name: scrollMarqueeReverse;
+}
+
+.item {
+  font-family: var(--font-heading);
+  font-size: clamp(1.1rem, 2.5vw, 1.8rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #0B2A6F;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  white-space: nowrap;
+  transition: color var(--transition-fast), opacity var(--transition-fast);
+}
+
+.item:hover {
+  color: var(--primary-light);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #38BDF8;
+}
+
+@keyframes scrollMarquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(-100% - 2rem)); }
+}
+
+@keyframes scrollMarqueeReverse {
+  0% { transform: translateX(calc(-100% - 2rem)); }
+  100% { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .group {
+    animation: none;
+  }
+}
