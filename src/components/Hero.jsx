@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import VitTecAnimation from './VitTecAnimation';
 import styles from './Hero.module.css';
 
 export default function Hero() {
@@ -8,7 +9,7 @@ export default function Hero() {
       <div className={styles.heroOverlay} />
       
       <div className={styles.container}>
-        <div className={styles.heroGrid}>
+        <div className={styles.heroCenteredWrapper}>
           <motion.div
             className={styles.heroContent}
             initial={{ opacity: 0, y: 24 }}
@@ -21,29 +22,36 @@ export default function Hero() {
               <span>VIT Technology Enhancement Centre</span>
             </div>
 
-            {/* Large Bold Headline */}
-            <h1 className={styles.headline}>
-              Enhancing Skills.
-              <span className={styles.headlineGradient}>Empowering Minds.</span>
-              Transforming Futures.
-            </h1>
+            {/* Central VIT-TEC Innovation & Technology Animation */}
+            <div className={styles.animationSlot}>
+              <VitTecAnimation />
+            </div>
 
             {/* Supporting Description */}
-            <p className={styles.heroDescription}>
-              Industry-aligned training and research centre driving innovation,
-              employability and excellence.
-            </p>
+            <motion.p
+              className={styles.heroDescription}
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: 'easeOut', delay: 0.3 }}
+            >
+              Industry-aligned training and research centre driving innovation, employability and excellence.
+            </motion.p>
 
             {/* CTAs */}
-            <div className={styles.heroCTAs}>
-              <Link to="/courses" className={styles.ctaPrimary}>
+            <motion.div
+              className={styles.heroCTAs}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: 'easeOut', delay: 0.5 }}
+            >
+              <Link to="/technology" className={styles.ctaPrimary}>
                 Explore Programs
                 <ArrowIcon />
               </Link>
               <Link to="/about" className={styles.ctaSecondary}>
                 Learn More →
               </Link>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </div>

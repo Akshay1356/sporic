@@ -1,22 +1,22 @@
 /* Hero.module.css - Theme 05 Image Focused Hero */
 .hero {
   position: relative;
-  min-height: 85vh;
+  min-height: 88vh;
   display: flex;
   align-items: center;
-  padding-top: calc(var(--nav-height) + 2rem);
-  padding-bottom: 5rem;
+  justify-content: center;
+  padding-top: calc(var(--nav-height) + 2.5rem);
+  padding-bottom: 5.5rem;
   background-color: #071B4A;
   background-image: linear-gradient(
-      90deg,
-      rgba(7, 27, 74, 0.92) 0%,
-      rgba(7, 27, 74, 0.82) 45%,
-      rgba(7, 27, 74, 0.45) 75%,
-      rgba(7, 27, 74, 0.3) 100%
+      180deg,
+      rgba(7, 27, 74, 0.88) 0%,
+      rgba(7, 27, 74, 0.82) 40%,
+      rgba(7, 27, 74, 0.92) 100%
     ),
     url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1800&auto=format&fit=crop');
   background-size: cover;
-  background-position: center right;
+  background-position: center;
   background-repeat: no-repeat;
   overflow: hidden;
 }
@@ -24,7 +24,7 @@
 .heroOverlay {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 20% 40%, rgba(29, 78, 216, 0.18) 0%, transparent 60%);
+  background: radial-gradient(circle at 50% 45%, rgba(29, 78, 216, 0.22) 0%, transparent 65%);
   pointer-events: none;
 }
 
@@ -37,33 +37,38 @@
   z-index: 2;
 }
 
-.heroGrid {
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 3rem;
+.heroCenteredWrapper {
+  display: flex;
+  justify-content: center;
   align-items: center;
+  width: 100%;
 }
 
 .heroContent {
-  max-width: 720px;
-  text-align: left;
+  width: 100%;
+  max-width: 1040px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.35rem 0.85rem;
+  padding: 0.35rem 0.95rem;
   border-radius: var(--radius-sm);
   background: rgba(29, 78, 216, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   color: #FFFFFF;
   font-family: var(--font-heading);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
 }
 
 .eyebrowDot {
@@ -72,47 +77,45 @@
   border-radius: 50%;
   background: #38BDF8;
   display: inline-block;
+  box-shadow: 0 0 8px #38BDF8;
 }
 
-.headline {
-  font-family: var(--font-heading);
-  font-size: clamp(2rem, 5vw, 3.8rem);
-  font-weight: 800;
-  color: #FFFFFF;
-  line-height: 1.18;
-  letter-spacing: -0.025em;
-  margin-bottom: 1.25rem;
-}
-
-.headlineGradient {
-  color: #FFFFFF;
-  display: block;
+.animationSlot {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0.5rem;
 }
 
 .heroDescription {
-  font-size: clamp(1rem, 1.25vw, 1.15rem);
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1.65;
-  margin-bottom: 2rem;
-  max-width: 580px;
+  font-size: clamp(1.05rem, 1.35vw, 1.25rem);
+  color: rgba(255, 255, 255, 0.92);
+  line-height: 1.6;
+  margin: 0.5rem auto 2rem auto;
+  max-width: 680px;
+  text-align: center;
+  font-weight: 400;
+  text-shadow: 0 2px 12px rgba(7, 27, 74, 0.6);
 }
 
 .heroCTAs {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  justify-content: center;
+  gap: 1.25rem;
   flex-wrap: wrap;
 }
 
 .ctaPrimary {
-  background-color: var(--primary-light);
+  background-color: var(--primary-light, #1D4ED8);
   color: #FFFFFF !important;
-  border: 1px solid var(--primary-light);
-  padding: 0.8rem 1.6rem;
-  font-size: 0.95rem;
+  border: 1px solid var(--primary-light, #1D4ED8);
+  padding: 0.85rem 1.8rem;
+  font-size: 0.98rem;
   font-weight: 600;
   border-radius: var(--radius-md);
-  box-shadow: 0 4px 16px rgba(29, 78, 216, 0.4);
+  box-shadow: 0 4px 18px rgba(29, 78, 216, 0.45);
   transition: all var(--transition-base);
   display: inline-flex;
   align-items: center;
@@ -123,15 +126,15 @@
   background-color: #1644B8;
   border-color: #1644B8;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(29, 78, 216, 0.5);
+  box-shadow: 0 6px 24px rgba(29, 78, 216, 0.55);
 }
 
 .ctaSecondary {
   background-color: rgba(255, 255, 255, 0.08);
   color: #FFFFFF !important;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 0.8rem 1.6rem;
-  font-size: 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  padding: 0.85rem 1.8rem;
+  font-size: 0.98rem;
   font-weight: 600;
   border-radius: var(--radius-md);
   backdrop-filter: blur(8px);
@@ -143,7 +146,7 @@
 
 .ctaSecondary:hover {
   background-color: #FFFFFF;
-  color: var(--primary-dark) !important;
+  color: var(--primary-dark, #071B4A) !important;
   border-color: #FFFFFF;
   transform: translateY(-2px);
 }
@@ -151,24 +154,19 @@
 @media (max-width: 991px) {
   .hero {
     min-height: auto;
-    padding-top: calc(var(--nav-height) + 2.5rem);
+    padding-top: calc(var(--nav-height) + 2rem);
     padding-bottom: 4.5rem;
-    background-image: linear-gradient(
-        180deg,
-        rgba(7, 27, 74, 0.94) 0%,
-        rgba(7, 27, 74, 0.88) 100%
-      ),
-      url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1800&auto=format&fit=crop');
   }
-
-  .heroGrid {
-    grid-template-columns: 1fr;
+  .heroDescription {
+    font-size: 1.05rem;
+    max-width: 580px;
+    margin-bottom: 1.75rem;
   }
 }
 
 @media (max-width: 580px) {
   .hero {
-    padding-top: calc(var(--nav-height) + 1.5rem);
+    padding-top: calc(var(--nav-height) + 1.25rem);
     padding-bottom: 3.5rem;
   }
 
@@ -177,19 +175,16 @@
   }
 
   .eyebrow {
-    font-size: 0.72rem;
-    padding: 0.25rem 0.65rem;
-    margin-bottom: 1rem;
-  }
-
-  .headline {
-    font-size: 1.85rem;
-    line-height: 1.22;
+    font-size: 0.74rem;
+    padding: 0.28rem 0.75rem;
+    margin-bottom: 0.5rem;
   }
 
   .heroDescription {
     font-size: 0.95rem;
-    margin-bottom: 1.5rem;
+    line-height: 1.5;
+    margin: 0.25rem auto 1.5rem auto;
+    padding: 0 0.5rem;
   }
 
   .heroCTAs {
@@ -201,7 +196,8 @@
   .ctaPrimary,
   .ctaSecondary {
     width: 100%;
+    max-width: 320px;
     justify-content: center;
-    padding: 0.75rem 1.25rem;
+    padding: 0.8rem 1.25rem;
   }
 }

@@ -648,21 +648,58 @@ export const courses = [
   },
 ];
 
+// Helper to get all combined courses (pre-seeded + admin-created)
+export function getAllCourses() {
+  if (typeof window === 'undefined') return courses;
+  try {
+    const customCourses = JSON.parse(localStorage.getItem('sporic_custom_courses') || '[]');
+    if (!Array.isArray(customCourses) || customCourses.length === 0) return courses;
+    const customIds = new Set(customCourses.map(c => c.id));
+    return [...customCourses, ...courses.filter(c => !customIds.has(c.id))];
+  } catch {
+    return courses;
+  }
+}
+
+export function saveNewCourse(courseData) {
+  if (typeof window === 'undefined') return;
+  try {
+    const customCourses = JSON.parse(localStorage.getItem('sporic_custom_courses') || '[]');
+    const updated = [courseData, ...customCourses.filter(c => c.id !== courseData.id)];
+    localStorage.setItem('sporic_custom_courses', JSON.stringify(updated));
+    return updated;
+  } catch (e) {
+    console.warn('Error saving custom course:', e);
+  }
+}
+
+export function deleteCustomCourse(courseId) {
+  if (typeof window === 'undefined') return;
+  try {
+    const customCourses = JSON.parse(localStorage.getItem('sporic_custom_courses') || '[]');
+    const updated = customCourses.filter(c => c.id !== courseId);
+    localStorage.setItem('sporic_custom_courses', JSON.stringify(updated));
+    return updated;
+  } catch (e) {
+    console.warn('Error deleting custom course:', e);
+  }
+}
+
 // Helper functions
 export function getCourseById(id) {
-  return courses.find(c => c.id === id);
+  return getAllCourses().find(c => c.id === id);
 }
 
 export function getCoursesByDomain(domain) {
-  return courses.filter(c => c.domain === domain);
+  return getAllCourses().filter(c => c.domain === domain);
 }
 
 export function getCoursesByCategory(category) {
-  return courses.filter(c => c.category === category);
+  return getAllCourses().filter(c => c.category === category);
 }
 
 export function filterCourses({ search = '', domain = '', category = '', mode = '' }) {
-  return courses.filter(course => {
+  return getAllCourses().filter(course => {
     const matchesSearch =
       !search ||
       course.title.toLowerCase().includes(search.toLowerCase()) ||

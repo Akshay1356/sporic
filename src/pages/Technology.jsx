@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { courses, DOMAINS } from '../data/courses';
+import { getAllCourses, DOMAINS } from '../data/courses';
 import CourseCard from '../components/CourseCard';
 import styles from './Courses.module.css';
 
@@ -10,7 +10,7 @@ export default function Technology() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const techCourses = useMemo(() => {
-    return courses.filter((c) => c.domain === DOMAINS.TECHNOLOGY);
+    return getAllCourses().filter((c) => c.domain === DOMAINS.TECHNOLOGY);
   }, []);
 
   const subcategories = useMemo(() => {

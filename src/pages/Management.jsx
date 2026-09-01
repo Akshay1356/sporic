@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { courses, DOMAINS } from '../data/courses';
+import { getAllCourses, DOMAINS } from '../data/courses';
 import CourseCard from '../components/CourseCard';
 import styles from './Courses.module.css';
 
@@ -9,7 +9,7 @@ export default function Management() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const mgmtCourses = useMemo(() => {
-    return courses.filter((c) => c.domain === DOMAINS.MANAGEMENT);
+    return getAllCourses().filter((c) => c.domain === DOMAINS.MANAGEMENT);
   }, []);
 
   const subcategories = useMemo(() => {
