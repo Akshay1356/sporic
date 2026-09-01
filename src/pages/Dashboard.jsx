@@ -1,30 +1,33 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import GlassCard from '../components/GlassCard';
-import { getAllCourses, saveNewCourse, deleteCustomCourse, DOMAINS, CATEGORIES, TRAINING_MODES } from '../data/courses';
+import { getAllCourses, saveNewCourse, deleteCustomCourse, DOMAINS } from '../data/courses';
+import { getAllGalleryItems, saveGalleryItem, updateGalleryItem, deleteGalleryItem, GALLERY_CATEGORIES } from '../data/galleryData';
 import api from '../services/api';
 import styles from './Dashboard.module.css';
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') === 'gallery' ? 'gallery' : 'courses';
+
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('courses');
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   // Data states
   const [analytics, setAnalytics] = useState(null);
   const [coursesList, setCoursesList] = useState([]);
+  const [galleryList, setGalleryList] = useState([]);
   const [usersList, setUsersList] = useState([]);
   const [paymentsList, setPaymentsList] = useState([]);
   const [studentDashboard, setStudentDashboard] = useState(null);
 
-  // Edit course modal state
+  // Course edit / add modal states
   const [editingCourse, setEditingCourse] = useState(null);
   const [editPrice, setEditPrice] = useState('');
   const [editStatus, setEditStatus] = useState('PUBLISHED');
   const [actionSuccess, setActionSuccess] = useState('');
-
-  // Add course modal state (ADMIN ONLY)
   const [showAddModal, setShowAddModal] = useState(false);
   const [newCourse, setNewCourse] = useState({
     id: '',
@@ -42,6 +45,17 @@ export default function Dashboard() {
     contactEmail: 'deancc.sporic@vit.ac.in',
     contactNumber: '73587 82571',
   });
+
+  // Gallery CMS modal states (ADMIN ONLY)
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [editingPhoto, setEditingPhoto] = useState(null);
+  const [photoTitle, setPhotoTitle] = useState('');
+  const [photoDesc, setPhotoDesc] = useState('');
+  const [photoCategory, setPhotoCategory] = useState('Corporate Training');
+  const [photoImagePreview, setPhotoImagePreview] = useState('');
+  const [photoError, setPhotoError] = useState('');
+  const [photoSaving, setPhotoSaving] = useState(false);
+  const [deletingPhotoItem, setDeletingPhotoItem] = useState(null);
 
   const refreshCourses = () => {
     const all = getAllCourses();
@@ -63,8 +77,14 @@ export default function Dashboard() {
     setCoursesList(formatted);
   };
 
+  const refreshGallery = () => {
+    const allPhotos = getAllGalleryItems();
+    setGalleryList(allPhotos);
+  };
+
   useEffect(() => {
     refreshCourses();
+    refreshGallery();
   }, []);
 
   useEffect(() => {
@@ -119,6 +139,7 @@ export default function Dashboard() {
         if (usersRes?.data) setUsersList(usersRes.data);
         if (paymentsRes?.data) setPaymentsList(paymentsRes.data);
         refreshCourses();
+        refreshGallery();
       } catch (e) {
         console.warn('Admin data load warning:', e.message);
       }
@@ -132,6 +153,7 @@ export default function Dashboard() {
     }
   }
 
+  // --- COURSE ACTIONS ---
   const handleUpdateCourse = (e) => {
     e.preventDefault();
     if (!editingCourse) return;
@@ -161,7 +183,6 @@ export default function Dashboard() {
       return;
     }
 
-    // Auto-generate course ID if not provided
     let generatedId = newCourse.id.trim().toUpperCase();
     if (!generatedId) {
       const prefix =
@@ -212,24 +233,6 @@ export default function Dashboard() {
 
     setActionSuccess(`✓ Course '${courseRecord.title}' (${courseRecord.id}) published to ${courseRecord.domain} department!`);
     setTimeout(() => setActionSuccess(''), 5000);
-
-    // Reset form
-    setNewCourse({
-      id: '',
-      title: '',
-      shortDescription: '',
-      domain: DOMAINS.TECHNOLOGY,
-      category: 'Industry 4.0',
-      hours: 20,
-      mode: 'online',
-      price: 4999,
-      startDate: '15-10-2026',
-      learn: 'Hands-on live industry projects, Real-world case study analysis, Emerging technical tool proficiency, SpoRIC certified completion credential',
-      modules: 'Fundamentals & Industry Architecture, Core Implementation & Design, Advanced Integration & Testing, Capstone Evaluation Project',
-      contactPerson: 'Dean, SpoRIC',
-      contactEmail: 'deancc.sporic@vit.ac.in',
-      contactNumber: '73587 82571',
-    });
   };
 
   const handleDeleteCourse = (courseId) => {
@@ -241,7 +244,159 @@ export default function Dashboard() {
     }
   };
 
-  // Category choices based on selected domain
+  // --- GALLERY CMS ACTIONS (ADMIN ONLY) ---
+  const handleOpenAddPhoto = () => {
+    setEditingPhoto(null);
+    setPhotoTitle('');
+    setPhotoDesc('');
+    setPhotoCategory('Corporate Training');
+    setPhotoImagePreview('');
+    setPhotoError('');
+    setShowPhotoModal(true);
+  };
+
+  const handleOpenEditPhoto = (photo) => {
+    setEditingPhoto(photo);
+    setPhotoTitle(photo.title || '');
+    setPhotoDesc(photo.description || '');
+    setPhotoCategory(photo.category || 'Corporate Training');
+    setPhotoImagePreview(photo.src || photo.imageUrl || '');
+    setPhotoError('');
+    setShowPhotoModal(true);
+  };
+
+  const compressImageFile = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target.result;
+        img.onload = () => {
+          const maxWidth = 1200;
+          const maxHeight = 900;
+          let { width, height } = img;
+
+          if (width > maxWidth || height > maxHeight) {
+            if (width > height) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            } else {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Compress to web-friendly JPEG data url (quality 0.82)
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+          resolve(compressedDataUrl);
+        };
+        img.onerror = (err) => reject(err);
+      };
+      reader.onerror = (err) => reject(err);
+    });
+  };
+
+  const handleImageFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      setPhotoError('Unsupported file format. Please upload JPG, PNG, or WEBP images.');
+      return;
+    }
+
+    // Validate file size (up to 12MB)
+    if (file.size > 12 * 1024 * 1024) {
+      setPhotoError('Image size exceeds 12MB limit. Please select a smaller photo.');
+      return;
+    }
+
+    setPhotoError('');
+    try {
+      const compressed = await compressImageFile(file);
+      setPhotoImagePreview(compressed);
+    } catch (err) {
+      setPhotoError('Failed to process image file. Please try another image.');
+    }
+  };
+
+  const handleSavePhotoSubmit = async (e) => {
+    e.preventDefault();
+    if (!photoImagePreview) {
+      setPhotoError('Please upload an image or provide an image URL.');
+      return;
+    }
+    if (!photoDesc.trim()) {
+      setPhotoError('Please enter a description for the photo.');
+      return;
+    }
+
+    setPhotoSaving(true);
+    setPhotoError('');
+
+    try {
+      if (editingPhoto) {
+        // Edit existing
+        const updated = updateGalleryItem(editingPhoto.id, {
+          title: photoTitle.trim() || 'Corporate Training Activity',
+          description: photoDesc.trim(),
+          category: photoCategory,
+          src: photoImagePreview,
+          imageUrl: photoImagePreview,
+        });
+        await api.updateGalleryItem(editingPhoto.id, updated).catch(() => null);
+        setActionSuccess('Photo updated successfully.');
+      } else {
+        // Create new
+        const newRecord = {
+          id: `gal_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+          title: photoTitle.trim() || 'Corporate Training Activity',
+          description: photoDesc.trim(),
+          category: photoCategory,
+          src: photoImagePreview,
+          imageUrl: photoImagePreview,
+          createdAt: new Date().toISOString(),
+          createdBy: user?.email || 'admin.sporic@vit.ac.in',
+        };
+        saveGalleryItem(newRecord);
+        await api.addGalleryItem(newRecord).catch(() => null);
+        setActionSuccess('Photo added successfully. Visible on /gallery immediately.');
+      }
+
+      refreshGallery();
+      setShowPhotoModal(false);
+      setTimeout(() => setActionSuccess(''), 5000);
+    } catch (err) {
+      setPhotoError(err.message || 'Failed to save gallery photo.');
+    } finally {
+      setPhotoSaving(false);
+    }
+  };
+
+  const handleConfirmDeletePhoto = async () => {
+    if (!deletingPhotoItem) return;
+    try {
+      deleteGalleryItem(deletingPhotoItem.id);
+      await api.deleteGalleryItem(deletingPhotoItem.id).catch(() => null);
+      refreshGallery();
+      setActionSuccess('Photo deleted successfully.');
+      setDeletingPhotoItem(null);
+      setTimeout(() => setActionSuccess(''), 4000);
+    } catch (err) {
+      alert(`Failed to delete photo: ${err.message}`);
+    }
+  };
+
+  // Category choices based on selected domain for courses
   const getCategoryOptions = () => {
     if (newCourse.domain === DOMAINS.TECHNOLOGY) {
       return [
@@ -294,14 +449,14 @@ export default function Dashboard() {
           </h1>
           <p className={styles.subtitle}>
             {user.role === 'ADMIN'
-              ? 'Add and publish courses across departments, inspect student enrolments, track payments, and direct platform security.'
+              ? 'Manage courses, publish gallery moments, inspect student enrolments, track payments, and direct platform security.'
               : 'Track active course progress, complete learning modules, and access verified certificates.'}
           </p>
         </div>
 
         {actionSuccess && (
           <div style={{ padding: '1rem', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid #10b981', color: '#10b981', marginBottom: '1.5rem', fontWeight: 600 }}>
-            {actionSuccess}
+            ✓ {actionSuccess}
           </div>
         )}
 
@@ -319,15 +474,15 @@ export default function Dashboard() {
               </GlassCard>
 
               <GlassCard className={styles.metricCard} padding="md">
-                <span className={styles.metricTitle}>Registered Students</span>
-                <span className={styles.metricValue}>{analytics?.users?.totalStudents || usersList.length || 14}</span>
-                <span className={styles.metricSubtext}>Active learners</span>
+                <span className={styles.metricTitle}>Active Courses</span>
+                <span className={styles.metricValue}>{coursesList.length}</span>
+                <span className={styles.metricSubtext}>Across 3 Departments</span>
               </GlassCard>
 
               <GlassCard className={styles.metricCard} padding="md">
-                <span className={styles.metricTitle}>Active Published Courses</span>
-                <span className={styles.metricValue}>{coursesList.length}</span>
-                <span className={styles.metricSubtext}>Across 3 Departments</span>
+                <span className={styles.metricTitle}>Gallery Photos</span>
+                <span className={styles.metricValue}>{galleryList.length}</span>
+                <span className={styles.metricSubtext}>Published Moments</span>
               </GlassCard>
 
               <GlassCard className={styles.metricCard} padding="md">
@@ -346,6 +501,12 @@ export default function Dashboard() {
                 📚 Course Catalog ({coursesList.length})
               </button>
               <button
+                className={`${styles.tabBtn} ${activeTab === 'gallery' ? styles.tabBtnActive : ''}`}
+                onClick={() => setActiveTab('gallery')}
+              >
+                🖼️ Gallery Management ({galleryList.length})
+              </button>
+              <button
                 className={`${styles.tabBtn} ${activeTab === 'users' ? styles.tabBtnActive : ''}`}
                 onClick={() => setActiveTab('users')}
               >
@@ -359,7 +520,7 @@ export default function Dashboard() {
               </button>
             </div>
 
-            {/* TAB 1: Courses Management & Add Course Button */}
+            {/* TAB 1: Courses Management */}
             {activeTab === 'courses' && (
               <GlassCard padding="lg">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -453,7 +614,101 @@ export default function Dashboard() {
               </GlassCard>
             )}
 
-            {/* TAB 2: User Management */}
+            {/* TAB 2: GALLERY CMS MANAGEMENT (ADMIN ONLY) */}
+            {activeTab === 'gallery' && (
+              <GlassCard padding="lg">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div>
+                    <h3 style={{ color: '#111111', fontSize: '1.25rem', fontWeight: 700 }}>Gallery Management</h3>
+                    <p style={{ color: '#667085', fontSize: '0.85rem' }}>
+                      Publish, edit, and organize official training moments. Uploaded photos appear dynamically on <strong>/gallery</strong>.
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.75rem' }}>
+                    <Link
+                      to="/gallery"
+                      target="_blank"
+                      className="btn btn-secondary"
+                      style={{ padding: '0.6rem 1.1rem', fontSize: '0.88rem' }}
+                    >
+                      View Live Gallery ↗
+                    </Link>
+                    <button
+                      className="btn btn-primary"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.25rem', fontWeight: 700 }}
+                      onClick={handleOpenAddPhoto}
+                    >
+                      <span>➕</span> Add New Photo
+                    </button>
+                  </div>
+                </div>
+
+                <div className={styles.tableWrapper}>
+                  <table className={styles.dataTable}>
+                    <thead>
+                      <tr>
+                        <th style={{ width: '80px' }}>Thumbnail</th>
+                        <th>Title & Description</th>
+                        <th>Category</th>
+                        <th>Date Added</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {galleryList.map((photo) => (
+                        <tr key={photo.id}>
+                          <td>
+                            <div style={{ width: '64px', height: '48px', borderRadius: '6px', overflow: 'hidden', background: '#F2F4F7', border: '1px solid #EAECF0' }}>
+                              <img
+                                src={photo.src || photo.imageUrl}
+                                alt={photo.title}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                              />
+                            </div>
+                          </td>
+                          <td>
+                            <div style={{ fontWeight: 600, color: '#101828', marginBottom: '0.2rem' }}>
+                              {photo.title || 'Corporate Training Moment'}
+                            </div>
+                            <div style={{ fontSize: '0.78rem', color: '#667085', maxWidth: '420px', lineHeight: 1.4 }}>
+                              {photo.description}
+                            </div>
+                          </td>
+                          <td>
+                            <span style={{ fontSize: '0.78rem', color: '#0B2A6F', background: '#EFF6FF', padding: '0.25rem 0.6rem', borderRadius: '4px', fontWeight: 600, border: '1px solid #BFDBFE' }}>
+                              {photo.category}
+                            </span>
+                          </td>
+                          <td style={{ fontSize: '0.8rem', color: '#475467' }}>
+                            {photo.createdAt ? new Date(photo.createdAt).toLocaleDateString() : 'Active'}
+                          </td>
+                          <td>
+                            <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                              <button
+                                className="btn btn-secondary"
+                                style={{ padding: '0.25rem 0.6rem', fontSize: '0.78rem' }}
+                                onClick={() => handleOpenEditPhoto(photo)}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                className="btn btn-ghost"
+                                style={{ padding: '0.25rem 0.6rem', fontSize: '0.78rem', color: '#DC2626', borderColor: '#FCA5A5' }}
+                                onClick={() => setDeletingPhotoItem(photo)}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </GlassCard>
+            )}
+
+            {/* TAB 3: User Management */}
             {activeTab === 'users' && (
               <GlassCard padding="lg">
                 <h3 style={{ color: '#111111', fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem' }}>System Registered Users</h3>
@@ -492,7 +747,7 @@ export default function Dashboard() {
               </GlassCard>
             )}
 
-            {/* TAB 3: Financial Audits */}
+            {/* TAB 4: Financial Audits */}
             {activeTab === 'payments' && (
               <GlassCard padding="lg">
                 <h3 style={{ color: '#111111', fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem' }}>Payment Transactions & Financial Audit</h3>
@@ -566,6 +821,191 @@ export default function Dashboard() {
           </GlassCard>
         )}
       </div>
+
+      {/* --- ADD / EDIT GALLERY PHOTO MODAL (ADMIN ONLY) --- */}
+      {showPhotoModal && (
+        <div className={styles.modalBackdrop}>
+          <GlassCard className={styles.modalCard} padding="lg" style={{ maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid #EAECF0', paddingBottom: '0.75rem' }}>
+              <div>
+                <h3 style={{ color: '#0B2A6F', fontWeight: 800, fontSize: '1.3rem', margin: 0 }}>
+                  {editingPhoto ? '✏️ Edit Gallery Photo' : '➕ Add Gallery Photo'}
+                </h3>
+                <p style={{ color: '#667085', fontSize: '0.85rem', margin: '0.25rem 0 0 0' }}>
+                  This image will be stored and rendered immediately on the public /gallery page.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowPhotoModal(false)}
+                style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#667085' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {photoError && (
+              <div style={{ padding: '0.75rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #EF4444', color: '#B91C1C', marginBottom: '1rem', fontSize: '0.88rem' }}>
+                {photoError}
+              </div>
+            )}
+
+            <form onSubmit={handleSavePhotoSubmit}>
+              {/* Image Upload Area & Preview */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#344054', marginBottom: '0.4rem' }}>
+                  Photo File (JPG, PNG, WEBP) *
+                </label>
+                
+                <div style={{ border: '2px dashed #D0D5DD', borderRadius: '10px', padding: '1.25rem', textAlign: 'center', background: '#F8FAFC', marginBottom: '0.75rem' }}>
+                  {photoImagePreview ? (
+                    <div style={{ position: 'relative', display: 'inline-block', maxWidth: '100%' }}>
+                      <img
+                        src={photoImagePreview}
+                        alt="Upload Preview"
+                        style={{ maxHeight: '200px', maxWidth: '100%', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                      />
+                      <div style={{ marginTop: '0.5rem' }}>
+                        <button
+                          type="button"
+                          className="btn btn-ghost"
+                          style={{ fontSize: '0.8rem', padding: '0.25rem 0.75rem', color: '#DC2626' }}
+                          onClick={() => setPhotoImagePreview('')}
+                        >
+                          Remove / Choose Another Image
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📷</div>
+                      <p style={{ margin: '0 0 0.5rem 0', fontWeight: 600, color: '#101828', fontSize: '0.9rem' }}>
+                        Click to upload or drag & drop image
+                      </p>
+                      <p style={{ margin: 0, fontSize: '0.75rem', color: '#667085' }}>
+                        Supports JPG, PNG, WEBP up to 8MB
+                      </p>
+                      <input
+                        type="file"
+                        accept="image/jpeg, image/jpg, image/png, image/webp"
+                        onChange={handleImageFileChange}
+                        style={{ marginTop: '0.75rem', fontSize: '0.85rem' }}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Alternate direct URL input */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', color: '#667085', marginBottom: '0.25rem' }}>
+                    Or enter an existing / hosted Image URL:
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="https://example.com/photo.jpg or /gallery/filename.jpg"
+                    value={photoImagePreview.startsWith('data:') ? '' : photoImagePreview}
+                    onChange={(e) => setPhotoImagePreview(e.target.value)}
+                    style={{ width: '100%', padding: '0.55rem 0.75rem', borderRadius: '6px', border: '1px solid #D0D5DD', fontSize: '0.85rem' }}
+                  />
+                </div>
+              </div>
+
+              {/* Photo Title */}
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#344054', marginBottom: '0.35rem' }}>
+                  Photo Title (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Executive Strategy & Leadership Masterclass"
+                  value={photoTitle}
+                  onChange={(e) => setPhotoTitle(e.target.value)}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1px solid #D0D5DD', fontSize: '0.9rem' }}
+                />
+              </div>
+
+              {/* Category Dropdown */}
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#344054', marginBottom: '0.35rem' }}>
+                  Category *
+                </label>
+                <select
+                  value={photoCategory}
+                  onChange={(e) => setPhotoCategory(e.target.value)}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1px solid #D0D5DD', fontSize: '0.9rem', background: '#FFFFFF' }}
+                >
+                  {GALLERY_CATEGORIES.filter((c) => c !== 'All').map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Photo Description */}
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#344054', marginBottom: '0.35rem' }}>
+                  Description *
+                </label>
+                <textarea
+                  required
+                  rows="3"
+                  placeholder="e.g. Industry executives and faculty coordinators at the strategic development training program in SpoRIC."
+                  value={photoDesc}
+                  onChange={(e) => setPhotoDesc(e.target.value)}
+                  style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '8px', border: '1px solid #D0D5DD', fontSize: '0.88rem', fontFamily: 'inherit' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', borderTop: '1px solid #EAECF0', paddingTop: '1rem' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowPhotoModal(false)}
+                  disabled={photoSaving}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={photoSaving}
+                  style={{ background: '#0B2A6F', borderColor: '#0B2A6F', padding: '0.65rem 1.5rem', fontWeight: 700 }}
+                >
+                  {photoSaving ? 'Saving Photo...' : editingPhoto ? 'Save Changes' : '✨ Publish to Gallery'}
+                </button>
+              </div>
+            </form>
+          </GlassCard>
+        </div>
+      )}
+
+      {/* --- DELETE PHOTO CONFIRMATION MODAL --- */}
+      {deletingPhotoItem && (
+        <div className={styles.modalBackdrop}>
+          <GlassCard className={styles.modalCard} padding="lg" style={{ maxWidth: '480px' }}>
+            <h3 style={{ color: '#111111', fontWeight: 700, marginBottom: '0.75rem' }}>Delete Gallery Photo</h3>
+            <p style={{ color: '#555555', fontSize: '0.9rem', marginBottom: '1.25rem' }}>
+              Are you sure you want to delete <strong>"{deletingPhotoItem.title || 'this photo'}"</strong>? It will be removed from both the admin management dashboard and the public gallery page.
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setDeletingPhotoItem(null)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                style={{ background: '#DC2626', borderColor: '#DC2626' }}
+                onClick={handleConfirmDeletePhoto}
+              >
+                Delete Photo
+              </button>
+            </div>
+          </GlassCard>
+        </div>
+      )}
 
       {/* --- ADD NEW COURSE MODAL (ADMIN ONLY) --- */}
       {showAddModal && (

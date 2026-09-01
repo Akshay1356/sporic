@@ -1,16 +1,41 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { galleryPhotos, galleryCategories } from '../data/galleryData';
+import { getAllGalleryItems, GALLERY_CATEGORIES } from '../data/galleryData';
+import api from '../services/api';
 import styles from './Gallery.module.css';
 
 export default function Gallery() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [photos, setPhotos] = useState(getAllGalleryItems());
+
+  const loadPhotos = useCallback(async () => {
+    try {
+      const localPhotos = getAllGalleryItems();
+      setPhotos(localPhotos);
+
+      const res = await api.getGallery(activeCategory);
+      if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
+        setPhotos(res.data);
+      }
+    } catch {
+      setPhotos(getAllGalleryItems());
+    }
+  }, [activeCategory]);
+
+  useEffect(() => {
+    loadPhotos();
+
+    // Listen for storage events across tabs or local saves
+    const handleStorage = () => loadPhotos();
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, [loadPhotos]);
 
   // Filtered photos list
   const filteredPhotos = activeCategory === 'All'
-    ? galleryPhotos
-    : galleryPhotos.filter((p) => p.category === activeCategory);
+    ? photos
+    : photos.filter((p) => p.category === activeCategory);
 
   const openLightbox = (index) => {
     setLightboxIndex(index);
@@ -73,7 +98,7 @@ export default function Gallery() {
         <div className="container">
           {/* Category Filter Tabs */}
           <div className={styles.filterTabs} role="tablist" aria-label="Gallery category filters">
-            {galleryCategories.map((category) => (
+            {GALLERY_CATEGORIES.map((category) => (
               <button
                 key={category}
                 role="tab"
@@ -94,7 +119,7 @@ export default function Gallery() {
             <AnimatePresence mode="popLayout">
               {filteredPhotos.map((photo, index) => (
                 <motion.div
-                  key={photo.id}
+                  key={photo.id || index}
                   layout
                   initial={{ opacity: 0, scale: 0.95, y: 20 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -104,7 +129,7 @@ export default function Gallery() {
                   onClick={() => openLightbox(index)}
                   tabIndex={0}
                   role="button"
-                  aria-label={`View photo: ${photo.title}`}
+                  aria-label={`View photo: ${photo.title || 'Gallery item'}`}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
@@ -115,8 +140,8 @@ export default function Gallery() {
                   {/* Fixed Frame for Image Zoom Effect */}
                   <div className={styles.imageFrame}>
                     <img
-                      src={photo.src}
-                      alt={photo.title}
+                      src={photo.src || photo.imageUrl}
+                      alt={photo.title || 'Corporate Training Photo'}
                       className={styles.galleryImg}
                       loading="lazy"
                     />
@@ -144,7 +169,7 @@ export default function Gallery() {
                         {photo.category}
                       </span>
                     </div>
-                    <h3 className={styles.photoTitle}>{photo.title}</h3>
+                    <h3 className={styles.photoTitle}>{photo.title || 'Corporate Training Activity'}</h3>
                     <p className={styles.photoDesc}>{photo.description}</p>
                   </div>
                 </motion.div>
@@ -199,7 +224,7 @@ export default function Gallery() {
 
               {/* High-res Image Wrapper */}
               <motion.div
-                key={filteredPhotos[lightboxIndex].id}
+                key={filteredPhotos[lightboxIndex].id || lightboxIndex}
                 className={styles.lightboxImgWrap}
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -207,8 +232,8 @@ export default function Gallery() {
                 transition={{ duration: 0.25, ease: 'easeOut' }}
               >
                 <img
-                  src={filteredPhotos[lightboxIndex].src}
-                  alt={filteredPhotos[lightboxIndex].title}
+                  src={filteredPhotos[lightboxIndex].src || filteredPhotos[lightboxIndex].imageUrl}
+                  alt={filteredPhotos[lightboxIndex].title || 'Gallery item'}
                   className={styles.lightboxImg}
                 />
                 
@@ -220,7 +245,7 @@ export default function Gallery() {
                     </span>
                   </div>
                   <h4 className={styles.captionTitle}>
-                    {filteredPhotos[lightboxIndex].title}
+                    {filteredPhotos[lightboxIndex].title || 'Corporate Training Activity'}
                   </h4>
                   <p className={styles.captionDesc}>
                     {filteredPhotos[lightboxIndex].description}

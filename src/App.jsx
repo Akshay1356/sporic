@@ -28,6 +28,25 @@ function ScrollToTop() {
   return null;
 }
 
+// Protected Admin Gallery Route Redirect
+function AdminGalleryGuard() {
+  const stored = localStorage.getItem('sporic_user');
+  let user = null;
+  if (stored) {
+    try {
+      user = JSON.parse(stored);
+    } catch {
+      user = null;
+    }
+  }
+
+  if (user && user.role === 'ADMIN') {
+    return <Navigate to="/dashboard?tab=gallery" replace />;
+  }
+
+  return <Navigate to="/login?role=admin" replace />;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -56,6 +75,8 @@ export default function App() {
             <Route path="/courses/:courseId" element={<CourseDetails />} />
             
             <Route path="/gallery" element={<Gallery />} />
+            <Route path="/admin/gallery" element={<AdminGalleryGuard />} />
+
             <Route path="/register" element={<Register />} />
             <Route path="/apply" element={<Register />} />
             <Route path="/enroll" element={<Register />} />

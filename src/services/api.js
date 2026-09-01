@@ -1,6 +1,7 @@
 // SPORIC / VIT-TEC Frontend API Client Service
 // Production-ready with resilient offline / static deployment fallback
 import { courses } from '../data/courses';
+import { getAllGalleryItems, saveGalleryItem, updateGalleryItem, deleteGalleryItem } from '../data/galleryData';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -428,6 +429,71 @@ class ApiService {
             courses: { publishedCourses: courses.length, totalCourses: courses.length },
           },
         };
+      }
+      throw err;
+    }
+  }
+
+  // --- Gallery CMS ---
+  async getGallery(category = 'All') {
+    try {
+      const query = category && category !== 'All' ? `?category=${encodeURIComponent(category)}` : '';
+      const res = await this.request(`/gallery${query}`);
+      return res.data || res;
+    } catch (err) {
+      if (this.isNetworkError(err)) {
+        const items = getAllGalleryItems();
+        if (category && category !== 'All') {
+          return { data: items.filter((p) => p.category === category) };
+        }
+        return { data: items };
+      }
+      throw err;
+    }
+  }
+
+  async addGalleryItem(itemData) {
+    try {
+      const res = await this.request('/gallery', {
+        method: 'POST',
+        body: JSON.stringify(itemData),
+      });
+      return res.data || res;
+    } catch (err) {
+      if (this.isNetworkError(err)) {
+        saveGalleryItem(itemData);
+        return { success: true, data: itemData };
+      }
+      throw err;
+    }
+  }
+
+  async updateGalleryItem(id, itemData) {
+    try {
+      const res = await this.request(`/gallery/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(itemData),
+      });
+      return res.data || res;
+    } catch (err) {
+      if (this.isNetworkError(err)) {
+        const updated = updateGalleryItem(id, itemData);
+        return { success: true, data: updated };
+      }
+      throw err;
+    }
+  }
+
+  async deleteGalleryItem(id) {
+    try {
+      const res = await this.request(`/gallery/${id}`, {
+        method: 'DELETE',
+      });
+      return res.data || res;
+    } catch (err) {
+      if (this.isNetworkError(err)) {
+        deleteGalleryItem(id);
+        return { success: true };
       }
       throw err;
     }
