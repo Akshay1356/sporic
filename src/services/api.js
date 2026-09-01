@@ -2,6 +2,7 @@
 // Production-ready with resilient offline / static deployment fallback
 import { courses } from '../data/courses';
 import { getAllGalleryItems, saveGalleryItem, updateGalleryItem, deleteGalleryItem } from '../data/galleryData';
+import { supabase } from './supabase';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -436,67 +437,147 @@ class ApiService {
 
   // --- Gallery CMS ---
   async getGallery(category = 'All') {
+    const localItems = getAllGalleryItems();
+    
+    // 1. Try Supabase cloud database if configured
+    if (supabase) {
+      try {
+        let query = supabase.from('gallery_photos').select('*').order('created_at', { ascending: false });
+        if (category && category !== 'All') {
+          query = query.eq('category', category);
+        }
+        const { data: supaData, error } = await query;
+        if (!error && Array.isArray(supaData) && supaData.length > 0) {
+          const formatted = supaData.map((item) => ({
+            id: item.id,
+            src: item.image_url || item.src,
+            imageUrl: item.image_url || item.src,
+            title: item.title,
+            description: item.description,
+            category: item.category,
+            createdAt: item.created_at,
+          }));
+
+          // Merge cloud items with local seed items
+          const cloudIds = new Set(formatted.map((f) => f.id));
+          const combined = [
+            ...formatted,
+            ...localItems.filter((l) => !cloudIds.has(l.id)),
+          ];
+          return { data: combined };
+        }
+      } catch (e) {
+        console.warn('Supabase getGallery fallback:', e);
+      }
+    }
+
+    // 2. Try Serverless API /api/gallery
     try {
       const query = category && category !== 'All' ? `?category=${encodeURIComponent(category)}` : '';
       const res = await this.request(`/gallery${query}`);
-      return res.data || res;
-    } catch (err) {
-      if (this.isNetworkError(err)) {
-        const items = getAllGalleryItems();
-        if (category && category !== 'All') {
-          return { data: items.filter((p) => p.category === category) };
-        }
-        return { data: items };
+      const serverData = res?.data || (Array.isArray(res) ? res : []);
+      if (Array.isArray(serverData) && serverData.length > 0) {
+        const customLocal = localItems.filter((l) => l.isCustom);
+        const serverIds = new Set(serverData.map((s) => s.id));
+        const combined = [
+          ...customLocal.filter((c) => !serverIds.has(c.id)),
+          ...serverData,
+        ];
+        return { data: combined.length > 0 ? combined : serverData };
       }
-      throw err;
+      return { data: localItems };
+    } catch {
+      return { data: localItems };
     }
   }
 
   async addGalleryItem(itemData) {
+    // 1. Save locally immediately
+    saveGalleryItem(itemData);
+
+    // 2. Sync to Supabase cloud if connected
+    if (supabase) {
+      try {
+        await supabase.from('gallery_photos').insert([
+          {
+            id: itemData.id,
+            title: itemData.title,
+            description: itemData.description,
+            category: itemData.category,
+            image_url: itemData.src || itemData.imageUrl,
+            created_at: itemData.createdAt || new Date().toISOString(),
+          },
+        ]);
+      } catch (err) {
+        console.warn('Supabase insert gallery warning:', err);
+      }
+    }
+
+    // 3. Dispatch to serverless endpoint
     try {
-      const res = await this.request('/gallery', {
+      await this.request('/gallery', {
         method: 'POST',
         body: JSON.stringify(itemData),
       });
-      return res.data || res;
-    } catch (err) {
-      if (this.isNetworkError(err)) {
-        saveGalleryItem(itemData);
-        return { success: true, data: itemData };
-      }
-      throw err;
+    } catch {
+      // Local fallback active
     }
+
+    return { success: true, data: itemData };
   }
 
   async updateGalleryItem(id, itemData) {
+    updateGalleryItem(id, itemData);
+
+    if (supabase) {
+      try {
+        await supabase
+          .from('gallery_photos')
+          .update({
+            title: itemData.title,
+            description: itemData.description,
+            category: itemData.category,
+            image_url: itemData.src || itemData.imageUrl,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', id);
+      } catch (err) {
+        console.warn('Supabase update gallery warning:', err);
+      }
+    }
+
     try {
-      const res = await this.request(`/gallery/${id}`, {
+      await this.request(`/gallery/${id}`, {
         method: 'PUT',
         body: JSON.stringify(itemData),
       });
-      return res.data || res;
-    } catch (err) {
-      if (this.isNetworkError(err)) {
-        const updated = updateGalleryItem(id, itemData);
-        return { success: true, data: updated };
-      }
-      throw err;
+    } catch {
+      // Local fallback active
     }
+
+    return { success: true, data: itemData };
   }
 
   async deleteGalleryItem(id) {
+    deleteGalleryItem(id);
+
+    if (supabase) {
+      try {
+        await supabase.from('gallery_photos').delete().eq('id', id);
+      } catch (err) {
+        console.warn('Supabase delete gallery warning:', err);
+      }
+    }
+
     try {
-      const res = await this.request(`/gallery/${id}`, {
+      await this.request(`/gallery/${id}`, {
         method: 'DELETE',
       });
-      return res.data || res;
-    } catch (err) {
-      if (this.isNetworkError(err)) {
-        deleteGalleryItem(id);
-        return { success: true };
-      }
-      throw err;
+    } catch {
+      // Local fallback active
     }
+
+    return { success: true };
   }
 }
 
