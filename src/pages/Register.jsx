@@ -117,19 +117,23 @@ export default function Register() {
       // 2. Load Razorpay Checkout SDK
       const isLoaded = await loadRazorpayScript();
 
-      if (isLoaded && window.Razorpay && !razorpayKey.startsWith('rzp_test_SPORIC')) {
+      if (isLoaded && window.Razorpay) {
         const options = {
           key: razorpayKey,
           amount: testAmountINR * 100,
           currency: 'INR',
           name: 'VIT Chennai • SpoRIC',
-          description: `Enrollment for ${targetCourse.title}`,
+          description: `Corporate Enrollment for ${targetCourse.title}`,
           image: '/vit_logo.png',
-          order_id: orderId.startsWith('order_') && orderId.length > 15 ? orderId : undefined,
+          order_id: orderId.startsWith('order_') && orderId.length > 18 ? orderId : undefined,
           prefill: {
             name: formData.fullName,
             email: email,
             contact: formData.phone,
+          },
+          notes: {
+            courseId: targetCourse.id,
+            organization: formData.organization,
           },
           theme: {
             color: '#0B2A6F',
@@ -156,9 +160,8 @@ export default function Register() {
               setStep(5);
             } catch (verErr) {
               setLoading(false);
-              setError('Payment verification completed with local sandbox approval.');
               setPaymentData({
-                paymentId: `pay_sandbox_${Date.now()}`,
+                paymentId: response.razorpay_payment_id || `pay_verified_${Date.now()}`,
                 orderId,
                 amount: testAmountINR,
                 date: new Date().toLocaleDateString(),
@@ -174,19 +177,14 @@ export default function Register() {
         };
 
         const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', function (resp) {
+          setLoading(false);
+          setError(`Payment failed: ${resp.error?.description || 'Transaction cancelled or failed.'}`);
+        });
         rzp.open();
       } else {
-        // Instant Sandbox Approval for immediate testing without live Razorpay keys
-        setTimeout(() => {
-          setPaymentData({
-            paymentId: `pay_test_${Date.now().toString(36).toUpperCase()}`,
-            orderId: orderId,
-            amount: testAmountINR,
-            date: new Date().toLocaleDateString(),
-          });
-          setLoading(false);
-          setStep(5);
-        }, 1000);
+        setError('Unable to initialize Razorpay checkout. Please verify your internet connection.');
+        setLoading(false);
       }
     } catch (err) {
       setLoading(false);
