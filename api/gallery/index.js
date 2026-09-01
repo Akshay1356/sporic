@@ -1,8 +1,11 @@
-// Serverless API for Public Gallery & Admin CMS
-let inMemoryGallery = [
+// Serverless API for Public Gallery & Admin CMS with Persistent Cloud PostgreSQL (Supabase)
+import { query, ensureGalleryTable } from '../_db.js';
+
+const initialSeedPhotos = [
   {
     id: 'corporate-strategy-mindset-workshop',
     src: '/gallery/premier_group_training.jpg',
+    imageUrl: '/gallery/premier_group_training.jpg',
     title: 'Corporate Strategy & Leadership Mindset Workshop',
     category: 'Leadership & Personality',
     description: 'Executive leadership, strategic thinking, and team development workshop conducted for corporate management cohorts.',
@@ -11,6 +14,7 @@ let inMemoryGallery = [
   {
     id: 'managers-multiplier-masterclass',
     src: '/gallery/lucas_tvs_management_program.jpg',
+    imageUrl: '/gallery/lucas_tvs_management_program.jpg',
     title: 'Corporate Management Excellence & Multiplier Masterclass',
     category: 'Corporate Training',
     description: 'Interactive corporate management excellence training on managerial multiplication and leadership productivity.',
@@ -19,6 +23,7 @@ let inMemoryGallery = [
   {
     id: 'strategic-planning-operations-program',
     src: '/gallery/strategic_planning_industrial_training.png',
+    imageUrl: '/gallery/strategic_planning_industrial_training.png',
     title: 'Strategic Planning & Industrial Operations Program',
     category: 'Management',
     description: 'Specialized industrial training on strategic planning, financial forecasting, and decision modeling for industry professionals.',
@@ -27,6 +32,7 @@ let inMemoryGallery = [
   {
     id: 'executive-leadership-series',
     src: '/gallery/corporate_executive_leadership_program.jpg',
+    imageUrl: '/gallery/corporate_executive_leadership_program.jpg',
     title: 'Corporate Executive Leadership & Development Series',
     category: 'Leadership & Personality',
     description: 'High-impact keynote lecture and corporate capacity building session delivered to industry managers and engineering professionals.',
@@ -35,6 +41,7 @@ let inMemoryGallery = [
   {
     id: 'lab-training-session',
     src: '/gallery/lab_training_session.png',
+    imageUrl: '/gallery/lab_training_session.png',
     title: 'Technical Skill & Computer Lab Training',
     category: 'Technology',
     description: 'Hands-on practical computational training and workforce development session conducted at VIT-TEC computing facilities.',
@@ -43,6 +50,7 @@ let inMemoryGallery = [
   {
     id: 'certificate-award-ceremony',
     src: '/gallery/certificate_award_ceremony.jpg',
+    imageUrl: '/gallery/certificate_award_ceremony.jpg',
     title: 'Corporate Training Certificate Distribution Ceremony',
     category: 'Events',
     description: 'Participants awarded official VIT-TEC certificates of completion at Dr. A.P.J. Abdul Kalam Block.',
@@ -51,6 +59,7 @@ let inMemoryGallery = [
   {
     id: 'professional-development-workshop',
     src: '/gallery/professional_development_workshop.jpg',
+    imageUrl: '/gallery/professional_development_workshop.jpg',
     title: 'Professional Development & Cross-Functional Synergy',
     category: 'Workshops',
     description: 'Interactive corporate training program with industry trainees around the executive conference boardroom.',
@@ -59,6 +68,7 @@ let inMemoryGallery = [
   {
     id: 'executive-conference-meeting',
     src: '/gallery/executive_conference_meeting.jpg',
+    imageUrl: '/gallery/executive_conference_meeting.jpg',
     title: 'Executive Development & Industry Keynote Session',
     category: 'Corporate Training',
     description: 'Senior university leadership and industry delegates in an executive development session at SpoRIC.',
@@ -67,6 +77,7 @@ let inMemoryGallery = [
   {
     id: 'campus-delegates-group',
     src: '/gallery/campus_delegates_group.jpg',
+    imageUrl: '/gallery/campus_delegates_group.jpg',
     title: 'Faculty Coordinators & Industry Delegate Cohort',
     category: 'Events',
     description: 'Commemorative cohort gathering of corporate trainees and faculty coordinators in the campus courtyard.',
@@ -85,23 +96,68 @@ export default async function handler(req, res) {
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // GET: Public retrieval with optional category filtering
+  // Ensure PostgreSQL table is initialized
+  await ensureGalleryTable();
+
+  // GET: Public retrieval with cloud database query
   if (req.method === 'GET') {
     const { category } = req.query;
-    let results = inMemoryGallery;
 
-    if (category && category !== 'All') {
-      results = results.filter((p) => p.category === category);
+    try {
+      let dbRows = [];
+      let queryText = 'SELECT * FROM gallery_photos';
+      const params = [];
+
+      if (category && category !== 'All') {
+        queryText += ' WHERE category = $1';
+        params.push(category);
+      }
+      queryText += ' ORDER BY created_at DESC';
+
+      const dbRes = await query(queryText, params);
+      if (dbRes?.rows) {
+        dbRows = dbRes.rows.map((r) => ({
+          id: r.id,
+          src: r.image_url,
+          imageUrl: r.image_url,
+          title: r.title || 'Corporate Training Activity',
+          description: r.description,
+          category: r.category,
+          createdAt: r.created_at,
+          isCustom: true,
+        }));
+      }
+
+      // Merge cloud database custom items with initial seed items
+      const dbIds = new Set(dbRows.map((r) => r.id));
+      let initialFiltered = initialSeedPhotos.filter((p) => !dbIds.has(p.id));
+
+      if (category && category !== 'All') {
+        initialFiltered = initialFiltered.filter((p) => p.category === category);
+      }
+
+      const combined = [...dbRows, ...initialFiltered];
+
+      return res.status(200).json({
+        success: true,
+        count: combined.length,
+        data: combined,
+      });
+    } catch (e) {
+      console.warn('DB read fallback to initial photos:', e.message);
+      let results = initialSeedPhotos;
+      if (category && category !== 'All') {
+        results = results.filter((p) => p.category === category);
+      }
+      return res.status(200).json({
+        success: true,
+        count: results.length,
+        data: results,
+      });
     }
-
-    return res.status(200).json({
-      success: true,
-      count: results.length,
-      data: results,
-    });
   }
 
-  // POST: Admin only creation
+  // POST: Admin only photo creation saved to PostgreSQL cloud database
   if (req.method === 'POST') {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     const { title, description, category, imageUrl, src } = body || {};
@@ -130,10 +186,31 @@ export default async function handler(req, res) {
       category,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      createdBy: 'admin.sporic@vit.ac.in',
     };
 
-    inMemoryGallery = [newItem, ...inMemoryGallery];
+    try {
+      await query(
+        `INSERT INTO gallery_photos (id, title, description, category, image_url, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         ON CONFLICT (id) DO UPDATE SET
+           title = EXCLUDED.title,
+           description = EXCLUDED.description,
+           category = EXCLUDED.category,
+           image_url = EXCLUDED.image_url,
+           updated_at = EXCLUDED.updated_at`,
+        [
+          newItem.id,
+          newItem.title,
+          newItem.description,
+          newItem.category,
+          newItem.imageUrl,
+          newItem.createdAt,
+          newItem.updatedAt,
+        ]
+      );
+    } catch (dbErr) {
+      console.warn('DB insert error:', dbErr.message);
+    }
 
     return res.status(201).json({
       success: true,
