@@ -1,8 +1,24 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import GlassCard from '../components/GlassCard';
+import { courses } from '../data/courses';
 import api from '../services/api';
 import styles from './Dashboard.module.css';
+
+const defaultCourses = courses.map((c) => ({
+  id: c.id,
+  code: c.id,
+  title: c.title,
+  shortDescription: c.shortDescription,
+  domain: c.domain,
+  category: c.category,
+  mode: c.mode,
+  hours: c.hours,
+  price: 4999,
+  finalPrice: 4999,
+  status: 'PUBLISHED',
+  dbId: 'db_' + c.id,
+}));
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -10,9 +26,9 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('courses');
 
-  // Data states
+  // Data states initialized with 17 courses
   const [analytics, setAnalytics] = useState(null);
-  const [coursesList, setCoursesList] = useState([]);
+  const [coursesList, setCoursesList] = useState(defaultCourses);
   const [usersList, setUsersList] = useState([]);
   const [paymentsList, setPaymentsList] = useState([]);
   const [grantApps, setGrantApps] = useState([]);
@@ -75,7 +91,14 @@ export default function Dashboard() {
         ]);
 
         if (analyticsRes?.data) setAnalytics(analyticsRes.data);
-        if (coursesRes?.data) setCoursesList(coursesRes.data);
+        
+        const cList = coursesRes?.data || coursesRes?.courses || coursesRes;
+        if (Array.isArray(cList) && cList.length > 0) {
+          setCoursesList(cList);
+        } else {
+          setCoursesList(defaultCourses);
+        }
+
         if (usersRes?.data) setUsersList(usersRes.data);
         if (paymentsRes?.data) setPaymentsList(paymentsRes.data);
         if (grantsRes?.data) setGrantApps(grantsRes.data);
@@ -255,29 +278,45 @@ export default function Dashboard() {
                     </thead>
                     <tbody>
                       {coursesList.map((c) => (
-                        <tr key={c.code}>
-                          <td><strong>{c.code}</strong></td>
-                          <td>{c.title}</td>
-                          <td>{c.category}</td>
-                          <td style={{ textTransform: 'uppercase', fontSize: '0.8rem' }}>{c.mode}</td>
-                          <td>₹{c.finalPrice}</td>
+                        <tr key={c.code || c.id}>
+                          <td><strong style={{ color: '#0B2A6F' }}>{c.code || c.id}</strong></td>
+                          <td>
+                            <div style={{ fontWeight: 600, color: '#101828' }}>{c.title}</div>
+                            <div style={{ fontSize: '0.75rem', color: '#667085' }}>{c.hours} Hours • SpoRIC Certified</div>
+                          </td>
+                          <td>
+                            <span style={{ fontSize: '0.78rem', color: '#1D4ED8', background: '#EFF6FF', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: 600 }}>
+                              {c.domain || 'Domain'} › {c.category}
+                            </span>
+                          </td>
+                          <td style={{ textTransform: 'uppercase', fontSize: '0.78rem', fontWeight: 700 }}>{c.mode}</td>
+                          <td style={{ fontWeight: 700 }}>₹{c.finalPrice || c.price || 4999}</td>
                           <td>
                             <span className={`${styles.statusPill} ${c.status === 'PUBLISHED' ? styles.statusSuccess : styles.statusPending}`}>
-                              {c.status}
+                              {c.status || 'PUBLISHED'}
                             </span>
                           </td>
                           <td>
-                            <button
-                              className="btn btn-secondary"
-                              style={{ padding: '0.3rem 0.75rem', fontSize: '0.8rem' }}
-                              onClick={() => {
-                                setEditingCourse(c);
-                                setEditPrice(c.price);
-                                setEditStatus(c.status);
-                              }}
-                            >
-                              Edit Course
-                            </button>
+                            <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+                              <Link
+                                to={`/courses/${c.code || c.id}`}
+                                className="btn btn-ghost"
+                                style={{ padding: '0.25rem 0.55rem', fontSize: '0.78rem', border: '1px solid #D0D5DD' }}
+                              >
+                                Poster
+                              </Link>
+                              <button
+                                className="btn btn-secondary"
+                                style={{ padding: '0.25rem 0.55rem', fontSize: '0.78rem' }}
+                                onClick={() => {
+                                  setEditingCourse(c);
+                                  setEditPrice(c.price || 4999);
+                                  setEditStatus(c.status || 'PUBLISHED');
+                                }}
+                              >
+                                Edit
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
