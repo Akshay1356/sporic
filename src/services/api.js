@@ -297,8 +297,8 @@ class ApiService {
           category: c.category,
           mode: c.mode,
           hours: c.hours,
-          price: 4999,
-          finalPrice: 4999,
+          price: 1,
+          finalPrice: 1,
           status: 'PUBLISHED',
           dbId: 'db_' + c.id,
         }));
