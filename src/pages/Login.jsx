@@ -6,10 +6,10 @@ import api from '../services/api';
 
 export default function Login() {
   const [searchParams] = useSearchParams();
-  const initialRole = searchParams.get('role') === 'admin' ? 'admin' : (searchParams.get('role') === 'faculty' ? 'faculty' : 'industry');
+  const initialRole = searchParams.get('role') === 'admin' ? 'admin' : 'industry';
 
   const [activeTab, setActiveTab] = useState('login'); // 'login' | 'register'
-  const [selectedRole, setSelectedRole] = useState(initialRole); // 'industry' | 'faculty' | 'admin'
+  const [selectedRole, setSelectedRole] = useState(initialRole); // 'industry' | 'admin'
   const [authMode, setAuthMode] = useState('password'); // 'password' | 'otp'
 
   // Login form state
@@ -25,7 +25,6 @@ export default function Login() {
   const [regPassword, setRegPassword] = useState('');
   const [regPhone, setRegPhone] = useState('');
   const [regOrg, setRegOrg] = useState('');
-  const [regRole, setRegRole] = useState('STUDENT');
 
   const [infoMessage, setInfoMessage] = useState('');
   const [error, setError] = useState('');
@@ -41,13 +40,11 @@ export default function Login() {
 
   const getRoleLabel = () => {
     if (selectedRole === 'admin') return 'Administrator';
-    if (selectedRole === 'faculty') return 'Faculty Researcher';
-    return 'Industries & Students';
+    return 'Students & Industry Partners';
   };
 
   const getExpectedRole = () => {
     if (selectedRole === 'admin') return 'ADMIN';
-    if (selectedRole === 'faculty') return 'FACULTY';
     return 'STUDENT';
   };
 
@@ -68,7 +65,7 @@ export default function Login() {
       navigate('/dashboard');
     } catch (err) {
       setLoading(false);
-      setError(err.message || 'Authentication failed. Please check credentials and portal role.');
+      setError(err.message || 'Authentication failed. Please check credentials.');
     }
   };
 
@@ -86,14 +83,14 @@ export default function Login() {
     setInfoMessage('');
 
     try {
-      const assignedRole = selectedRole === 'admin' ? 'ADMIN' : (selectedRole === 'faculty' ? 'FACULTY' : regRole);
+      const assignedRole = selectedRole === 'admin' ? 'ADMIN' : 'STUDENT';
 
       const regData = await api.register({
         fullName: regFullName,
         email: regEmail,
         password: regPassword,
         phone: regPhone,
-        organization: regOrg || 'VIT / Corporate Partner',
+        organization: regOrg || 'Corporate Partner / Student',
         role: assignedRole,
       });
 
@@ -167,7 +164,7 @@ export default function Login() {
             <span className="section-label">Authenticated Portal Access</span>
             <h1 className={styles.title}>{activeTab === 'login' ? 'SIGN IN' : 'CREATE ACCOUNT'}</h1>
             <p className={styles.subtitle}>
-              Access your corporate training dashboard, course records, and research management
+              Access your corporate training dashboard, course records, and verified certificates
             </p>
           </motion.div>
         </div>
@@ -241,7 +238,7 @@ export default function Login() {
               </p>
             </div>
 
-            {/* 3 Dedicated Role Tabs: Industries, Faculty & Admin */}
+            {/* 2 Dedicated Roles: Students/Corporate & Admin */}
             <div className={styles.roleTabs} role="tablist" aria-label="Sign-in role selection">
               <button
                 type="button"
@@ -256,20 +253,6 @@ export default function Login() {
                 className={`${styles.roleTabBtn} ${selectedRole === 'industry' ? styles.activeRoleTab : ''}`}
               >
                 🏢 Student & Corporate
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={selectedRole === 'faculty'}
-                onClick={() => {
-                  setSelectedRole('faculty');
-                  setOtpSent(false);
-                  setError('');
-                  setInfoMessage('');
-                }}
-                className={`${styles.roleTabBtn} ${selectedRole === 'faculty' ? styles.activeRoleTab : ''}`}
-              >
-                🎓 Faculty Portal
               </button>
               <button
                 type="button"
@@ -326,8 +309,6 @@ export default function Login() {
                       <label className={styles.label}>
                         {selectedRole === 'admin'
                           ? 'Admin Institutional Email'
-                          : selectedRole === 'faculty'
-                          ? 'Faculty Email Address'
                           : 'Corporate / Student Email'}
                       </label>
                       <input
@@ -336,8 +317,6 @@ export default function Login() {
                         placeholder={
                           selectedRole === 'admin'
                             ? 'admin.sporic@vit.ac.in'
-                            : selectedRole === 'faculty'
-                            ? 'faculty.sporic@vit.ac.in'
                             : 'name@company.com'
                         }
                         value={email}
@@ -372,8 +351,6 @@ export default function Login() {
                       <label className={styles.label}>
                         {selectedRole === 'admin'
                           ? 'Admin Institutional Email'
-                          : selectedRole === 'faculty'
-                          ? 'Faculty Email Address'
                           : 'Corporate / Student Email'}
                       </label>
                       <input
@@ -468,7 +445,7 @@ export default function Login() {
                 </div>
 
                 <div className={styles.inputGroup}>
-                  <label className={styles.label}>Company / Institution</label>
+                  <label className={styles.label}>Company / College</label>
                   <input
                     type="text"
                     placeholder="e.g. Lucas TVS / L&T / VIT"
@@ -494,8 +471,6 @@ export default function Login() {
                 🔐 <strong>Institutional Credentials</strong>:
                 <br />
                 • Admin: <code>admin.sporic@vit.ac.in</code> | Pass: <code>Admin@VIT2026</code>
-                <br />
-                • Faculty: <code>faculty.sporic@vit.ac.in</code> | Pass: <code>Faculty@VIT2026</code>
                 <br />
                 • Or register any personal/work email above to create your own account.
               </p>

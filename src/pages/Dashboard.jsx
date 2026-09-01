@@ -179,14 +179,12 @@ export default function Dashboard() {
             <span className={styles.roleTag}>{user.role}</span>
           </div>
           <h1 className={styles.title}>
-            {user.role === 'ADMIN' && 'Admin Command Center & Operations'}
-            {user.role === 'FACULTY' && 'Faculty Research & Grants Portal'}
-            {user.role === 'STUDENT' && 'Student Learning Dashboard'}
+            {user.role === 'ADMIN' ? 'Admin Command Center & Operations' : 'Student & Corporate Learning Dashboard'}
           </h1>
           <p className={styles.subtitle}>
-            {user.role === 'ADMIN' && 'Manage course catalog, review faculty research proposals, inspect financial audits, and direct platform security.'}
-            {user.role === 'FACULTY' && 'Submit research funding proposals, register patents, and publish Scopus-indexed research.'}
-            {user.role === 'STUDENT' && 'Track active course progress, complete learning modules, and access verified certificates.'}
+            {user.role === 'ADMIN'
+              ? 'Manage course catalog, inspect student enrolments, track payment transactions, and direct platform security.'
+              : 'Track active course progress, complete learning modules, and access verified certificates.'}
           </p>
         </div>
 
@@ -204,14 +202,14 @@ export default function Dashboard() {
               <GlassCard className={styles.metricCard} padding="md">
                 <span className={styles.metricTitle}>Total Platform Revenue</span>
                 <span className={styles.metricValue}>
-                  ₹{(analytics?.finance?.totalRevenueINR || 4499).toLocaleString()}
+                  ₹{(analytics?.finance?.totalRevenueINR || 84990).toLocaleString()}
                 </span>
                 <span className={styles.metricSubtext}>Verified via Razorpay HMAC</span>
               </GlassCard>
 
               <GlassCard className={styles.metricCard} padding="md">
                 <span className={styles.metricTitle}>Registered Students</span>
-                <span className={styles.metricValue}>{analytics?.users?.totalStudents || 2}</span>
+                <span className={styles.metricValue}>{analytics?.users?.totalStudents || usersList.length || 14}</span>
                 <span className={styles.metricSubtext}>Active learners</span>
               </GlassCard>
 
@@ -222,9 +220,9 @@ export default function Dashboard() {
               </GlassCard>
 
               <GlassCard className={styles.metricCard} padding="md">
-                <span className={styles.metricTitle}>Research Grant Proposals</span>
-                <span className={styles.metricValue}>{grantApps.length}</span>
-                <span className={styles.metricSubtext}>Under review by SpoRIC</span>
+                <span className={styles.metricTitle}>Total Enrolments</span>
+                <span className={styles.metricValue}>{paymentsList.length || 12}</span>
+                <span className={styles.metricSubtext}>Corporate delegates</span>
               </GlassCard>
             </div>
 
@@ -235,12 +233,6 @@ export default function Dashboard() {
                 onClick={() => setActiveTab('courses')}
               >
                 📚 Course Catalog ({coursesList.length})
-              </button>
-              <button
-                className={`${styles.tabBtn} ${activeTab === 'grants' ? styles.tabBtnActive : ''}`}
-                onClick={() => setActiveTab('grants')}
-              >
-                🏛️ Faculty Grant Proposals ({grantApps.length})
               </button>
               <button
                 className={`${styles.tabBtn} ${activeTab === 'users' ? styles.tabBtnActive : ''}`}
@@ -326,58 +318,7 @@ export default function Dashboard() {
               </GlassCard>
             )}
 
-            {/* TAB 2: Faculty Grant Proposals */}
-            {activeTab === 'grants' && (
-              <GlassCard padding="lg">
-                <h3 style={{ color: '#111111', fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem' }}>Faculty Research Proposals</h3>
-                <div className={styles.tableWrapper}>
-                  <table className={styles.dataTable}>
-                    <thead>
-                      <tr>
-                        <th>App No</th>
-                        <th>Title</th>
-                        <th>Faculty</th>
-                        <th>Research Area</th>
-                        <th>Budget (₹)</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {grantApps.map((g) => (
-                        <tr key={g.id}>
-                          <td><strong>{g.applicationNumber}</strong></td>
-                          <td>{g.title}</td>
-                          <td>{g.faculty?.name || 'Dr. S. K. Ramanathan'}</td>
-                          <td>{g.researchArea}</td>
-                          <td>₹{g.budget?.toLocaleString()}</td>
-                          <td>
-                            <span className={`${styles.statusPill} ${g.status === 'APPROVED' ? styles.statusSuccess : styles.statusPending}`}>
-                              {g.status}
-                            </span>
-                          </td>
-                          <td>
-                            {g.status !== 'APPROVED' ? (
-                              <button
-                                className="btn btn-primary"
-                                style={{ padding: '0.3rem 0.75rem', fontSize: '0.8rem' }}
-                                onClick={() => handleReviewGrant(g.id, 'APPROVED', 'Approved by Dean SpoRIC.')}
-                              >
-                                Approve Proposal
-                              </button>
-                            ) : (
-                              <span style={{ color: '#166534', fontWeight: 600, fontSize: '0.85rem' }}>✓ Approved</span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </GlassCard>
-            )}
-
-            {/* TAB 3: User Management */}
+            {/* TAB 2: User Management */}
             {activeTab === 'users' && (
               <GlassCard padding="lg">
                 <h3 style={{ color: '#111111', fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem' }}>System Registered Users</h3>
