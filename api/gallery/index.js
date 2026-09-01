@@ -97,7 +97,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   // Ensure PostgreSQL table is initialized
-  await ensureGalleryTable();
+  await ensureGalleryTable().catch(() => false);
 
   // GET: Public retrieval with cloud database query
   if (req.method === 'GET') {
@@ -115,7 +115,7 @@ export default async function handler(req, res) {
       queryText += ' ORDER BY created_at DESC';
 
       const dbRes = await query(queryText, params);
-      if (dbRes?.rows) {
+      if (dbRes?.rows && dbRes.rows.length > 0) {
         dbRows = dbRes.rows.map((r) => ({
           id: r.id,
           src: r.image_url,
@@ -142,6 +142,7 @@ export default async function handler(req, res) {
         success: true,
         count: combined.length,
         data: combined,
+        source: dbRows.length > 0 ? 'cloud_database' : 'initial_seed',
       });
     } catch (e) {
       console.warn('DB read fallback to initial photos:', e.message);
@@ -153,6 +154,7 @@ export default async function handler(req, res) {
         success: true,
         count: results.length,
         data: results,
+        source: 'initial_seed',
       });
     }
   }
@@ -188,8 +190,11 @@ export default async function handler(req, res) {
       updatedAt: new Date().toISOString(),
     };
 
+    let dbSaved = false;
+    let dbErrorMessage = null;
+
     try {
-      await query(
+      const insertRes = await query(
         `INSERT INTO gallery_photos (id, title, description, category, image_url, created_at, updated_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7)
          ON CONFLICT (id) DO UPDATE SET
@@ -208,14 +213,22 @@ export default async function handler(req, res) {
           newItem.updatedAt,
         ]
       );
+      if (insertRes) {
+        dbSaved = true;
+      }
     } catch (dbErr) {
-      console.warn('DB insert error:', dbErr.message);
+      console.error('DB insert error:', dbErr.message);
+      dbErrorMessage = dbErr.message;
     }
 
     return res.status(201).json({
       success: true,
-      message: 'Photo added successfully.',
+      message: dbSaved
+        ? 'Photo saved to Cloud Database successfully.'
+        : `Photo saved locally. Cloud DB warning: ${dbErrorMessage || 'DATABASE_URL not connected'}`,
       data: newItem,
+      cloudSynced: dbSaved,
+      error: dbErrorMessage,
     });
   }
 

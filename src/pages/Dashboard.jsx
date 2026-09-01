@@ -367,9 +367,12 @@ export default function Dashboard() {
           createdAt: new Date().toISOString(),
           createdBy: user?.email || 'admin.sporic@vit.ac.in',
         };
-        saveGalleryItem(newRecord);
-        await api.addGalleryItem(newRecord).catch(() => null);
-        setActionSuccess('Photo added successfully. Visible on /gallery immediately.');
+        const apiRes = await api.addGalleryItem(newRecord);
+        if (apiRes?.cloudSynced) {
+          setActionSuccess('✓ Photo published to Cloud Database & visible on all devices /gallery!');
+        } else {
+          setActionSuccess('✓ Photo added successfully and visible on /gallery.');
+        }
       }
 
       refreshGallery();
