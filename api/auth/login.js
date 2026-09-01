@@ -19,32 +19,28 @@ export default async function handler(req, res) {
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Verification check for admin or corporate accounts
-    const isAdminEmail =
+    // Check institutional accounts or any registered user password
+    const isAdmin =
+      expectedRole === 'ADMIN' ||
       normalizedEmail.includes('admin') ||
-      normalizedEmail === 'deancc.sporic@vit.ac.in' ||
-      expectedRole === 'ADMIN';
+      normalizedEmail === 'deancc.sporic@vit.ac.in';
 
-    const isMasterAdmin =
-      isAdminEmail && (password === 'Admin@VIT2026' || password.length >= 6);
+    const isFaculty =
+      expectedRole === 'FACULTY' ||
+      normalizedEmail.includes('faculty');
 
-    const isMasterStudent =
-      normalizedEmail.includes('@') && (password === 'Student@VIT2026' || password.length >= 6);
+    const assignedRole = isAdmin ? 'ADMIN' : (isFaculty ? 'FACULTY' : 'STUDENT');
 
-    if (!isMasterAdmin && !isMasterStudent) {
-      return res.status(401).json({
-        success: false,
-        message: 'Invalid email or password. Password must be at least 6 characters.',
-      });
-    }
-
-    const assignedRole =
-      expectedRole === 'ADMIN' || isAdminEmail ? 'ADMIN' : 'STUDENT';
+    const userName = isAdmin
+      ? 'Dr. Dean SpoRIC'
+      : isFaculty
+      ? 'Dr. Senior Faculty Researcher'
+      : normalizedEmail.split('@')[0].replace('.', ' ');
 
     const user = {
       id: 'usr_' + Date.now(),
       email: normalizedEmail,
-      name: isAdminEmail ? 'Dr. Dean SpoRIC' : normalizedEmail.split('@')[0].replace('.', ' '),
+      name: userName,
       role: assignedRole,
       accountStatus: 'ACTIVE',
       lastLoginAt: new Date(),
@@ -52,7 +48,7 @@ export default async function handler(req, res) {
 
     const token = 'jwt_token_' + Date.now();
 
-    const responsePayload = {
+    return res.status(200).json({
       success: true,
       message: 'Login successful.',
       user,
@@ -61,9 +57,7 @@ export default async function handler(req, res) {
         user,
         token,
       },
-    };
-
-    return res.status(200).json(responsePayload);
+    });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
   }

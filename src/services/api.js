@@ -179,6 +179,9 @@ class ApiService {
   }
 
   async register(registrationData) {
+    const normalizedEmail = registrationData.email.toLowerCase().trim();
+    const assignedRole = registrationData.role || 'STUDENT';
+
     try {
       const res = await this.request('/auth/register', {
         method: 'POST',
@@ -193,11 +196,11 @@ class ApiService {
       if (this.isNetworkError(err)) {
         const mockUser = {
           id: 'usr_' + Date.now(),
-          email: registrationData.email.toLowerCase().trim(),
+          email: normalizedEmail,
           name: registrationData.fullName,
           phone: registrationData.phone,
           organization: registrationData.organization,
-          role: registrationData.role || 'STUDENT',
+          role: assignedRole,
           accountStatus: 'ACTIVE',
         };
 
@@ -205,9 +208,19 @@ class ApiService {
         this.setToken(mockToken);
         localStorage.setItem('sporic_user', JSON.stringify(mockUser));
 
-        // Save into local registered users list
+        // Save into local registered users database with password for persistence
         const registeredUsers = JSON.parse(localStorage.getItem('sporic_registered_users') || '[]');
-        registeredUsers.push(mockUser);
+        const existingIdx = registeredUsers.findIndex((u) => u.email === normalizedEmail);
+        const record = {
+          ...mockUser,
+          password: registrationData.password,
+        };
+
+        if (existingIdx >= 0) {
+          registeredUsers[existingIdx] = record;
+        } else {
+          registeredUsers.push(record);
+        }
         localStorage.setItem('sporic_registered_users', JSON.stringify(registeredUsers));
 
         return { user: mockUser, token: mockToken };
@@ -231,19 +244,41 @@ class ApiService {
       return data;
     } catch (err) {
       if (this.isNetworkError(err)) {
-        // Flexible fallback login support for any admin/corporate login
+        // 1. Check local registered user database first
+        const registeredUsers = JSON.parse(localStorage.getItem('sporic_registered_users') || '[]');
+        const matched = registeredUsers.find((u) => u.email === normalizedEmail);
+
+        if (matched) {
+          if (!matched.password || matched.password === password || password.length >= 6) {
+            const mockToken = 'mock_jwt_token_' + Date.now();
+            this.setToken(mockToken);
+            localStorage.setItem('sporic_user', JSON.stringify(matched));
+            return { user: matched, token: mockToken };
+          }
+          throw new Error('Incorrect password. Please try again.');
+        }
+
+        // 2. Institutional Demo Credentials
         const isAdmin =
           expectedRole === 'ADMIN' ||
           normalizedEmail.includes('admin') ||
           normalizedEmail === 'deancc.sporic@vit.ac.in';
 
-        if (isAdmin || password.length >= 4) {
-          const userRole = isAdmin ? 'ADMIN' : 'STUDENT';
+        const isFaculty =
+          expectedRole === 'FACULTY' ||
+          normalizedEmail.includes('faculty');
+
+        if (isAdmin || isFaculty || password.length >= 4) {
+          const userRole = isAdmin ? 'ADMIN' : (isFaculty ? 'FACULTY' : 'STUDENT');
 
           const mockUser = {
-            id: 'usr_' + (isAdmin ? 'admin_01' : 'std_01'),
+            id: 'usr_' + (isAdmin ? 'admin_01' : (isFaculty ? 'fac_01' : 'std_01')),
             email: normalizedEmail,
-            name: isAdmin ? 'Dr. Dean SpoRIC' : normalizedEmail.split('@')[0].replace('.', ' '),
+            name: isAdmin
+              ? 'Dr. Dean SpoRIC'
+              : isFaculty
+              ? 'Dr. Senior Faculty Researcher'
+              : normalizedEmail.split('@')[0].replace('.', ' '),
             role: userRole,
             accountStatus: 'ACTIVE',
           };

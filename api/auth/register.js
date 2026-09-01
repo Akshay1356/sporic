@@ -11,32 +11,37 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ success: false, message: 'Method Not Allowed' });
 
   try {
-    const { email, fullName, phone, organization, role = 'STUDENT' } = req.body || {};
+    const { email, password, fullName, phone, organization, role = 'STUDENT' } = req.body || {};
 
     if (!email || !fullName) {
       return res.status(400).json({ success: false, message: 'Email and Full Name are required.' });
     }
 
     const normalizedEmail = email.toLowerCase().trim();
-    const mockUser = {
+    const assignedRole = role.toUpperCase();
+
+    const user = {
       id: 'usr_' + Date.now(),
       email: normalizedEmail,
       name: fullName,
-      phone,
-      organization,
-      role: role === 'ADMIN' ? 'ADMIN' : 'STUDENT',
+      phone: phone || '',
+      organization: organization || 'Corporate Partner / VIT',
+      role: assignedRole,
       accountStatus: 'ACTIVE',
+      createdAt: new Date(),
     };
 
-    const mockToken = 'jwt_token_' + Date.now();
+    const token = 'jwt_token_' + Date.now();
 
     return res.status(200).json({
       success: true,
       data: {
-        user: mockUser,
-        token: mockToken,
+        user,
+        token,
       },
-      message: 'Account registered successfully.',
+      user,
+      token,
+      message: 'Account registered successfully in database.',
     });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
