@@ -1,6 +1,6 @@
 import pg from 'pg';
 const { Pool } = pg;
-import { getCandidateConnectionStrings, parseSupabaseUrl } from '../_db.js';
+import { getCandidateConfigs, parseSupabaseUrl } from '../_db.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,24 +11,17 @@ export default async function handler(req, res) {
   }
 
   const parsed = parseSupabaseUrl(rawUrl);
-  const candidates = getCandidateConnectionStrings();
+  const configs = getCandidateConfigs();
 
   const attempts = [];
-  let successfulConnection = null;
+  let successfulHost = null;
   let photoCount = 0;
 
-  for (const conn of candidates) {
-    // Mask password
-    const masked = conn.replace(/:([^:@]+)@/, ':****@');
+  for (const config of configs) {
+    const targetLabel = `${config.user}@${config.host}:${config.port}/${config.database}`;
     let testPool = null;
     try {
-      testPool = new Pool({
-        connectionString: conn,
-        ssl: { rejectUnauthorized: false },
-        connectionTimeoutMillis: 3000,
-        max: 1,
-      });
-
+      testPool = new Pool(config);
       await testPool.query('SELECT 1');
 
       // Create table if not exists
@@ -47,20 +40,20 @@ export default async function handler(req, res) {
       const countRes = await testPool.query('SELECT count(*) FROM gallery_photos');
       photoCount = parseInt(countRes?.rows?.[0]?.count || '0', 10);
 
-      successfulConnection = masked;
-      attempts.push({ target: masked, status: 'CONNECTED', photoCount });
+      successfulHost = targetLabel;
+      attempts.push({ target: targetLabel, status: 'CONNECTED', photoCount });
       await testPool.end().catch(() => {});
       break;
     } catch (err) {
-      attempts.push({ target: masked, error: err.message });
+      attempts.push({ target: targetLabel, error: err.message });
       if (testPool) await testPool.end().catch(() => {});
     }
   }
 
   return res.status(200).json({
     parsedProjectRef: parsed?.projectRef,
-    connected: Boolean(successfulConnection),
-    successfulConnection,
+    connected: Boolean(successfulHost),
+    successfulHost,
     photoCount,
     attempts,
   });

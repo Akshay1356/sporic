@@ -16,7 +16,6 @@ const POOLER_REGIONS = [
 export function parseSupabaseUrl(raw) {
   if (!raw) return null;
 
-  // Split from the last '@' to cleanly isolate passwords that contain '@', ']', etc.
   const protocolIndex = raw.indexOf('://');
   if (protocolIndex === -1) return null;
 
@@ -31,7 +30,6 @@ export function parseSupabaseUrl(raw) {
   const user = firstColon !== -1 ? authPart.substring(0, firstColon) : 'postgres';
   const password = firstColon !== -1 ? authPart.substring(firstColon + 1) : authPart;
 
-  // Extract project ref from host (e.g. db.lzgsabqgjpardizjinsp.supabase.co:5432/postgres)
   const hostMatch = hostPart.match(/(?:db\.)?([a-z0-9]+)\.supabase\.co/i);
   const projectRef = hostMatch ? hostMatch[1] : null;
 
@@ -41,59 +39,59 @@ export function parseSupabaseUrl(raw) {
   return {
     user,
     password,
-    encodedPassword: encodeURIComponent(password),
     projectRef,
     dbName,
-    rawHost: hostPart.split('/')[0],
+    rawHost: hostPart.split('/')[0].split(':')[0],
+    rawPort: parseInt(hostPart.split(':')[1] || '5432', 10),
   };
 }
 
-export function getCandidateConnectionStrings() {
+export function getCandidateConfigs() {
   const raw = process.env.DATABASE_URL || process.env.POSTGRES_URL || '';
   if (!raw) return [];
 
   const parsed = parseSupabaseUrl(raw);
-  const candidates = [];
+  const configs = [];
 
   if (parsed && parsed.projectRef) {
     const poolerUser = `postgres.${parsed.projectRef}`;
     for (const region of POOLER_REGIONS) {
-      candidates.push(
-        `postgresql://${encodeURIComponent(poolerUser)}:${parsed.encodedPassword}@${region}:6543/${parsed.dbName}?sslmode=require`
-      );
-      candidates.push(
-        `postgresql://${encodeURIComponent(poolerUser)}:${parsed.encodedPassword}@${region}:5432/${parsed.dbName}?sslmode=require`
-      );
+      configs.push({
+        user: poolerUser,
+        password: parsed.password,
+        host: region,
+        port: 6543,
+        database: parsed.dbName || 'postgres',
+        ssl: { rejectUnauthorized: false },
+        connectionTimeoutMillis: 3500,
+        max: 5,
+      });
+      configs.push({
+        user: poolerUser,
+        password: parsed.password,
+        host: region,
+        port: 5432,
+        database: parsed.dbName || 'postgres',
+        ssl: { rejectUnauthorized: false },
+        connectionTimeoutMillis: 3500,
+        max: 5,
+      });
     }
   }
 
-  // Also include direct URI with encoded password
-  if (parsed) {
-    candidates.push(
-      `postgresql://${encodeURIComponent(parsed.user)}:${parsed.encodedPassword}@${parsed.rawHost}/${parsed.dbName}?sslmode=require`
-    );
-  }
-
-  candidates.push(raw);
-  return candidates;
+  return configs;
 }
 
 export async function getDbPool() {
   if (activePool) return activePool;
 
-  const candidates = getCandidateConnectionStrings();
-  if (candidates.length === 0) return null;
+  const configs = getCandidateConfigs();
+  if (configs.length === 0) return null;
 
-  for (const connStr of candidates) {
+  for (const config of configs) {
     let testPool = null;
     try {
-      testPool = new Pool({
-        connectionString: connStr,
-        ssl: { rejectUnauthorized: false },
-        connectionTimeoutMillis: 3000,
-        max: 5,
-      });
-
+      testPool = new Pool(config);
       await testPool.query('SELECT 1');
       activePool = testPool;
       return activePool;
