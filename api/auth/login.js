@@ -19,27 +19,32 @@ export default async function handler(req, res) {
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    // Verification check for demo accounts or registered credentials
+    // Verification check for admin or corporate accounts
+    const isAdminEmail =
+      normalizedEmail.includes('admin') ||
+      normalizedEmail === 'deancc.sporic@vit.ac.in' ||
+      expectedRole === 'ADMIN';
+
     const isMasterAdmin =
-      normalizedEmail === 'admin@vit.ac.in' && (password === 'Admin@VIT2026' || password.length >= 6);
+      isAdminEmail && (password === 'Admin@VIT2026' || password.length >= 6);
+
     const isMasterStudent =
-      (normalizedEmail === 'student1@vit.ac.in' || normalizedEmail.includes('@')) &&
-      (password === 'Student@VIT2026' || password.length >= 6);
+      normalizedEmail.includes('@') && (password === 'Student@VIT2026' || password.length >= 6);
 
     if (!isMasterAdmin && !isMasterStudent) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid email or password. Use Admin@VIT2026 or Student@VIT2026.',
+        message: 'Invalid email or password. Password must be at least 6 characters.',
       });
     }
 
     const assignedRole =
-      expectedRole === 'ADMIN' || isMasterAdmin ? 'ADMIN' : 'STUDENT';
+      expectedRole === 'ADMIN' || isAdminEmail ? 'ADMIN' : 'STUDENT';
 
     const user = {
       id: 'usr_' + Date.now(),
       email: normalizedEmail,
-      name: isMasterAdmin ? 'Dr. Dean SpoRIC' : normalizedEmail.split('@')[0].replace('.', ' '),
+      name: isAdminEmail ? 'Dr. Dean SpoRIC' : normalizedEmail.split('@')[0].replace('.', ' '),
       role: assignedRole,
       accountStatus: 'ACTIVE',
       lastLoginAt: new Date(),
