@@ -51,19 +51,30 @@ function AnimatedNumber({ target, suffix, isVisible }) {
 
   useEffect(() => {
     if (!isVisible) return;
-    let start = 0;
-    const duration = 1500;
-    const increment = target / (duration / 16);
-    const timer = setInterval(() => {
-      start += increment;
-      if (start >= target) {
-        setCount(target);
-        clearInterval(timer);
+    
+    // Slowed down smoothly to 3.0 seconds with ease-out curve
+    const duration = 3000;
+    const startTime = performance.now();
+
+    const updateCounter = (currentTime) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      
+      // Smooth cubic ease-out: 1 - pow(1 - progress, 3)
+      const easeOutProgress = 1 - Math.pow(1 - progress, 3);
+      const currentVal = Math.floor(easeOutProgress * target);
+      
+      setCount(currentVal);
+
+      if (progress < 1) {
+        requestAnimationFrame(updateCounter);
       } else {
-        setCount(Math.floor(start));
+        setCount(target);
       }
-    }, 16);
-    return () => clearInterval(timer);
+    };
+
+    const animId = requestAnimationFrame(updateCounter);
+    return () => cancelAnimationFrame(animId);
   }, [isVisible, target]);
 
   return (
@@ -85,7 +96,7 @@ export default function Stats() {
           className={styles.statsCard}
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
         >
           {statsData.map((item, idx) => (
             <div key={idx} className={styles.statItem}>

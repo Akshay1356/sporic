@@ -4,6 +4,7 @@ import About from '../components/About';
 import CorporateTrainingGraph from '../components/CorporateTrainingGraph';
 import Marquee from '../components/Marquee';
 import Benefits from '../components/Benefits';
+import Domains from '../components/Domains';
 import Certification from '../components/Certification';
 import IndustryTraining from '../components/IndustryTraining';
 import Contact from '../components/Contact';
@@ -17,6 +18,7 @@ export default function Home() {
       <CorporateTrainingGraph />
       <Marquee />
       <Benefits />
+      <Domains />
       <Certification />
       <IndustryTraining />
       <Contact />

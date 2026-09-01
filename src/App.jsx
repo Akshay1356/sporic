@@ -4,8 +4,10 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import About from './pages/About';
-import Courses from './pages/Courses';
 import CourseDetails from './pages/CourseDetails';
+import Technology from './pages/Technology';
+import Management from './pages/Management';
+import Personality from './pages/Personality';
 import Gallery from './pages/Gallery';
 import Register from './pages/Register';
 import Login from './pages/Login';
@@ -42,15 +44,18 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
-            <Route path="/courses" element={<Courses />} />
+            
+            {/* Dedicated Domain Pages */}
+            <Route path="/technology" element={<Technology />} />
+            <Route path="/management" element={<Management />} />
+            <Route path="/personality" element={<Personality />} />
+            <Route path="/leadership" element={<Navigate to="/personality" replace />} />
+            
+            {/* Redirect legacy /courses to /technology */}
+            <Route path="/courses" element={<Navigate to="/technology" replace />} />
             <Route path="/courses/:courseId" element={<CourseDetails />} />
+            
             <Route path="/gallery" element={<Gallery />} />
-            
-            {/* Redirect deprecated domain pages to courses catalog */}
-            <Route path="/technology" element={<Navigate to="/courses" replace />} />
-            <Route path="/management" element={<Navigate to="/courses" replace />} />
-            <Route path="/leadership" element={<Navigate to="/courses" replace />} />
-            
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/login/student" element={<StudentLogin />} />

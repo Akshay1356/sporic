@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { getCourseById } from '../data/courses';
 import GlassCard from '../components/GlassCard';
+import CoursePoster from '../components/CoursePoster';
 import styles from './CourseDetails.module.css';
 
 export default function CourseDetails() {
@@ -13,21 +14,17 @@ export default function CourseDetails() {
         <GlassCard padding="lg" className={styles.errorCard}>
           <h2>Course Not Found</h2>
           <p>The requested course code (<strong>{courseId}</strong>) is not registered in our catalog.</p>
-          <Link to="/courses" className="btn btn-primary" style={{ marginTop: '1.5rem' }}>
-            Back to Courses
+          <Link to="/technology" className="btn btn-primary" style={{ marginTop: '1.5rem' }}>
+            Back to Technology Courses
           </Link>
         </GlassCard>
       </div>
     );
   }
 
-  // Generate a distinct stylized dynamic dark visual hue for course graphic
-  const hash = course.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const hue = hash % 360;
-
   return (
     <div className={styles.courseDetailsPage}>
-      {/* Hero Header */}
+      {/* Hero Header with Live Event Poster */}
       <section className={styles.heroSection}>
         <div className="grid-bg" style={{ opacity: 0.5 }} />
         <div className="container">
@@ -44,15 +41,9 @@ export default function CourseDetails() {
               </div>
             </div>
 
+            {/* Official Training Poster & Lightbox */}
             <div className={styles.heroVisual}>
-              <div 
-                className={styles.visualCard} 
-                style={{ background: `linear-gradient(135deg, hsl(${hue}, 70%, 15%) 0%, #020617 100%)` }}
-              >
-                <div className={styles.graphicBox} style={{ borderColor: `hsl(${hue}, 60%, 40%)` }}>
-                  <span style={{ background: `hsl(${hue}, 80%, 50%)`, boxShadow: `0 0 30px hsl(${hue}, 80%, 50%)` }} />
-                </div>
-              </div>
+              <CoursePoster course={course} />
             </div>
           </div>
         </div>

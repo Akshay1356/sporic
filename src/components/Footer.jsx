@@ -27,14 +27,13 @@ export default function Footer() {
 
           {/* Column 2: Corporate Training Programs */}
           <div className={styles.linksCol}>
-            <h4 className={styles.colTitle}>Corporate Programs</h4>
+            <h4 className={styles.colTitle}>Learning Domains</h4>
             <ul className={styles.linksList}>
-              <li><Link to="/courses?cat=Data%20Science">Data Science & AI</Link></li>
-              <li><Link to="/courses?cat=Cyber%20Security">Cyber Security</Link></li>
-              <li><Link to="/courses?cat=Cloud%20Computing">Cloud Computing</Link></li>
-              <li><Link to="/courses?cat=Artificial%20Intelligence">Machine Learning</Link></li>
-              <li><Link to="/courses?cat=Industry%204.0">Industry 4.0 & IoT</Link></li>
-              <li><Link to="/courses">All Corporate Courses</Link></li>
+              <li><Link to="/technology">Technology Programs (60+)</Link></li>
+              <li><Link to="/management">Management Programs (20+)</Link></li>
+              <li><Link to="/personality">Leadership & Personality (15+)</Link></li>
+              <li><Link to="/register">Corporate Enrolment</Link></li>
+              <li><Link to="/contact">Request Custom Syllabus</Link></li>
             </ul>
           </div>
 
@@ -44,8 +43,8 @@ export default function Footer() {
             <ul className={styles.linksList}>
               <li><Link to="/about">About VIT-TEC</Link></li>
               <li><Link to="/gallery">Photo Gallery</Link></li>
-              <li><Link to="/courses">Custom Executive Training</Link></li>
-              <li><Link to="/register">Corporate Enrolment</Link></li>
+              <li><Link to="/technology">Executive Upskilling</Link></li>
+              <li><Link to="/register">Apply / Enquire</Link></li>
               <li><Link to="/contact">Industrial Consultancy</Link></li>
               <li><Link to="/contact">Request Training Proposal</Link></li>
             </ul>

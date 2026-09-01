@@ -8,7 +8,9 @@ import styles from './Navbar.module.css';
 const navLinks = [
   { label: 'Home', path: '/' },
   { label: 'About', path: '/about' },
-  { label: 'Programs', path: '/courses' },
+  { label: 'Technology', path: '/technology' },
+  { label: 'Management', path: '/management' },
+  { label: 'Personality', path: '/personality' },
   { label: 'Gallery', path: '/gallery' },
   { label: 'Contact', path: '/contact' },
 ];
