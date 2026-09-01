@@ -1,103 +1,89 @@
 import pg from 'pg';
 const { Pool } = pg;
 
-let pool = null;
+let activePool = null;
+let activeConnectionString = null;
 
-const COMMON_REGIONS = [
+const REGIONS = [
   'aws-0-ap-south-1.pooler.supabase.com',
   'aws-0-ap-southeast-1.pooler.supabase.com',
   'aws-0-us-east-1.pooler.supabase.com',
+  'aws-0-us-east-2.pooler.supabase.com',
   'aws-0-eu-central-1.pooler.supabase.com',
-  'aws-0-us-west-1.pooler.supabase.com',
+  'aws-0-eu-west-1.pooler.supabase.com',
+  'aws-0-ap-northeast-1.pooler.supabase.com',
 ];
 
-function getCandidateConnectionStrings() {
+function generateCandidatePoolerStrings() {
   const raw = process.env.DATABASE_URL || process.env.POSTGRES_URL || '';
   if (!raw) return [];
 
-  const candidates = [raw];
+  const candidates = [];
 
-  // If Supabase direct db.[ref].supabase.co format is used, generate IPv4 pooler alternatives
-  const supabaseDirectRegex = /postgresql:\/\/([^:]+):([^@]+)@db\.([a-z0-9]+)\.supabase\.co(?::\d+)?\/(.+)/i;
-  const match = raw.match(supabaseDirectRegex);
-
+  const match = raw.match(/postgresql:\/\/([^:]+):([^@]+)@db\.([a-z0-9]+)\.supabase\.co(?::\d+)?\/(.+)/i);
   if (match) {
-    const [, user, password, projectRef, dbNameAndQuery] = match;
-    const cleanDbName = dbNameAndQuery.split('?')[0] || 'postgres';
+    const [, user, password, projectRef, dbName] = match;
+    const cleanDb = dbName.split('?')[0] || 'postgres';
     const poolerUser = `postgres.${projectRef}`;
 
-    for (const regionHost of COMMON_REGIONS) {
+    for (const region of REGIONS) {
       candidates.push(
-        `postgresql://${encodeURIComponent(poolerUser)}:${password}@${regionHost}:6543/${cleanDbName}?sslmode=require`
+        `postgresql://${encodeURIComponent(poolerUser)}:${password}@${region}:6543/${cleanDb}?sslmode=require`
       );
       candidates.push(
-        `postgresql://${encodeURIComponent(poolerUser)}:${password}@${regionHost}:5432/${cleanDbName}?sslmode=require`
+        `postgresql://${encodeURIComponent(poolerUser)}:${password}@${region}:5432/${cleanDb}?sslmode=require`
       );
     }
   }
 
+  candidates.push(raw);
   return candidates;
 }
 
-export function getDbPool() {
-  const candidates = getCandidateConnectionStrings();
+export async function getDbPool() {
+  if (activePool) return activePool;
+
+  const candidates = generateCandidatePoolerStrings();
   if (candidates.length === 0) return null;
 
-  if (!pool) {
-    // Start with the best candidate
-    const primaryUri = candidates[1] || candidates[0];
-    pool = new Pool({
-      connectionString: primaryUri,
-      ssl: {
-        rejectUnauthorized: false,
-      },
-      max: 5,
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 5000,
-    });
-  }
-  return pool;
-}
-
-export async function query(text, params = []) {
-  const candidates = getCandidateConnectionStrings();
-  if (candidates.length === 0) return null;
-
-  let lastError = null;
-
-  // Try candidate connections until one works (resolves IPv4 pooler)
   for (const connStr of candidates) {
     let testPool = null;
     try {
       testPool = new Pool({
         connectionString: connStr,
         ssl: { rejectUnauthorized: false },
-        connectionTimeoutMillis: 3500,
-        max: 2,
+        connectionTimeoutMillis: 2500,
+        max: 5,
       });
 
-      const res = await testPool.query(text, params);
-      await testPool.end().catch(() => {});
-      return res;
+      await testPool.query('SELECT 1');
+      activePool = testPool;
+      activeConnectionString = connStr;
+      return activePool;
     } catch (err) {
-      lastError = err;
       if (testPool) {
         await testPool.end().catch(() => {});
-      }
-      // If error is not a DNS/network lookup error, break early
-      if (!err.message.includes('ENOTFOUND') && !err.message.includes('ETIMEDOUT') && !err.message.includes('EHOSTUNREACH')) {
-        break;
       }
     }
   }
 
-  if (lastError) throw lastError;
   return null;
+}
+
+export async function query(text, params = []) {
+  const pool = await getDbPool();
+  if (!pool) {
+    throw new Error('Could not establish connection to PostgreSQL cloud database.');
+  }
+  return await pool.query(text, params);
 }
 
 export async function ensureGalleryTable() {
   try {
-    await query(`
+    const pool = await getDbPool();
+    if (!pool) return false;
+
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS gallery_photos (
         id VARCHAR(255) PRIMARY KEY,
         title VARCHAR(255),
@@ -110,7 +96,7 @@ export async function ensureGalleryTable() {
     `);
     return true;
   } catch (e) {
-    console.warn('ensureGalleryTable notice:', e.message);
+    console.warn('ensureGalleryTable warning:', e.message);
     return false;
   }
 }
