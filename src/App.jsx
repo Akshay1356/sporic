@@ -57,6 +57,9 @@ export default function App() {
             
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/apply" element={<Register />} />
+            <Route path="/enroll" element={<Register />} />
+            <Route path="/enrol" element={<Register />} />
             <Route path="/login" element={<Login />} />
             <Route path="/login/student" element={<StudentLogin />} />
             <Route path="/login/faculty" element={<FacultyLogin />} />

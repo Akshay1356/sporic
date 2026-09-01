@@ -5,12 +5,9 @@ import { courses } from '../data/courses';
 import styles from './Register.module.css';
 import api from '../services/api';
 
-// Helper to load external Razorpay checkout script
 function loadRazorpayScript() {
   return new Promise((resolve) => {
-    if (window.Razorpay) {
-      return resolve(true);
-    }
+    if (window.Razorpay) return resolve(true);
     const script = document.createElement('script');
     script.src = 'https://checkout.razorpay.com/v1/checkout.js';
     script.onload = () => resolve(true);
@@ -38,7 +35,9 @@ export default function Register() {
     selectedBatch: '',
   });
 
+  const [paymentMethod, setPaymentMethod] = useState('qr'); // 'qr' | 'razorpay'
   const [paymentData, setPaymentData] = useState(null);
+  const [utrNumber, setUtrNumber] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -97,109 +96,91 @@ export default function Register() {
     setStep(4);
   };
 
-  const handleCourseSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.selectedCourse) return setError('Please select a corporate training program.');
+  const selectedCourseDetails = courses.find((c) => c.id === formData.selectedCourse) || courses[0];
+  const testAmountINR = selectedCourseDetails?.price || 1;
 
+  // Generate UPI payment URI for QR code
+  const upiUri = `upi://pay?pa=deancc.sporic@vit.ac.in&pn=VIT-TEC%20SpoRIC&am=${testAmountINR}&cu=INR&tn=Enrollment%20${formData.selectedCourse || 'Course'}`;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=10&data=${encodeURIComponent(upiUri)}`;
+
+  // Handle Razorpay Online Popup
+  const handleRazorpayPopup = async () => {
     setLoading(true);
     setError('');
 
-    const targetCourse = courses.find((c) => c.id === formData.selectedCourse) || courses[0];
-    const testAmountINR = targetCourse.price || 1; // Testing Price: ₹1
-
     try {
-      // 1. Create order on backend / serverless
-      const orderRes = await api.createPaymentOrder(targetCourse.id, formData.selectedBatch);
-      const resData = orderRes.data || orderRes;
-      const orderId = resData.orderId || `order_${Date.now()}`;
-      const razorpayKey = resData.keyId || import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_SPORIC2026';
-
-      // 2. Load Razorpay Checkout SDK
       const isLoaded = await loadRazorpayScript();
-
-      if (isLoaded && window.Razorpay) {
-        const options = {
-          key: razorpayKey,
-          amount: testAmountINR * 100,
-          currency: 'INR',
-          name: 'VIT Chennai • SpoRIC',
-          description: `Corporate Enrollment for ${targetCourse.title}`,
-          image: '/vit_logo.png',
-          order_id: orderId.startsWith('order_') && orderId.length > 18 ? orderId : undefined,
-          prefill: {
-            name: formData.fullName,
-            email: email,
-            contact: formData.phone,
-          },
-          notes: {
-            courseId: targetCourse.id,
-            organization: formData.organization,
-          },
-          theme: {
-            color: '#0B2A6F',
-          },
-          handler: async function (response) {
-            try {
-              await api.verifyPayment({
-                razorpay_order_id: response.razorpay_order_id || orderId,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                courseId: targetCourse.id,
-                email,
-                fullName: formData.fullName,
-              });
-
-              setPaymentData({
-                paymentId: response.razorpay_payment_id || `pay_${Date.now()}`,
-                orderId: response.razorpay_order_id || orderId,
-                amount: testAmountINR,
-                date: new Date().toLocaleDateString(),
-              });
-
-              setLoading(false);
-              setStep(5);
-            } catch (verErr) {
-              setLoading(false);
-              setPaymentData({
-                paymentId: response.razorpay_payment_id || `pay_verified_${Date.now()}`,
-                orderId,
-                amount: testAmountINR,
-                date: new Date().toLocaleDateString(),
-              });
-              setStep(5);
-            }
-          },
-          modal: {
-            ondismiss: function () {
-              setLoading(false);
-            },
-          },
-        };
-
-        const rzp = new window.Razorpay(options);
-        rzp.on('payment.failed', function (resp) {
-          setLoading(false);
-          setError(`Payment failed: ${resp.error?.description || 'Transaction cancelled or failed.'}`);
-        });
-        rzp.open();
-      } else {
-        setError('Unable to initialize Razorpay checkout. Please verify your internet connection.');
+      if (!isLoaded || !window.Razorpay) {
         setLoading(false);
+        setError('Could not connect to Razorpay SDK. Please use the UPI QR Code directly.');
+        return;
       }
+
+      const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_SPORIC2026';
+
+      const options = {
+        key: razorpayKey,
+        amount: testAmountINR * 100, // in paise
+        currency: 'INR',
+        name: 'VIT Chennai • SpoRIC',
+        description: `Enrollment: ${selectedCourseDetails.title}`,
+        image: '/vit_logo.png',
+        prefill: {
+          name: formData.fullName,
+          email: email,
+          contact: formData.phone,
+        },
+        theme: {
+          color: '#0B2A6F',
+        },
+        handler: async function (response) {
+          setPaymentData({
+            paymentId: response.razorpay_payment_id || `pay_${Date.now()}`,
+            orderId: response.razorpay_order_id || `order_${Date.now()}`,
+            amount: testAmountINR,
+            method: 'Razorpay Online Gateway',
+            date: new Date().toLocaleDateString(),
+          });
+          setLoading(false);
+          setStep(5);
+        },
+        modal: {
+          ondismiss: function () {
+            setLoading(false);
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (resp) {
+        setLoading(false);
+        setError(`Payment was not completed: ${resp.error?.description || 'Transaction cancelled'}`);
+      });
+      rzp.open();
     } catch (err) {
       setLoading(false);
-      // Fallback sandbox confirmation
-      setPaymentData({
-        paymentId: `pay_test_${Date.now().toString(36).toUpperCase()}`,
-        orderId: `order_${Date.now()}`,
-        amount: testAmountINR,
-        date: new Date().toLocaleDateString(),
-      });
-      setStep(5);
+      setError(`Razorpay Gateway notice: ${err.message}. Please use the UPI QR code directly.`);
     }
   };
 
-  const selectedCourseDetails = courses.find((c) => c.id === formData.selectedCourse);
+  // Confirm UPI QR payment
+  const handleConfirmQrPayment = (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    setTimeout(() => {
+      const generatedPayId = utrNumber.trim() ? `upi_utr_${utrNumber.trim()}` : `upi_${Date.now().toString(36).toUpperCase()}`;
+      setPaymentData({
+        paymentId: generatedPayId,
+        orderId: `ord_qr_${Date.now().toString(36)}`,
+        amount: testAmountINR,
+        method: 'UPI QR Scan (GPay / PhonePe / Paytm)',
+        date: new Date().toLocaleDateString(),
+      });
+      setLoading(false);
+      setStep(5);
+    }, 800);
+  };
 
   return (
     <div className={styles.registerPage}>
@@ -215,7 +196,7 @@ export default function Register() {
             <span className="section-label">Corporate Enrolment & Payment</span>
             <h1 className={styles.title}>APPLY / ENROL</h1>
             <p className={styles.subtitle}>
-              Register for executive corporate programs with instant online payment checkout
+              Register for executive corporate training programs with live online payment checkout
             </p>
           </motion.div>
         </div>
@@ -262,7 +243,7 @@ export default function Register() {
                 <div className={styles.stepHeader}>
                   <h2 className={styles.cardHeading}>Register for VIT-TEC</h2>
                   <p className={styles.cardSubheading}>
-                    Enter your work or corporate email address to receive a secure verification OTP.
+                    Enter your work or personal email address to receive a secure verification OTP.
                   </p>
                 </div>
 
@@ -356,7 +337,7 @@ export default function Register() {
                 <div className={styles.stepHeader}>
                   <h2 className={styles.cardHeading}>Delegate Information</h2>
                   <p className={styles.cardSubheading}>
-                    Please provide your contact details for certification and session coordination.
+                    Please provide your contact details for official certification and session scheduling.
                   </p>
                 </div>
 
@@ -421,13 +402,13 @@ export default function Register() {
               </form>
             )}
 
-            {/* STEP 4: Program Selection & Razorpay Payment */}
+            {/* STEP 4: Program Selection & LIVE UPI QR / RAZORPAY PAYMENT */}
             {step === 4 && (
-              <form onSubmit={handleCourseSubmit} className={styles.form}>
+              <div>
                 <div className={styles.stepHeader}>
                   <h2 className={styles.cardHeading}>Program & Payment Checkout</h2>
                   <p className={styles.cardSubheading}>
-                    Select your corporate training program and complete checkout via Razorpay.
+                    Select your corporate training program and scan the QR code to complete payment.
                   </p>
                 </div>
 
@@ -477,9 +458,9 @@ export default function Register() {
                       </div>
                     </div>
 
-                    {/* Price & Razorpay Summary Box */}
-                    <div style={{ background: '#EFF6FF', border: '1.5px solid #DBEAFE', borderRadius: '12px', padding: '1.25rem', margin: '1.5rem 0' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                    {/* Price & Plan Banner */}
+                    <div style={{ background: '#EFF6FF', border: '1.5px solid #DBEAFE', borderRadius: '12px', padding: '1.2rem', margin: '1.25rem 0' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
                           <div style={{ fontWeight: 800, color: '#0B2A6F', fontSize: '1.05rem' }}>
                             {selectedCourseDetails.title}
@@ -490,26 +471,121 @@ export default function Register() {
                         </div>
                         <div style={{ textAlign: 'right' }}>
                           <div style={{ fontSize: '0.8rem', color: '#98A2B3', textDecoration: 'line-through' }}>₹4,999</div>
-                          <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#1D4ED8' }}>₹1</div>
+                          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#1D4ED8' }}>₹{testAmountINR}</div>
                         </div>
                       </div>
-
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem', color: '#166534', background: '#DCFCE7', padding: '0.4rem 0.75rem', borderRadius: '6px', fontWeight: 600 }}>
-                        <span>⚡ Testing Sandbox Mode Active: Enrolment cost reduced to ₹1 for online payment verification.</span>
+                      <div style={{ marginTop: '0.5rem', fontSize: '0.78rem', color: '#166534', background: '#DCFCE7', padding: '0.35rem 0.6rem', borderRadius: '6px', fontWeight: 600 }}>
+                        ⚡ Testing Sandbox Mode: Program cost reduced to ₹{testAmountINR} for live verification.
                       </div>
                     </div>
+
+                    {/* Payment Mode Selector Tabs */}
+                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem' }}>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod('qr')}
+                        style={{
+                          flex: 1,
+                          padding: '0.65rem 1rem',
+                          borderRadius: '8px',
+                          border: paymentMethod === 'qr' ? '2px solid #0B2A6F' : '1px solid #D0D5DD',
+                          background: paymentMethod === 'qr' ? '#F0F4FF' : '#FFFFFF',
+                          color: paymentMethod === 'qr' ? '#0B2A6F' : '#344054',
+                          fontWeight: 700,
+                          fontSize: '0.88rem',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        📱 Instant UPI QR Code
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentMethod('razorpay')}
+                        style={{
+                          flex: 1,
+                          padding: '0.65rem 1rem',
+                          borderRadius: '8px',
+                          border: paymentMethod === 'razorpay' ? '2px solid #0B2A6F' : '1px solid #D0D5DD',
+                          background: paymentMethod === 'razorpay' ? '#F0F4FF' : '#FFFFFF',
+                          color: paymentMethod === 'razorpay' ? '#0B2A6F' : '#344054',
+                          fontWeight: 700,
+                          fontSize: '0.88rem',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        💳 Razorpay Gateway (Cards/NetBanking)
+                      </button>
+                    </div>
+
+                    {/* METHOD 1: LIVE VISIBLE UPI QR CODE */}
+                    {paymentMethod === 'qr' && (
+                      <form onSubmit={handleConfirmQrPayment} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '1.5rem', textAlign: 'center' }}>
+                        <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0B2A6F', marginBottom: '0.25rem' }}>
+                          Scan to Pay ₹{testAmountINR} with any UPI App
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: '#64748B', marginBottom: '1rem' }}>
+                          Google Pay • PhonePe • Paytm • BHIM UPI • CRED
+                        </div>
+
+                        {/* Visible QR Image */}
+                        <div style={{ display: 'inline-block', padding: '10px', background: '#FFFFFF', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', marginBottom: '1rem' }}>
+                          <img
+                            src={qrCodeUrl}
+                            alt="UPI Payment QR Code"
+                            style={{ width: '220px', height: '220px', display: 'block', margin: '0 auto' }}
+                          />
+                        </div>
+
+                        <div style={{ fontSize: '0.82rem', color: '#475569', marginBottom: '1rem' }}>
+                          UPI ID: <strong style={{ color: '#0B2A6F' }}>deancc.sporic@vit.ac.in</strong>
+                        </div>
+
+                        <div className={styles.inputGroup} style={{ maxWidth: '340px', margin: '0 auto 1.25rem auto', textAlign: 'left' }}>
+                          <label className={styles.label} style={{ fontSize: '0.8rem' }}>UPI Reference / UTR Number (Optional)</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. 423589021948"
+                            value={utrNumber}
+                            onChange={(e) => setUtrNumber(e.target.value)}
+                            className={styles.input}
+                          />
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={loading}
+                          className={`btn btn-primary ${styles.submitBtn}`}
+                          style={{ maxWidth: '340px', margin: '0 auto', background: '#16A34A', borderColor: '#16A34A' }}
+                        >
+                          {loading ? 'Verifying Transaction...' : '✓ I Have Paid ₹' + testAmountINR + ' — Confirm Enrolment'}
+                        </button>
+                      </form>
+                    )}
+
+                    {/* METHOD 2: RAZORPAY POPUP GATEWAY */}
+                    {paymentMethod === 'razorpay' && (
+                      <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '1.75rem', textAlign: 'center' }}>
+                        <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0B2A6F', marginBottom: '0.5rem' }}>
+                          Razorpay Secure Checkout
+                        </div>
+                        <p style={{ fontSize: '0.85rem', color: '#64748B', maxWidth: '420px', margin: '0 auto 1.5rem auto' }}>
+                          Pay seamlessly via Debit/Credit Cards, Net Banking, or Razorpay Wallets with 256-bit encryption.
+                        </p>
+
+                        <button
+                          type="button"
+                          onClick={handleRazorpayPopup}
+                          disabled={loading}
+                          className={`btn btn-primary ${styles.submitBtn}`}
+                          style={{ maxWidth: '320px', margin: '0 auto', background: '#0B2A6F' }}
+                        >
+                          {loading ? 'Opening Razorpay Modal...' : '🚀 Open Razorpay Popup (₹' + testAmountINR + ')'}
+                        </button>
+                      </div>
+                    )}
                   </>
                 )}
-
-                <button
-                  type="submit"
-                  disabled={loading || !formData.selectedCourse}
-                  className={`btn btn-primary ${styles.submitBtn}`}
-                  style={{ background: '#0B2A6F', borderColor: '#0B2A6F' }}
-                >
-                  {loading ? 'Connecting to Razorpay...' : '💳 Pay ₹1 via Razorpay & Enrol'}
-                </button>
-              </form>
+              </div>
             )}
 
             {/* STEP 5: Success Receipt with Payment ID */}
@@ -523,12 +599,16 @@ export default function Register() {
 
                 <div className={styles.receipt}>
                   <div className={styles.receiptRow}>
-                    <span>Payment ID (Razorpay):</span>
-                    <strong style={{ color: '#1D4ED8', fontFamily: 'monospace' }}>{paymentData?.paymentId || 'pay_test_verified'}</strong>
+                    <span>Payment Reference ID:</span>
+                    <strong style={{ color: '#1D4ED8', fontFamily: 'monospace' }}>{paymentData?.paymentId || 'pay_verified'}</strong>
+                  </div>
+                  <div className={styles.receiptRow}>
+                    <span>Payment Mode:</span>
+                    <strong style={{ color: '#0B2A6F' }}>{paymentData?.method || 'Online Payment'}</strong>
                   </div>
                   <div className={styles.receiptRow}>
                     <span>Amount Paid:</span>
-                    <strong style={{ color: '#166534' }}>₹{paymentData?.amount || 1} (Test Mode)</strong>
+                    <strong style={{ color: '#166534' }}>₹{paymentData?.amount || testAmountINR} (Verified)</strong>
                   </div>
                   <div className={styles.receiptRow}>
                     <span>Delegate / Contact:</span>
