@@ -1,5 +1,6 @@
 import pg from 'pg';
 const { Pool } = pg;
+import { getCandidateConnectionStrings, parseSupabaseUrl } from '../_db.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -9,48 +10,58 @@ export default async function handler(req, res) {
     return res.status(200).json({ error: 'No DATABASE_URL found in environment variables.' });
   }
 
-  // Mask password for safety: postgresql://username:****@host:port/dbname
-  const maskedUrl = rawUrl.replace(/:([^:@]+)@/, ':****@');
+  const parsed = parseSupabaseUrl(rawUrl);
+  const candidates = getCandidateConnectionStrings();
 
-  // Try direct connection first
-  let directConnected = false;
-  let directError = null;
+  const attempts = [];
+  let successfulConnection = null;
   let photoCount = 0;
 
-  let directPool = null;
-  try {
-    directPool = new Pool({
-      connectionString: rawUrl,
-      ssl: { rejectUnauthorized: false },
-      connectionTimeoutMillis: 4000,
-    });
-    await directPool.query('SELECT 1');
-    directConnected = true;
+  for (const conn of candidates) {
+    // Mask password
+    const masked = conn.replace(/:([^:@]+)@/, ':****@');
+    let testPool = null;
+    try {
+      testPool = new Pool({
+        connectionString: conn,
+        ssl: { rejectUnauthorized: false },
+        connectionTimeoutMillis: 3000,
+        max: 1,
+      });
 
-    await directPool.query(`
-      CREATE TABLE IF NOT EXISTS gallery_photos (
-        id VARCHAR(255) PRIMARY KEY,
-        title VARCHAR(255),
-        description TEXT,
-        category VARCHAR(100),
-        image_url TEXT,
-        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-      );
-    `);
+      await testPool.query('SELECT 1');
 
-    const countRes = await directPool.query('SELECT count(*) FROM gallery_photos');
-    photoCount = parseInt(countRes?.rows?.[0]?.count || '0', 10);
-    await directPool.end().catch(() => {});
-  } catch (err) {
-    directError = err.message;
-    if (directPool) await directPool.end().catch(() => {});
+      // Create table if not exists
+      await testPool.query(`
+        CREATE TABLE IF NOT EXISTS gallery_photos (
+          id VARCHAR(255) PRIMARY KEY,
+          title VARCHAR(255),
+          description TEXT,
+          category VARCHAR(100),
+          image_url TEXT,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+      `);
+
+      const countRes = await testPool.query('SELECT count(*) FROM gallery_photos');
+      photoCount = parseInt(countRes?.rows?.[0]?.count || '0', 10);
+
+      successfulConnection = masked;
+      attempts.push({ target: masked, status: 'CONNECTED', photoCount });
+      await testPool.end().catch(() => {});
+      break;
+    } catch (err) {
+      attempts.push({ target: masked, error: err.message });
+      if (testPool) await testPool.end().catch(() => {});
+    }
   }
 
   return res.status(200).json({
-    maskedUrl,
-    directConnected,
-    directError,
+    parsedProjectRef: parsed?.projectRef,
+    connected: Boolean(successfulConnection),
+    successfulConnection,
     photoCount,
+    attempts,
   });
 }
