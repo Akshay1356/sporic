@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { VisionCard, MissionCard } from './VisionMissionCard';
 import styles from './About.module.css';
 
 const credentials = [
@@ -67,45 +68,25 @@ export default function About() {
           </motion.div>
         </div>
 
-        {/* Secondary Subgrid: Vision & Mission 3D Flip Cards + Credentials */}
+        {/* Secondary Subgrid: Vision & Mission Interactive Layered Cards + Credentials */}
         <div className={styles.subGrid}>
-          <div>
-            <div className={styles.flipCardContainer}>
-              <div className={styles.flipCard}>
-                <div className={styles.flipCardInner}>
-                  <div className={styles.flipCardFront}>
-                    <h3 className={styles.cardTitle}>Vision</h3>
-                    <div className={styles.flipIndicator}>Hover to Reveal</div>
-                  </div>
-                  <div className={styles.flipCardBack}>
-                    <p className={styles.cardDesc}>
-                      Impart skills to enhance performance, productivity and global competence across industries.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* Left Sub-Column: Interactive Layered Reveal Cards */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <VisionCard />
+            <MissionCard />
+          </motion.div>
 
-            <div className={styles.flipCardContainer}>
-              <div className={styles.flipCard}>
-                <div className={styles.flipCardInner}>
-                  <div className={styles.flipCardFront}>
-                    <h3 className={styles.cardTitle}>Mission</h3>
-                    <div className={styles.flipIndicator}>Hover to Reveal</div>
-                  </div>
-                  <div className={styles.flipCardBack}>
-                    <ul className={styles.missionList}>
-                      <li>Thriving collaboration with national &amp; international industries and institutions.</li>
-                      <li>Rewarding Co-creations through upskilling &amp; reskilling SME / MSME sectors in the region.</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Credentials Card */}
-          <div className={styles.credentialsCard}>
+          {/* Right Sub-Column: Credentials Card */}
+          <motion.div
+            className={styles.credentialsCard}
+            initial={{ opacity: 0, y: 24 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
             <h3 className={styles.credentialsTitle}>VIT-TEC Credentials &amp; Standards</h3>
             <div className={styles.credentialsGrid}>
               {credentials.map((cred, idx) => (
@@ -115,7 +96,7 @@ export default function About() {
                 </div>
               ))}
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
