@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { courses } from '../data/courses';
+import { courses, enrollUserInCourse } from '../data/courses';
 import styles from './Register.module.css';
 import api from '../services/api';
 
@@ -18,7 +18,7 @@ function loadRazorpayScript() {
 
 export default function Register() {
   const [searchParams] = useSearchParams();
-  const initialCourseId = searchParams.get('courseId') || '';
+  const initialCourseId = searchParams.get('courseId') || searchParams.get('course') || '';
 
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
@@ -40,6 +40,43 @@ export default function Register() {
   const [utrNumber, setUtrNumber] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Sync course from URL query parameters dynamically
+  useEffect(() => {
+    const cid = searchParams.get('courseId') || searchParams.get('course') || '';
+    if (cid) {
+      const matched = courses.find((c) => c.id.toLowerCase() === cid.toLowerCase() || c.code?.toLowerCase() === cid.toLowerCase());
+      if (matched) {
+        setFormData((prev) => ({
+          ...prev,
+          selectedCourse: matched.id,
+          selectedBatch: prev.selectedBatch || (matched.sessions?.[0]?.date || ''),
+        }));
+      }
+    }
+  }, [searchParams]);
+
+  // Pre-fill logged-in user credentials if available
+  useEffect(() => {
+    const stored = localStorage.getItem('sporic_user');
+    if (stored) {
+      try {
+        const u = JSON.parse(stored);
+        if (u?.email) {
+          setEmail((prev) => prev || u.email);
+          setFormData((prev) => ({
+            ...prev,
+            fullName: prev.fullName || u.fullName || u.name || '',
+            phone: prev.phone || u.phone || '',
+            organization: prev.organization || u.organization || u.company || '',
+            role: prev.role || u.designation || '',
+          }));
+        }
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
 
   // OTP Countdown Timer
   useEffect(() => {
@@ -134,6 +171,10 @@ export default function Register() {
           color: '#0B2A6F',
         },
         handler: async function (response) {
+          const finalCourseId = formData.selectedCourse || selectedCourseDetails?.id;
+          if (email && finalCourseId) {
+            enrollUserInCourse(email, finalCourseId);
+          }
           setPaymentData({
             paymentId: response.razorpay_payment_id || `pay_${Date.now()}`,
             orderId: response.razorpay_order_id || `order_${Date.now()}`,
@@ -169,6 +210,10 @@ export default function Register() {
     setLoading(true);
 
     setTimeout(() => {
+      const finalCourseId = formData.selectedCourse || selectedCourseDetails?.id;
+      if (email && finalCourseId) {
+        enrollUserInCourse(email, finalCourseId);
+      }
       const generatedPayId = utrNumber.trim() ? `upi_utr_${utrNumber.trim()}` : `upi_${Date.now().toString(36).toUpperCase()}`;
       setPaymentData({
         paymentId: generatedPayId,
@@ -246,6 +291,41 @@ export default function Register() {
                     Enter your work or personal email address to receive a secure verification OTP.
                   </p>
                 </div>
+
+                {/* Selected Course Summary Preview */}
+                {selectedCourseDetails && formData.selectedCourse && (
+                  <div style={{
+                    background: '#EFF6FF',
+                    border: '1px solid #BFDBFE',
+                    borderRadius: '12px',
+                    padding: '0.85rem 1rem',
+                    marginBottom: '1.25rem',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                  }}>
+                    <div style={{ textAlign: 'left' }}>
+                      <span style={{
+                        fontSize: '0.68rem',
+                        fontWeight: '800',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.06em',
+                        color: '#1D4ED8',
+                        display: 'block',
+                        marginBottom: '0.2rem',
+                      }}>
+                        Selected Program • {selectedCourseDetails.id}
+                      </span>
+                      <h4 style={{ fontSize: '0.92rem', color: '#0F172A', margin: 0, fontWeight: 700, lineHeight: 1.3 }}>
+                        {selectedCourseDetails.title}
+                      </h4>
+                    </div>
+                    <span className="tag tag-cyan" style={{ fontSize: '0.72rem', fontWeight: '700', whiteSpace: 'nowrap' }}>
+                      {selectedCourseDetails.hours} Hours
+                    </span>
+                  </div>
+                )}
 
                 <div className={styles.inputGroup}>
                   <label className={styles.label}>Corporate / Email Address *</label>

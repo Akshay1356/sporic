@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import GlassCard from './GlassCard';
 import CourseEnquiryModal from './CourseEnquiryModal';
-import { COURSE_STATUS, isUserEnrolledInCourse, enrollUserInCourse } from '../data/courses';
+import { COURSE_STATUS, isUserEnrolledInCourse } from '../data/courses';
 import styles from './CourseCard.module.css';
 
 export default function CourseCard({ course }) {
@@ -10,8 +10,6 @@ export default function CourseCard({ course }) {
   const [showEnquiryModal, setShowEnquiryModal] = useState(false);
   const [user, setUser] = useState(null);
   const [isEnrolled, setIsEnrolled] = useState(false);
-  const [enrolling, setEnrolling] = useState(false);
-  const [justEnrolled, setJustEnrolled] = useState(false);
 
   // Sync user and enrollment state
   useEffect(() => {
@@ -38,29 +36,6 @@ export default function CourseCard({ course }) {
     window.addEventListener('storage', checkState);
     return () => window.removeEventListener('storage', checkState);
   }, [course.id]);
-
-  const handleEnrollClick = (e) => {
-    e.preventDefault();
-
-    if (isEnrolled || justEnrolled) {
-      navigate('/dashboard?tab=courses');
-      return;
-    }
-
-    if (!user) {
-      // Redirect to login with return redirect
-      navigate(`/login?redirect=${encodeURIComponent('/courses/' + course.id)}`);
-      return;
-    }
-
-    setEnrolling(true);
-    setTimeout(() => {
-      enrollUserInCourse(user.email, course.id);
-      setIsEnrolled(true);
-      setJustEnrolled(true);
-      setEnrolling(false);
-    }, 400);
-  };
 
   // Compute deadline urgency
   const getDeadlineBadge = () => {
@@ -97,6 +72,14 @@ export default function CourseCard({ course }) {
 
   const isOpenForReg = course.status === COURSE_STATUS.OPEN;
   const isUpcoming = course.status === COURSE_STATUS.UPCOMING;
+
+  // Determine target enrollment link
+  const getEnrollLink = () => {
+    if (isEnrolled) {
+      return '/dashboard?tab=courses';
+    }
+    return `/register?courseId=${encodeURIComponent(course.id)}`;
+  };
 
   return (
     <>
@@ -162,10 +145,9 @@ export default function CourseCard({ course }) {
             <div className={styles.actionsGrid}>
               {/* Left Action: Enroll Now / Enrolled / Upcoming / Closed */}
               {isOpenForReg ? (
-                isEnrolled || justEnrolled ? (
-                  <button
-                    type="button"
-                    onClick={handleEnrollClick}
+                isEnrolled ? (
+                  <Link
+                    to="/dashboard?tab=courses"
                     className={styles.enrolledBtn}
                     title="You are enrolled in this course. Click to view dashboard."
                   >
@@ -173,17 +155,15 @@ export default function CourseCard({ course }) {
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                     <span>Enrolled ✓</span>
-                  </button>
+                  </Link>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={handleEnrollClick}
-                    disabled={enrolling}
+                  <Link
+                    to={getEnrollLink()}
                     className={styles.enrollBtn}
-                    title="Enroll in this course"
+                    title={`Enroll in ${course.title}`}
                   >
-                    <span>{enrolling ? 'Enrolling...' : 'Enroll Now'}</span>
-                  </button>
+                    <span>Enroll Now</span>
+                  </Link>
                 )
               ) : isUpcoming ? (
                 <button
