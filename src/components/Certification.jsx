@@ -7,10 +7,10 @@ export default function Certification() {
   const isInView = useInView(containerRef, { once: true, margin: '-100px' });
 
   return (
-    <section className={`section ${styles.certSection}`} id="certification" ref={containerRef}>
+    <section className={styles.certSection} id="certification" ref={containerRef}>
       <div className="glow-orb glow-blue" style={{ bottom: '10%', right: '20%', width: '400px', height: '400px' }} />
       
-      <div className="container">
+      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         <div className={styles.grid}>
           {/* Left: Info */}
           <motion.div 

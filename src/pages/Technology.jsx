@@ -47,7 +47,7 @@ export default function Technology() {
       </section>
 
       {/* Main Content Area */}
-      <section className="section" style={{ paddingTop: '3rem', paddingBottom: '6rem' }}>
+      <section className="section" style={{ paddingTop: '2.5rem', paddingBottom: '4.5rem' }}>
         <div className="container">
           {/* Filter & Search Bar */}
           <div style={{ marginBottom: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>

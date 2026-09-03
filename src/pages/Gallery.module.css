@@ -2,12 +2,12 @@
 .galleryPage {
   background: #FFFFFF;
   min-height: 100vh;
-  padding-top: var(--nav-height);
+  padding-top: 0;
 }
 
 .banner {
   position: relative;
-  padding: 5rem 0 3.5rem 0;
+  padding: 3.5rem 0 2.75rem 0;
   text-align: center;
   background: #071B4A;
   background-image: radial-gradient(circle at 50% 0%, rgba(29, 78, 216, 0.3) 0%, transparent 70%);
@@ -25,14 +25,15 @@
 }
 
 .subtitle {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   color: rgba(255, 255, 255, 0.85);
   max-width: 650px;
   margin: 0 auto;
+  line-height: 1.6;
 }
 
 .gallerySection {
-  padding: 4rem 0 6rem 0;
+  padding: 3rem 0 4.5rem 0;
   background: #F6F8FC;
 }
 

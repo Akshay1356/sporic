@@ -22,10 +22,10 @@ export default function Contact() {
   };
 
   return (
-    <section className={`section ${styles.contactSection}`} id="contact">
+    <section className={styles.contactSection} id="contact">
       <div className="glow-orb glow-blue" style={{ top: '20%', left: '10%', width: '300px', height: '300px' }} />
 
-      <div className="container">
+      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         <div className={styles.sectionHeader}>
           <span className="section-label">Connect with Us</span>
           <h2 className="section-title">Contact SpoRIC</h2>

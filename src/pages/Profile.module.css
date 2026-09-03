@@ -1,12 +1,12 @@
 .profilePage {
-  min-height: 85vh;
+  min-height: 80vh;
   background: var(--bg-primary, #071B4A);
   color: #FFFFFF;
 }
 
 .banner {
   position: relative;
-  padding: 4.5rem 0 2.5rem;
+  padding: 3.5rem 0 2rem;
   background: linear-gradient(180deg, #071B4A 0%, #0F2252 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -26,7 +26,7 @@
 }
 
 .section {
-  padding: 3rem 0 5rem;
+  padding: 2.5rem 0 4rem;
 }
 
 .profileCard {

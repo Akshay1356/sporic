@@ -1,14 +1,14 @@
 /* Dashboard.module.css - Theme 05 Deep Navy & White */
 .dashboardPage {
   position: relative;
-  min-height: calc(100vh - var(--nav-height));
-  padding-top: calc(var(--nav-height) + 2rem);
-  padding-bottom: 4rem;
+  min-height: calc(100vh - 110px);
+  padding-top: 2.25rem;
+  padding-bottom: 3.5rem;
   background: #F6F8FC;
 }
 
 .header {
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
 }
 
 .welcomeBadge {
