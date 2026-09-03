@@ -2,6 +2,7 @@
 // Production-ready with resilient offline / static deployment fallback
 import { courses } from '../data/courses';
 import { getAllGalleryItems, saveGalleryItem, updateGalleryItem, deleteGalleryItem } from '../data/galleryData';
+import { getAllCorporateTrainings, saveCorporateTraining, updateCorporateTraining, deleteCorporateTraining } from '../data/corporateTrainingOrganizedData';
 import { supabase } from './supabase';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
@@ -607,6 +608,150 @@ class ApiService {
 
     try {
       await this.request(`/gallery/${id}`, {
+        method: 'DELETE',
+      });
+    } catch {
+      // Local fallback active
+    }
+
+    return { success: true };
+  }
+
+  // --- Corporate Training Organized CMS APIs ---
+
+  async getCorporateTrainings() {
+    const localItems = getAllCorporateTrainings();
+
+    // 1. Try Supabase cloud if connected
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('corporate_trainings')
+          .select('*')
+          .order('start_date', { ascending: false });
+
+        if (!error && Array.isArray(data) && data.length > 0) {
+          const formatted = data.map((item) => ({
+            id: item.id,
+            school: item.school,
+            trainers: item.trainers,
+            title: item.title,
+            company: item.company,
+            startDate: item.start_date || item.startDate,
+            endDate: item.end_date || item.endDate,
+            year: item.year,
+            description: item.description,
+          }));
+          const cloudIds = new Set(formatted.map((f) => f.id));
+          const combined = [
+            ...formatted,
+            ...localItems.filter((l) => !cloudIds.has(l.id)),
+          ];
+          return { data: combined };
+        }
+      } catch (e) {
+        console.warn('Supabase getCorporateTrainings fallback:', e);
+      }
+    }
+
+    // 2. Try Serverless endpoint /api/corporate-training
+    try {
+      const res = await this.request('/corporate-training');
+      const serverData = res?.data || (Array.isArray(res) ? res : []);
+      if (Array.isArray(serverData) && serverData.length > 0) {
+        return { data: serverData };
+      }
+      return { data: localItems };
+    } catch {
+      return { data: localItems };
+    }
+  }
+
+  async addCorporateTraining(trainingData) {
+    const saved = saveCorporateTraining(trainingData);
+
+    if (supabase) {
+      try {
+        await supabase.from('corporate_trainings').insert([
+          {
+            id: saved.id,
+            school: saved.school,
+            trainers: saved.trainers,
+            title: saved.title,
+            company: saved.company,
+            start_date: saved.startDate,
+            end_date: saved.endDate,
+            year: saved.year,
+            description: saved.description,
+            created_at: saved.createdAt || new Date().toISOString(),
+          },
+        ]);
+      } catch (err) {
+        console.warn('Supabase insert corporate training warning:', err);
+      }
+    }
+
+    try {
+      await this.request('/corporate-training', {
+        method: 'POST',
+        body: JSON.stringify(saved),
+      });
+    } catch {
+      // Local fallback active
+    }
+
+    return { success: true, data: saved };
+  }
+
+  async updateCorporateTraining(id, trainingData) {
+    const updated = updateCorporateTraining(id, trainingData);
+
+    if (supabase) {
+      try {
+        await supabase
+          .from('corporate_trainings')
+          .update({
+            school: updated.school,
+            trainers: updated.trainers,
+            title: updated.title,
+            company: updated.company,
+            start_date: updated.startDate,
+            end_date: updated.endDate,
+            year: updated.year,
+            description: updated.description,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', id);
+      } catch (err) {
+        console.warn('Supabase update corporate training warning:', err);
+      }
+    }
+
+    try {
+      await this.request(`/corporate-training/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(updated),
+      });
+    } catch {
+      // Local fallback active
+    }
+
+    return { success: true, data: updated };
+  }
+
+  async deleteCorporateTraining(id) {
+    deleteCorporateTraining(id);
+
+    if (supabase) {
+      try {
+        await supabase.from('corporate_trainings').delete().eq('id', id);
+      } catch (err) {
+        console.warn('Supabase delete corporate training warning:', err);
+      }
+    }
+
+    try {
+      await this.request(`/corporate-training/${id}`, {
         method: 'DELETE',
       });
     } catch {

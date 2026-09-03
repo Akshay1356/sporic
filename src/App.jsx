@@ -11,6 +11,7 @@ import Technology from './pages/Technology';
 import Management from './pages/Management';
 import Personality from './pages/Personality';
 import Gallery from './pages/Gallery';
+import CorporateTraining from './pages/CorporateTraining';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
@@ -29,6 +30,25 @@ function ScrollToTop() {
   }, [pathname]);
 
   return null;
+}
+
+// Protected Admin Corporate Training Route Redirect
+function AdminCorporateTrainingGuard() {
+  const stored = localStorage.getItem('sporic_user');
+  let user = null;
+  if (stored) {
+    try {
+      user = JSON.parse(stored);
+    } catch {
+      user = null;
+    }
+  }
+
+  if (user && user.role === 'ADMIN') {
+    return <Navigate to="/dashboard?tab=corporate-training" replace />;
+  }
+
+  return <Navigate to="/login?role=admin" replace />;
 }
 
 // Protected Admin Gallery Route Redirect
@@ -88,6 +108,9 @@ export default function App() {
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
 
+            {/* Dedicated Corporate Training Organized Page */}
+            <Route path="/corporate-training" element={<CorporateTraining />} />
+
             {/* Comprehensive Courses Catalog Page */}
             <Route path="/courses" element={<Courses />} />
             <Route path="/courses/:courseId" element={<CourseDetails />} />
@@ -101,7 +124,9 @@ export default function App() {
             {/* Dynamic Gallery & Admin CMS */}
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/admin/gallery" element={<AdminGalleryGuard />} />
+            <Route path="/admin/programs" element={<AdminPreviousProgramsGuard />} />
             <Route path="/admin/previous-programs" element={<AdminPreviousProgramsGuard />} />
+            <Route path="/admin/corporate-training" element={<AdminCorporateTrainingGuard />} />
 
             {/* Registration, Authentication & Profile */}
             <Route path="/register" element={<Register />} />

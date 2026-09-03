@@ -25,6 +25,13 @@ import {
   updatePreviousProgram,
   deletePreviousProgram,
 } from '../data/previousPrograms';
+import {
+  getAllCorporateTrainings,
+  saveCorporateTraining,
+  updateCorporateTraining,
+  deleteCorporateTraining,
+  getAcademicYearFromDate,
+} from '../data/corporateTrainingOrganizedData';
 import api from '../services/api';
 import styles from './Dashboard.module.css';
 
@@ -43,6 +50,7 @@ export default function Dashboard() {
   const [coursesList, setCoursesList] = useState([]);
   const [galleryList, setGalleryList] = useState([]);
   const [programsList, setProgramsList] = useState([]);
+  const [corporateTrainingsList, setCorporateTrainingsList] = useState([]);
   const [enquiriesList, setEnquiriesList] = useState([]);
   const [usersList, setUsersList] = useState([]);
   const [paymentsList, setPaymentsList] = useState([]);
@@ -53,6 +61,22 @@ export default function Dashboard() {
 
   // Notifications / feedback
   const [actionSuccess, setActionSuccess] = useState('');
+
+  // Corporate Training CMS states (ADMIN ONLY)
+  const [showCorporateTrainingModal, setShowCorporateTrainingModal] = useState(false);
+  const [editingCorporateTraining, setEditingCorporateTraining] = useState(null);
+  const [trainingStartDate, setTrainingStartDate] = useState('');
+  const [trainingEndDate, setTrainingEndDate] = useState('');
+  const [trainingSchool, setTrainingSchool] = useState('SELECT');
+  const [trainingTrainers, setTrainingTrainers] = useState(['']);
+  const [trainingTitle, setTrainingTitle] = useState('');
+  const [trainingCompany, setTrainingCompany] = useState('');
+  const [trainingDescription, setTrainingDescription] = useState('');
+  const [trainingError, setTrainingError] = useState('');
+  const [trainingSaving, setTrainingSaving] = useState(false);
+  const [deletingCorporateTraining, setDeletingCorporateTraining] = useState(null);
+  const [trainingSearch, setTrainingSearch] = useState('');
+  const [trainingYearFilter, setTrainingYearFilter] = useState('All');
 
   // Course edit / add modal states
   const [editingCourse, setEditingCourse] = useState(null);
@@ -149,6 +173,9 @@ export default function Dashboard() {
 
     const allP = getAllPreviousPrograms();
     setProgramsList(allP);
+
+    const allCT = getAllCorporateTrainings();
+    setCorporateTrainingsList(allCT);
 
     const allE = getAllEnquiries();
     setEnquiriesList(allE);
@@ -507,6 +534,117 @@ export default function Dashboard() {
     }
   };
 
+  // --- CORPORATE TRAINING HANDLERS (ADMIN ONLY) ---
+  const handleOpenAddCorporateTraining = () => {
+    setEditingCorporateTraining(null);
+    setTrainingStartDate(new Date().toISOString().split('T')[0]);
+    setTrainingEndDate('');
+    setTrainingSchool('SELECT');
+    setTrainingTrainers(['']);
+    setTrainingTitle('');
+    setTrainingCompany('');
+    setTrainingDescription('');
+    setTrainingError('');
+    setShowCorporateTrainingModal(true);
+  };
+
+  const handleOpenEditCorporateTraining = (item) => {
+    setEditingCorporateTraining(item);
+    setTrainingStartDate(item.startDate || '');
+    setTrainingEndDate(item.endDate || '');
+    setTrainingSchool(item.school || 'SELECT');
+    
+    // Parse trainers into array of strings
+    const trainersArr = item.trainers
+      ? (Array.isArray(item.trainers) ? item.trainers : item.trainers.split(/;|\n/).map((t) => t.trim()).filter(Boolean))
+      : [''];
+    setTrainingTrainers(trainersArr.length > 0 ? trainersArr : ['']);
+    setTrainingTitle(item.title || '');
+    setTrainingCompany(item.company || '');
+    setTrainingDescription(item.description || '');
+    setTrainingError('');
+    setShowCorporateTrainingModal(true);
+  };
+
+  const handleTrainerChange = (index, value) => {
+    setTrainingTrainers((prev) => {
+      const next = [...prev];
+      next[index] = value;
+      return next;
+    });
+  };
+
+  const handleAddTrainerField = () => {
+    setTrainingTrainers((prev) => [...prev, '']);
+  };
+
+  const handleRemoveTrainerField = (index) => {
+    setTrainingTrainers((prev) => {
+      if (prev.length <= 1) return [''];
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const handleSaveCorporateTrainingSubmit = async (e) => {
+    e.preventDefault();
+    if (!trainingStartDate || !trainingSchool || !trainingTitle.trim() || !trainingCompany.trim()) {
+      setTrainingError('Please fill Start Date, School, Title, and Company Name.');
+      return;
+    }
+
+    const cleanTrainers = trainingTrainers.map((t) => t.trim()).filter(Boolean);
+    if (cleanTrainers.length === 0) {
+      setTrainingError('Please enter at least one trainer name.');
+      return;
+    }
+
+    setTrainingSaving(true);
+    setTrainingError('');
+
+    try {
+      const dataPayload = {
+        startDate: trainingStartDate,
+        endDate: trainingEndDate || undefined,
+        school: trainingSchool.trim().toUpperCase(),
+        trainers: cleanTrainers.join('; '),
+        title: trainingTitle.trim(),
+        company: trainingCompany.trim(),
+        description: trainingDescription.trim() || undefined,
+        year: getAcademicYearFromDate(trainingStartDate),
+      };
+
+      if (editingCorporateTraining) {
+        await api.updateCorporateTraining(editingCorporateTraining.id, dataPayload);
+        setActionSuccess(`✓ Corporate training '${trainingTitle}' updated successfully.`);
+      } else {
+        await api.addCorporateTraining(dataPayload);
+        setActionSuccess(`✓ Corporate training '${trainingTitle}' added successfully.`);
+      }
+
+      refreshAllData();
+      setShowCorporateTrainingModal(false);
+      setEditingCorporateTraining(null);
+      setTimeout(() => setActionSuccess(''), 5000);
+    } catch (err) {
+      setTrainingError(`Save failed: ${err.message}`);
+    } finally {
+      setTrainingSaving(false);
+    }
+  };
+
+  const handleConfirmDeleteCorporateTraining = async () => {
+    if (!deletingCorporateTraining) return;
+    try {
+      await api.deleteCorporateTraining(deletingCorporateTraining.id);
+      refreshAllData();
+      setActionSuccess('Corporate training record removed.');
+      setDeletingCorporateTraining(null);
+      setTimeout(() => setActionSuccess(''), 4000);
+    } catch (err) {
+      alert(`Delete failed: ${err.message}`);
+    }
+  };
+
   // --- ENQUIRIES HANDLER ---
   const handleUpdateQueryStatus = (enquiryId, newStatus) => {
     updateEnquiryStatus(enquiryId, newStatus);
@@ -598,6 +736,12 @@ export default function Dashboard() {
                   <div className={styles.statValue}>{programsList.length}</div>
                   <div className={styles.statSub}>Published on /about</div>
                 </GlassCard>
+
+                <GlassCard padding="md">
+                  <div className={styles.statLabel}>CORPORATE TRAININGS</div>
+                  <div className={styles.statValue}>{corporateTrainingsList.length}</div>
+                  <div className={styles.statSub}>Published on /corporate-training</div>
+                </GlassCard>
               </div>
 
               {/* Admin Navigation Tabs */}
@@ -607,6 +751,12 @@ export default function Dashboard() {
                   onClick={() => setActiveTab('courses')}
                 >
                   📚 Courses ({coursesList.length})
+                </button>
+                <button
+                  className={`${styles.tabBtn} ${activeTab === 'corporate-training' ? styles.tabBtnActive : ''}`}
+                  onClick={() => setActiveTab('corporate-training')}
+                >
+                  🏛️ Corporate Training ({corporateTrainingsList.length})
                 </button>
                 <button
                   className={`${styles.tabBtn} ${activeTab === 'enquiries' ? styles.tabBtnActive : ''}`}
@@ -712,6 +862,133 @@ export default function Dashboard() {
                             </td>
                           </tr>
                         ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </GlassCard>
+              )}
+
+              {/* TAB: Corporate Training CMS (ADMIN ONLY) */}
+              {activeTab === 'corporate-training' && (
+                <GlassCard padding="lg">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div>
+                      <h3 style={{ color: '#111', fontSize: '1.25rem', fontWeight: 700 }}>Corporate Training Management</h3>
+                      <p style={{ color: '#667085', fontSize: '0.85rem' }}>
+                        Add, edit, or delete corporate training records that appear dynamically on <strong>/corporate-training</strong>.
+                      </p>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                      <Link to="/corporate-training" target="_blank" className="btn btn-secondary">
+                        View /corporate-training ↗
+                      </Link>
+                      <button className="btn btn-primary" onClick={handleOpenAddCorporateTraining}>
+                        ➕ Add Corporate Training
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Admin Search and Year Filter Bar */}
+                  <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+                    <input
+                      type="text"
+                      placeholder="Filter by title, company, school, or trainer..."
+                      value={trainingSearch}
+                      onChange={(e) => setTrainingSearch(e.target.value)}
+                      style={{ flex: '1 1 250px', padding: '0.55rem 0.85rem', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '0.85rem' }}
+                    />
+                    <select
+                      value={trainingYearFilter}
+                      onChange={(e) => setTrainingYearFilter(e.target.value)}
+                      style={{ padding: '0.55rem 0.85rem', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '0.85rem', fontWeight: 600, color: '#0B2A6F' }}
+                    >
+                      <option value="All">All Academic Years</option>
+                      {Array.from(new Set(corporateTrainingsList.map((t) => t.year || getAcademicYearFromDate(t.startDate)).filter(Boolean)))
+                        .sort((a, b) => b.localeCompare(a))
+                        .map((yr) => (
+                          <option key={yr} value={yr}>{yr}</option>
+                        ))}
+                    </select>
+                  </div>
+
+                  <div className={styles.tableWrapper}>
+                    <table className={styles.dataTable}>
+                      <thead>
+                        <tr>
+                          <th style={{ width: '13%' }}>Date / Year</th>
+                          <th style={{ width: '11%' }}>School</th>
+                          <th style={{ width: '26%' }}>Training Title</th>
+                          <th style={{ width: '18%' }}>Company Name</th>
+                          <th style={{ width: '22%' }}>Trainers</th>
+                          <th style={{ width: '10%' }}>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {corporateTrainingsList
+                          .filter((item) => {
+                            const yr = item.year || getAcademicYearFromDate(item.startDate);
+                            const matchesYear = trainingYearFilter === 'All' || yr === trainingYearFilter;
+                            const q = trainingSearch.toLowerCase().trim();
+                            const matchesSearch =
+                              !q ||
+                              item.title?.toLowerCase().includes(q) ||
+                              item.company?.toLowerCase().includes(q) ||
+                              item.school?.toLowerCase().includes(q) ||
+                              item.trainers?.toLowerCase().includes(q);
+                            return matchesYear && matchesSearch;
+                          })
+                          .sort((a, b) => {
+                            const timeA = a.startDate ? new Date(a.startDate).getTime() : 0;
+                            const timeB = b.startDate ? new Date(b.startDate).getTime() : 0;
+                            return timeB - timeA;
+                          })
+                          .map((item) => (
+                            <tr key={item.id}>
+                              <td>
+                                <strong style={{ color: '#0F172A', display: 'block', fontSize: '0.82rem' }}>
+                                  {item.startDate || item.year || '—'}
+                                </strong>
+                                <span style={{ fontSize: '0.72rem', color: '#64748B' }}>
+                                  {item.year || getAcademicYearFromDate(item.startDate)}
+                                </span>
+                              </td>
+                              <td>
+                                <span className="tag tag-cyan" style={{ fontSize: '0.72rem' }}>{item.school}</span>
+                              </td>
+                              <td>
+                                <div style={{ fontWeight: 600, color: '#101828', fontSize: '0.88rem' }}>{item.title}</div>
+                                {item.description && (
+                                  <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '0.2rem' }}>{item.description}</div>
+                                )}
+                              </td>
+                              <td>
+                                <span style={{ fontWeight: 600, color: '#0B2A6F', fontSize: '0.84rem' }}>{item.company}</span>
+                              </td>
+                              <td>
+                                <div style={{ fontSize: '0.8rem', color: '#334155', maxHeight: '70px', overflowY: 'auto', lineHeight: '1.4' }}>
+                                  {item.trainers}
+                                </div>
+                              </td>
+                              <td>
+                                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                                  <button
+                                    className="btn btn-secondary"
+                                    style={{ padding: '0.25rem 0.55rem', fontSize: '0.78rem' }}
+                                    onClick={() => handleOpenEditCorporateTraining(item)}
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    className="btn btn-ghost"
+                                    style={{ padding: '0.25rem 0.55rem', fontSize: '0.78rem', color: '#DC2626' }}
+                                    onClick={() => setDeletingCorporateTraining(item)}
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
                       </tbody>
                     </table>
                   </div>
@@ -1472,6 +1749,150 @@ export default function Dashboard() {
                 <button type="submit" className="btn btn-primary">Update Course</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ====================================================
+          MODAL: ADD / EDIT CORPORATE TRAINING (ADMIN ONLY)
+         ==================================================== */}
+      {showCorporateTrainingModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(7, 27, 74, 0.8)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ background: '#0F2252', border: '1px solid #38BDF8', borderRadius: '16px', padding: '2rem', width: '100%', maxWidth: '640px', color: '#FFF', maxHeight: '90vh', overflowY: 'auto' }}>
+            <h3 style={{ margin: '0 0 1rem' }}>{editingCorporateTraining ? 'Edit Corporate Training' : '➕ Add Corporate Training'}</h3>
+            {trainingError && <div style={{ background: 'rgba(239, 68, 68, 0.2)', padding: '0.5rem 1rem', borderRadius: '8px', color: '#FCA5A5', marginBottom: '1rem' }}>{trainingError}</div>}
+            <form onSubmit={handleSaveCorporateTrainingSubmit}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Start Date *</label>
+                  <input
+                    type="date"
+                    required
+                    value={trainingStartDate}
+                    onChange={(e) => setTrainingStartDate(e.target.value)}
+                    style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>End Date (Optional)</label>
+                  <input
+                    type="date"
+                    value={trainingEndDate}
+                    onChange={(e) => setTrainingEndDate(e.target.value)}
+                    style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>School / Center *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. SELECT / SCOPE"
+                    value={trainingSchool}
+                    onChange={(e) => setTrainingSchool(e.target.value)}
+                    style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Company / Client Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Ford, Chennai / Lucas TVS"
+                    value={trainingCompany}
+                    onChange={(e) => setTrainingCompany(e.target.value)}
+                    style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Title of the Corporate Training *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Electric Motors for Electric Vehicles"
+                  value={trainingTitle}
+                  onChange={(e) => setTrainingTitle(e.target.value)}
+                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
+                />
+              </div>
+
+              {/* Structured Multiple Trainers Input */}
+              <div style={{ marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                  <label style={{ fontSize: '0.82rem' }}>Trainers *</label>
+                  <button
+                    type="button"
+                    onClick={handleAddTrainerField}
+                    style={{ background: 'rgba(56, 189, 248, 0.2)', border: '1px solid #38BDF8', color: '#38BDF8', borderRadius: '4px', padding: '0.2rem 0.55rem', fontSize: '0.75rem', cursor: 'pointer' }}
+                  >
+                    + Add Trainer
+                  </button>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '160px', overflowY: 'auto' }}>
+                  {trainingTrainers.map((tr, index) => (
+                    <div key={index} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <input
+                        type="text"
+                        required
+                        placeholder={`Trainer ${index + 1} Name (e.g. Dr. Rajesh Kannan)`}
+                        value={tr}
+                        onChange={(e) => handleTrainerChange(index, e.target.value)}
+                        style={{ flex: 1, padding: '0.55rem', borderRadius: '6px', border: '1px solid #334155', background: '#071B4A', color: '#FFF', fontSize: '0.85rem' }}
+                      />
+                      {trainingTrainers.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveTrainerField(index)}
+                          style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #EF4444', color: '#F87171', borderRadius: '6px', padding: '0.55rem 0.75rem', cursor: 'pointer' }}
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '1.5rem' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Description / Outcomes (Optional)</label>
+                <textarea
+                  placeholder="Additional details about the corporate training..."
+                  value={trainingDescription}
+                  onChange={(e) => setTrainingDescription(e.target.value)}
+                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF', minHeight: '60px' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+                <button type="button" onClick={() => setShowCorporateTrainingModal(false)} className="btn btn-secondary">
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={trainingSaving}>
+                  {trainingSaving ? 'Saving Record...' : 'Save Corporate Training'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Corporate Training Confirmation */}
+      {deletingCorporateTraining && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 10001, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: '#0F2252', padding: '1.75rem', borderRadius: '14px', maxWidth: '440px', color: '#FFF' }}>
+            <h4>Delete Corporate Training Record?</h4>
+            <p style={{ color: '#CBD5E1', fontSize: '0.85rem' }}>
+              Are you sure you want to delete <strong>{deletingCorporateTraining.title}</strong>? This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.25rem' }}>
+              <button onClick={() => setDeletingCorporateTraining(null)} className="btn btn-secondary">Cancel</button>
+              <button onClick={handleConfirmDeleteCorporateTraining} className="btn btn-primary" style={{ background: '#DC2626' }}>Delete Record</button>
+            </div>
           </div>
         </div>
       )}

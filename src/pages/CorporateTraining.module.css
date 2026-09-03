@@ -1,0 +1,463 @@
+/* CorporateTraining.module.css - SPORIC / VIT-TEC Dedicated Corporate Training Page */
+
+.page {
+  background: #FFFFFF;
+  min-height: 100vh;
+}
+
+/* ====================================================
+   HERO BANNER
+   ==================================================== */
+.banner {
+  position: relative;
+  padding: 4.5rem 0 3.25rem 0;
+  text-align: center;
+  background: #071B4A;
+  background-image: radial-gradient(circle at 50% 0%, rgba(29, 78, 216, 0.35) 0%, transparent 70%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+}
+
+.title {
+  font-family: var(--font-heading, sans-serif);
+  font-size: clamp(2rem, 3.8vw, 3.1rem);
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 750px;
+  margin: 0 auto;
+  line-height: 1.55;
+}
+
+/* ====================================================
+   CONTENT SECTION
+   ==================================================== */
+.contentSection {
+  padding: 3rem 0 5rem 0;
+  background: #F8FAFC;
+}
+
+/* Controls Bar */
+.controlsBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: var(--radius-lg, 12px);
+  padding: 1.15rem 1.5rem;
+  margin-bottom: 2.25rem;
+  box-shadow: 0 4px 16px rgba(11, 42, 111, 0.04);
+}
+
+.searchBox {
+  position: relative;
+  flex: 1 1 340px;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 1rem;
+  color: #64748B;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.72rem 2.5rem 0.72rem 2.65rem;
+  background: #F8FAFC;
+  border: 1.5px solid #CBD5E1;
+  border-radius: var(--radius-sm, 8px);
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.9rem;
+  color: #0F172A;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.searchInput:focus {
+  border-color: #1D4ED8;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+}
+
+.clearSearchBtn {
+  position: absolute;
+  right: 0.85rem;
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+}
+
+.clearSearchBtn:hover {
+  color: #0F172A;
+  background: #E2E8F0;
+}
+
+.filtersGroup {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.selectWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.filterLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748B;
+  letter-spacing: 0.04em;
+}
+
+.select {
+  padding: 0.65rem 1rem;
+  background: #F8FAFC;
+  border: 1.5px solid #CBD5E1;
+  border-radius: var(--radius-sm, 8px);
+  font-family: var(--font-heading, sans-serif);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #0B2A6F;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.select:focus {
+  border-color: #1D4ED8;
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+}
+
+.countBadge {
+  font-size: 0.825rem;
+  color: #475569;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  padding: 0.55rem 0.95rem;
+  border-radius: var(--radius-full, 9999px);
+  white-space: nowrap;
+}
+
+.countBadge strong {
+  color: #1D4ED8;
+  font-weight: 800;
+}
+
+/* ====================================================
+   YEAR GROUPS CONTAINER & TABLE
+   ==================================================== */
+.yearGroupsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2.75rem;
+}
+
+.yearBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.yearHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.yearTitleWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-shrink: 0;
+}
+
+.yearBadge {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  background: #0B2A6F;
+  background: linear-gradient(135deg, #0B2A6F 0%, #1D4ED8 100%);
+  padding: 0.35rem 1rem;
+  border-radius: var(--radius-sm, 8px);
+  box-shadow: 0 2px 8px rgba(11, 42, 111, 0.18);
+  letter-spacing: 0.02em;
+}
+
+.yearCount {
+  font-size: 0.85rem;
+  color: #64748B;
+  font-weight: 600;
+}
+
+.yearDivider {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(90deg, #BFDBFE 0%, rgba(191, 219, 254, 0.2) 100%);
+  border-radius: 2px;
+}
+
+/* Table Responsive Wrapper */
+.tableResponsiveWrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: 0 6px 20px rgba(11, 42, 111, 0.05);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.88rem;
+  min-width: 950px;
+}
+
+/* Table Header */
+.table thead {
+  background: #071B4A;
+  background: linear-gradient(90deg, #071B4A 0%, #0B2A6F 100%);
+  color: #FFFFFF;
+}
+
+.table th {
+  padding: 0.95rem 1.1rem;
+  font-family: var(--font-heading, sans-serif);
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  border: none;
+}
+
+.thDate {
+  width: 13%;
+}
+
+.thSchool {
+  width: 11%;
+}
+
+.thTrainers {
+  width: 32%;
+}
+
+.thTitle {
+  width: 26%;
+}
+
+.thCompany {
+  width: 18%;
+}
+
+/* Table Rows & Cells */
+.tr {
+  border-bottom: 1px solid #F1F5F9;
+  transition: background-color 0.15s ease;
+}
+
+.tr:nth-child(even) {
+  background-color: #FAFAFC;
+}
+
+.tr:hover {
+  background-color: #EFF6FF !important;
+}
+
+.tr td {
+  padding: 1rem 1.1rem;
+  vertical-align: top;
+  color: #1E293B;
+  line-height: 1.5;
+}
+
+/* Date Cell */
+.tdDate {
+  white-space: nowrap;
+}
+
+.dateText {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0F172A;
+  background: #F1F5F9;
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid #E2E8F0;
+  display: inline-block;
+}
+
+/* School Badge */
+.schoolBadge {
+  display: inline-block;
+  font-family: var(--font-heading, sans-serif);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1D4ED8;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  padding: 0.22rem 0.55rem;
+  border-radius: 6px;
+  line-height: 1.2;
+}
+
+/* Multi-Trainer List */
+.trainersList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.trainerItem {
+  font-size: 0.84rem;
+  color: #334155;
+  font-weight: 500;
+  line-height: 1.35;
+  display: flex;
+  align-items: flex-start;
+}
+
+.trainerItem::before {
+  content: '•';
+  color: #38BDF8;
+  font-weight: 900;
+  margin-right: 0.4rem;
+  line-height: 1;
+}
+
+/* Title Cell */
+.trainingTitleText {
+  font-family: var(--font-heading, sans-serif);
+  font-weight: 700;
+  color: #0F172A;
+  font-size: 0.89rem;
+  line-height: 1.45;
+}
+
+.trainingDescText {
+  font-size: 0.78rem;
+  color: #64748B;
+  margin-top: 0.35rem;
+  line-height: 1.4;
+}
+
+/* Company Cell */
+.companyWrapper {
+  display: flex;
+  align-items: center;
+}
+
+.companyNameText {
+  font-weight: 600;
+  color: #0F172A;
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+/* Table Footer Note */
+.tableFooterNote {
+  margin-top: 2rem;
+  text-align: center;
+  font-size: 0.82rem;
+  color: #64748B;
+  background: #FFFFFF;
+  border: 1px dashed #CBD5E1;
+  padding: 0.85rem 1.25rem;
+  border-radius: var(--radius-md, 8px);
+}
+
+/* No results state */
+.noResultsCard {
+  text-align: center;
+  padding: 3.5rem 1.5rem;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: var(--radius-lg, 12px);
+  margin-top: 1rem;
+}
+
+.noResultsIcon {
+  font-size: 2.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.noResultsTitle {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin-bottom: 0.4rem;
+}
+
+.noResultsDesc {
+  font-size: 0.92rem;
+  color: #64748B;
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+.loadingState {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: #64748B;
+  font-size: 0.95rem;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .banner {
+    padding: 3.5rem 0 2.25rem 0;
+  }
+
+  .controlsBar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+  }
+
+  .filtersGroup {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .selectWrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .select {
+    width: 100%;
+  }
+
+  .countBadge {
+    text-align: center;
+  }
+}
