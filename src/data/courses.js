@@ -746,6 +746,43 @@ export function getUserInterestedCourseIds(userEmail) {
   }
 }
 
+export function getUserEnrolledCourseIds(userEmail) {
+  if (typeof window === 'undefined' || !userEmail) return [];
+  try {
+    const key = `sporic_enrolled_courses_${userEmail.toLowerCase().trim()}`;
+    return JSON.parse(localStorage.getItem(key) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+export function isUserEnrolledInCourse(userEmail, courseId) {
+  if (typeof window === 'undefined' || !userEmail || !courseId) return false;
+  try {
+    const key = `sporic_enrolled_courses_${userEmail.toLowerCase().trim()}`;
+    const list = JSON.parse(localStorage.getItem(key) || '[]');
+    return list.includes(courseId);
+  } catch {
+    return false;
+  }
+}
+
+export function enrollUserInCourse(userEmail, courseId) {
+  if (typeof window === 'undefined' || !userEmail || !courseId) return false;
+  try {
+    const key = `sporic_enrolled_courses_${userEmail.toLowerCase().trim()}`;
+    const list = JSON.parse(localStorage.getItem(key) || '[]');
+    if (!list.includes(courseId)) {
+      list.push(courseId);
+      localStorage.setItem(key, JSON.stringify(list));
+      window.dispatchEvent(new Event('storage'));
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export const domainInfo = [
   {
     key: 'technology',

@@ -1,12 +1,66 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import GlassCard from './GlassCard';
 import CourseEnquiryModal from './CourseEnquiryModal';
-import { COURSE_STATUS } from '../data/courses';
+import { COURSE_STATUS, isUserEnrolledInCourse, enrollUserInCourse } from '../data/courses';
 import styles from './CourseCard.module.css';
 
 export default function CourseCard({ course }) {
+  const navigate = useNavigate();
   const [showEnquiryModal, setShowEnquiryModal] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isEnrolled, setIsEnrolled] = useState(false);
+  const [enrolling, setEnrolling] = useState(false);
+  const [justEnrolled, setJustEnrolled] = useState(false);
+
+  // Sync user and enrollment state
+  useEffect(() => {
+    const checkState = () => {
+      try {
+        const stored = localStorage.getItem('sporic_user');
+        if (stored) {
+          const u = JSON.parse(stored);
+          setUser(u);
+          if (u?.email) {
+            setIsEnrolled(isUserEnrolledInCourse(u.email, course.id));
+          }
+        } else {
+          setUser(null);
+          setIsEnrolled(false);
+        }
+      } catch {
+        setUser(null);
+        setIsEnrolled(false);
+      }
+    };
+
+    checkState();
+    window.addEventListener('storage', checkState);
+    return () => window.removeEventListener('storage', checkState);
+  }, [course.id]);
+
+  const handleEnrollClick = (e) => {
+    e.preventDefault();
+
+    if (isEnrolled || justEnrolled) {
+      navigate('/dashboard?tab=courses');
+      return;
+    }
+
+    if (!user) {
+      // Redirect to login with return redirect
+      navigate(`/login?redirect=${encodeURIComponent('/courses/' + course.id)}`);
+      return;
+    }
+
+    setEnrolling(true);
+    setTimeout(() => {
+      enrollUserInCourse(user.email, course.id);
+      setIsEnrolled(true);
+      setJustEnrolled(true);
+      setEnrolling(false);
+    }, 400);
+  };
 
   // Compute deadline urgency
   const getDeadlineBadge = () => {
@@ -41,11 +95,14 @@ export default function CourseCard({ course }) {
 
   const courseImage = course?.image || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop';
 
+  const isOpenForReg = course.status === COURSE_STATUS.OPEN;
+  const isUpcoming = course.status === COURSE_STATUS.UPCOMING;
+
   return (
     <>
       <GlassCard className={styles.courseCard} glow padding="md" hover>
         {/* Course Topic Visual with Status Badge */}
-        <div className={styles.visualPlaceholder}>
+        <Link to={`/courses/${course.id}`} className={styles.visualPlaceholder} title={`View details for ${course.title}`}>
           <img src={courseImage} alt={course.title} className={styles.courseImg} loading="lazy" />
           <div className={styles.visualOverlay}>
             <div className={styles.badgeWrap}>
@@ -64,7 +121,7 @@ export default function CourseCard({ course }) {
               </span>
             </div>
           </div>
-        </div>
+        </Link>
 
         <div className={styles.cardBody}>
           <div className={styles.categoryRow}>
@@ -73,7 +130,9 @@ export default function CourseCard({ course }) {
           </div>
 
           <h3 className={styles.title} title={course.title}>
-            {course.title}
+            <Link to={`/courses/${course.id}`} className={styles.titleLink}>
+              {course.title}
+            </Link>
           </h3>
 
           <p className={styles.desc}>{course.shortDescription}</p>
@@ -85,30 +144,79 @@ export default function CourseCard({ course }) {
           )}
 
           <div className={styles.footerRow}>
-            <div className={styles.hours}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>{course.hours} Hours</span>
+            {/* Meta Row: Hours & View Details */}
+            <div className={styles.metaRow}>
+              <div className={styles.hours}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '4px' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{course.hours} Hours</span>
+              </div>
+
+              <Link to={`/courses/${course.id}`} className={styles.detailsLink}>
+                Details →
+              </Link>
             </div>
 
-            <div className={styles.actions}>
+            {/* Action Buttons: BOTH [ Enroll Now ] and [ Enquire Now ] */}
+            <div className={styles.actionsGrid}>
+              {/* Left Action: Enroll Now / Enrolled / Upcoming / Closed */}
+              {isOpenForReg ? (
+                isEnrolled || justEnrolled ? (
+                  <button
+                    type="button"
+                    onClick={handleEnrollClick}
+                    className={styles.enrolledBtn}
+                    title="You are enrolled in this course. Click to view dashboard."
+                  >
+                    <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    <span>Enrolled ✓</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleEnrollClick}
+                    disabled={enrolling}
+                    className={styles.enrollBtn}
+                    title="Enroll in this course"
+                  >
+                    <span>{enrolling ? 'Enrolling...' : 'Enroll Now'}</span>
+                  </button>
+                )
+              ) : isUpcoming ? (
+                <button
+                  type="button"
+                  disabled
+                  className={styles.upcomingBtn}
+                  title="Enrollment opening soon"
+                >
+                  <span>Upcoming</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className={styles.closedBtn}
+                  title="Registration closed for this batch"
+                >
+                  <span>Closed</span>
+                </button>
+              )}
+
+              {/* Right Action: Enquire Now (Always Available & Independent) */}
               <button
                 type="button"
                 className={styles.enquireBtn}
                 onClick={() => setShowEnquiryModal(true)}
-                title="Ask a query about this course"
+                title="Send an inquiry about this course"
               >
-                💬 Enquire Now
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" style={{ marginRight: '3px' }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <span>Enquire Now</span>
               </button>
-
-              <Link to={`/courses/${course.id}`} className={styles.detailsBtn}>
-                Poster & Details
-              </Link>
-
-              <Link to={`/register?courseId=${course.id}`} className={`btn ${styles.enrollBtn}`}>
-                Enroll
-              </Link>
             </div>
           </div>
         </div>

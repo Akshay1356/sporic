@@ -1,4 +1,5 @@
-/* CourseCard.module.css - Theme Deep Navy & White */
+/* CourseCard.module.css - SPORIC / VIT-TEC Course Card Design */
+
 .courseCard {
   display: flex;
   flex-direction: column;
@@ -26,6 +27,8 @@
   border-radius: var(--radius-lg, 16px) var(--radius-lg, 16px) 0 0;
   overflow: hidden;
   background: #0F172A;
+  display: block;
+  text-decoration: none;
 }
 
 .courseImg {
@@ -131,23 +134,33 @@
 }
 
 .title {
-  font-size: 1.1rem;
+  font-size: 1.08rem;
   font-weight: 700;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.5rem;
   line-height: 1.35;
   color: #0F172A;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  height: 2.9rem;
+  height: 2.85rem;
+}
+
+.titleLink {
+  color: #0F172A;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.titleLink:hover {
+  color: #1D4ED8;
 }
 
 .desc {
   font-size: 0.85rem;
   color: #64748B;
   line-height: 1.55;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   flex-grow: 1;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -161,73 +174,66 @@
   background: #F8FAFC;
   border: 1px solid #F1F5F9;
   border-radius: 8px;
-  padding: 0.45rem 0.65rem;
-  margin-bottom: 1rem;
+  padding: 0.4rem 0.65rem;
+  margin-bottom: 0.9rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* ====================================================
+   FOOTER ROW & ACTION BUTTONS
+   ==================================================== */
 .footerRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  border-top: 1px solid #E2E8F0;
+  padding-top: 0.85rem;
+  margin-top: auto;
+}
+
+.metaRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px solid #E2E8F0;
-  padding-top: 0.9rem;
-  margin-top: auto;
-  gap: 0.5rem;
 }
 
 .hours {
   display: flex;
   align-items: center;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  color: #0F172A;
+  color: #334155;
   white-space: nowrap;
 }
 
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-}
-
-.enquireBtn {
-  background: #EFF6FF;
-  border: 1px solid #BFDBFE;
-  color: #1D4ED8;
-  padding: 0.4rem 0.75rem;
-  font-size: 0.78rem;
+.detailsLink {
+  font-size: 0.76rem;
   font-weight: 700;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.enquireBtn:hover {
-  background: #DBEAFE;
-  color: #1E40AF;
-  border-color: #93C5FD;
-}
-
-.detailsBtn {
-  font-size: 0.78rem;
-  font-weight: 600;
   color: #64748B;
-  padding: 0.4rem 0.6rem;
   text-decoration: none;
   transition: color 0.2s;
-  white-space: nowrap;
 }
 
-.detailsBtn:hover {
+.detailsLink:hover {
   color: #1D4ED8;
 }
 
+/* Action Buttons Grid: BOTH Enroll Now and Enquire Now */
+.actionsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+/* 1. Enroll Now (Primary Action) */
 .enrollBtn {
-  padding: 0.4rem 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.6rem;
   font-size: 0.78rem;
   font-weight: 700;
   border-radius: 8px;
@@ -235,27 +241,100 @@
   color: #FFFFFF !important;
   text-decoration: none;
   border: none;
+  cursor: pointer;
   white-space: nowrap;
-  transition: transform 0.2s;
+  box-shadow: 0 2px 8px rgba(29, 78, 216, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  width: 100%;
+  text-align: center;
 }
 
 .enrollBtn:hover {
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.35);
 }
 
-@media (max-width: 580px) {
-  .cardBody {
-    padding: 1rem;
-  }
-  .title {
-    font-size: 1.02rem;
-  }
-  .footerRow {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-  }
-  .actions {
-    justify-content: flex-end;
+.enrollBtn:active {
+  transform: translateY(0);
+}
+
+/* 2. Enrolled State (Active / Confirmed) */
+.enrolledBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 8px;
+  background: #F0FDF4 !important;
+  color: #15803D !important;
+  border: 1px solid #BBF7D0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: center;
+}
+
+.enrolledBtn:hover {
+  background: #DCFCE7 !important;
+  border-color: #86EFAC;
+  transform: translateY(-1px);
+}
+
+/* 3. Enquire Now (Secondary Action - Morphism Style) */
+.enquireBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  color: #1D4ED8;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  width: 100%;
+  text-align: center;
+}
+
+.enquireBtn:hover {
+  background: #DBEAFE;
+  color: #1E40AF;
+  border-color: #93C5FD;
+  transform: translateY(-1px);
+}
+
+.enquireBtn:active {
+  transform: translateY(0);
+}
+
+/* 4. Upcoming / Closed Inactive States */
+.upcomingBtn,
+.closedBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+  background: #F1F5F9;
+  color: #94A3B8;
+  cursor: not-allowed;
+  white-space: nowrap;
+  width: 100%;
+}
+
+@media (max-width: 480px) {
+  .actionsGrid {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
   }
 }
