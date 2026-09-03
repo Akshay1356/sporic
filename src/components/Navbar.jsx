@@ -51,12 +51,13 @@ export default function Navbar() {
     navigate('/');
   };
 
-  const displayName = (
+  const rawName = (
     currentUser?.fullName ||
     currentUser?.name ||
     currentUser?.email?.split('@')[0] ||
     'User'
   ).split(' ')[0];
+  const displayName = rawName.length > 10 ? rawName.slice(0, 9) + '…' : rawName;
 
   const avatarInitial = (
     currentUser?.fullName ||
