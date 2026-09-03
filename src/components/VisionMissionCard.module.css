@@ -1,19 +1,23 @@
-/* VisionMissionCard.module.css - Layered Reveal Information Module */
+/* VisionMissionCard.module.css - Interactive Reveal Information Module */
 
 .cardContainer {
   position: relative;
   width: 100%;
-  height: 200px;
-  min-height: 200px;
+  min-height: 220px;
+  height: auto;
   border-radius: 16px;
-  overflow: hidden;
-  background: #071B4A;
-  border: 1px solid rgba(56, 189, 248, 0.25);
-  box-shadow: 0 8px 24px rgba(7, 27, 74, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #071B4A 0%, #0F2458 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 8px 24px rgba(7, 27, 74, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.1);
   margin-bottom: 1.5rem;
   cursor: pointer;
   outline: none;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.25s ease;
+  padding: 1.6rem 1.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
 }
 
@@ -25,7 +29,8 @@
 .cardContainer:focus-visible,
 .cardRevealed {
   border-color: #38BDF8;
-  box-shadow: 0 12px 32px rgba(7, 27, 74, 0.2), 0 0 20px rgba(56, 189, 248, 0.2);
+  box-shadow: 0 14px 36px rgba(7, 27, 74, 0.25), 0 0 24px rgba(56, 189, 248, 0.22);
+  transform: translateY(-2px);
 }
 
 .cardContainer:focus-visible {
@@ -33,41 +38,47 @@
   outline-offset: 2px;
 }
 
-/* ====================================================
-   LAYER 1: UNDERLYING TEXT LAYER (ALWAYS PRESENT BEHIND)
-   ==================================================== */
-.textLayer {
+/* Glow accent */
+.cardGlow {
   position: absolute;
-  inset: 0;
-  padding: 1.5rem 1.75rem;
-  background: linear-gradient(135deg, #071B4A 0%, #0F2458 100%);
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at 30% 30%, rgba(29, 78, 216, 0.18) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ====================================================
+   1. MAIN CONTENT AREA (PRIORITY & GUARANTEED VISIBILITY)
+   ==================================================== */
+.contentArea {
+  position: relative;
+  z-index: 3;
+  flex: 1 1 auto;
+  max-width: calc(100% - 135px);
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  z-index: 1;
-  color: #FFFFFF;
 }
 
-.textHeader {
+.headerRow {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.65rem;
-  border-bottom: 1px solid rgba(56, 189, 248, 0.2);
-  padding-bottom: 0.4rem;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
 }
 
-.textLabel {
-  font-family: var(--font-heading, sans-serif);
-  font-size: 0.78rem;
+.categoryBadge {
+  font-size: 0.68rem;
   font-weight: 800;
-  letter-spacing: 0.12em;
   text-transform: uppercase;
+  letter-spacing: 0.1em;
   color: #38BDF8;
 }
 
-.textTag {
-  font-size: 0.65rem;
+.tagBadge {
+  font-size: 0.62rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -78,12 +89,34 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.cardTitle {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.35rem;
+}
+
+.cardSubtitle {
+  font-size: 0.84rem;
+  color: #94A3B8;
+  font-weight: 500;
+  margin: 0 0 0.65rem;
+  line-height: 1.4;
+}
+
+.statementWrapper {
+  margin-top: 0.25rem;
+}
+
 .visionStatement {
-  font-size: 0.95rem;
-  line-height: 1.55;
-  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.96rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.98);
   margin: 0;
   font-weight: 400;
+  letter-spacing: 0.01em;
 }
 
 .missionList {
@@ -92,15 +125,16 @@
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.55rem;
 }
 
 .missionList li {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.92);
-  line-height: 1.4;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.96);
+  line-height: 1.5;
   position: relative;
-  padding-left: 1.15rem;
+  padding-left: 1.25rem;
+  font-weight: 400;
 }
 
 .missionList li::before {
@@ -108,100 +142,62 @@
   position: absolute;
   left: 0;
   color: #38BDF8;
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   line-height: 1;
+  top: -1px;
 }
 
-/* ====================================================
-   LAYER 2: INTERACTIVE FRONT VISUAL LAYER
-   ==================================================== */
-.frontVisualLayer {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(15, 34, 82, 0.96) 0%, rgba(7, 27, 74, 0.98) 100%);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  z-index: 2;
-  display: flex;
+.interactiveCue {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem 1.75rem;
-  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), clip-path 0.55s cubic-bezier(0.16, 1, 0.3, 1);
-  overflow: hidden;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15);
-}
-
-/* Physical slide-aside reveal on hover / focus / tap */
-.cardContainer:hover .frontVisualLayer,
-.cardContainer:focus-visible .frontVisualLayer,
-.cardRevealed .frontVisualLayer {
-  transform: translateX(82%);
-  opacity: 0.85;
-}
-
-/* Subtle decorative handle on the retracted edge */
-.revealHandle {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 6px;
-  background: linear-gradient(180deg, #38BDF8 0%, #1D4ED8 100%);
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.cardContainer:hover .revealHandle,
-.cardContainer:focus-visible .revealHandle,
-.cardRevealed .revealHandle {
-  opacity: 1;
-}
-
-/* Content inside Front Visual */
-.frontIdentity {
-  display: flex;
-  flex-direction: column;
-  z-index: 2;
-}
-
-.frontCategory {
-  font-size: 0.68rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
   color: #38BDF8;
-  margin-bottom: 0.25rem;
+  margin-top: 0.65rem;
+  opacity: 0.85;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-.frontTitle {
-  font-family: var(--font-heading, sans-serif);
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #FFFFFF;
-  letter-spacing: -0.01em;
-  margin: 0 0 0.4rem;
+.cardContainer:hover .interactiveCue,
+.cardRevealed .interactiveCue {
+  opacity: 1;
+  transform: translateX(2px);
 }
 
-.frontSubtitle {
-  font-size: 0.78rem;
-  color: #94A3B8;
-  font-weight: 500;
-  max-width: 170px;
-  line-height: 1.35;
+.cueIcon {
+  font-size: 0.85rem;
+}
+
+.cueText {
+  letter-spacing: 0.03em;
 }
 
 /* ====================================================
-   GRAPHIC ANIMATIONS (VISION & MISSION SPECIFIC)
+   2. INTERACTIVE DECORATIVE GRAPHICS (BACKGROUND / RIGHT)
    ==================================================== */
 .graphicContainer {
-  position: relative;
+  position: absolute;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
   width: 130px;
   height: 130px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.85;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.cardContainer:hover .graphicContainer,
+.cardContainer:focus-visible .graphicContainer,
+.cardRevealed .graphicContainer {
+  opacity: 0.4;
+  transform: translateY(-50%) scale(1.08);
 }
 
 /* Vision: Expanding Horizon Network */
@@ -293,9 +289,6 @@
 
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
-  .frontVisualLayer {
-    transition: transform 0.1s ease;
-  }
   .pulseCoreRing,
   .networkRay,
   .orbitNode,
@@ -304,29 +297,42 @@
   }
 }
 
-/* Responsive Adjustments */
-@media (max-width: 580px) {
+/* ====================================================
+   3. RESPONSIVE BREAKPOINTS
+   ==================================================== */
+@media (max-width: 768px) {
   .cardContainer {
-    height: 220px;
-    min-height: 220px;
-  }
-  
-  .frontVisualLayer {
-    padding: 1.25rem;
+    padding: 1.4rem 1.35rem;
+    min-height: auto;
   }
 
-  .textLayer {
-    padding: 1.25rem;
+  .contentArea {
+    max-width: 100%;
   }
 
   .graphicContainer {
-    width: 100px;
-    height: 100px;
+    right: 0.75rem;
+    width: 90px;
+    height: 90px;
+    opacity: 0.2;
   }
 
-  .cardContainer:hover .frontVisualLayer,
-  .cardContainer:focus-visible .frontVisualLayer,
-  .cardRevealed .frontVisualLayer {
-    transform: translateX(88%);
+  .cardContainer:hover .graphicContainer,
+  .cardRevealed .graphicContainer {
+    opacity: 0.15;
+  }
+}
+
+@media (max-width: 480px) {
+  .cardTitle {
+    font-size: 1.2rem;
+  }
+
+  .visionStatement {
+    font-size: 0.88rem;
+  }
+
+  .missionList li {
+    font-size: 0.84rem;
   }
 }
