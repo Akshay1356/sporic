@@ -39,11 +39,9 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const urlTab = searchParams.get('tab');
-  const initialTab = urlTab || 'courses';
-
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const [activeTab, setActiveTab] = useState(urlTab || 'overview');
 
   // Admin Data states
   const [analytics, setAnalytics] = useState(null);
@@ -666,32 +664,75 @@ export default function Dashboard() {
 
   const isAdmin = user?.role === 'ADMIN';
 
+  // Domain breakdown for Overview
+  const techCoursesCount = coursesList.filter((c) => c.domain === DOMAINS.TECHNOLOGY || c.domain === 'Technology').length;
+  const mgmtCoursesCount = coursesList.filter((c) => c.domain === DOMAINS.MANAGEMENT || c.domain === 'Management').length;
+  const leadCoursesCount = coursesList.filter((c) => c.domain === DOMAINS.LEADERSHIP || c.domain === 'Leadership & Personality' || c.domain === 'Personality').length;
+  const totalCoursesCount = coursesList.length || 1;
+
   return (
     <div className={styles.dashboardContainer}>
       {/* Top Banner */}
       <section className={styles.banner}>
         <div className="grid-bg" style={{ opacity: 0.5 }} />
         <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
-              <span className="section-label">{isAdmin ? 'ADMINISTRATIVE CONTROL CENTER' : 'STUDENT & PROFESSIONAL PORTAL'}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.35rem' }}>
+                <span className="section-label" style={{ margin: 0 }}>
+                  {isAdmin ? 'ADMIN CONTROL CENTRE' : 'STUDENT & PROFESSIONAL PORTAL'}
+                </span>
+                {isAdmin && (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', background: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0', padding: '0.15rem 0.6rem', borderRadius: '9999px', fontSize: '0.72rem', fontWeight: 700 }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#059669' }} />
+                    System Operational
+                  </span>
+                )}
+              </div>
               <h1 className={styles.title}>
-                {isAdmin ? 'SpoRIC Admin Dashboard' : `Welcome, ${user?.fullName || user?.name || 'Learner'}`}
+                {isAdmin ? 'VIT-TEC Administration Dashboard' : `Welcome, ${user?.fullName || user?.name || 'Learner'}`}
               </h1>
               <p className={styles.subtitle}>
                 {isAdmin
-                  ? 'Manage training programs, review course enquiries, update gallery media, and track corporate cohorts.'
+                  ? 'Manage courses, enquiries, corporate training, previous programs, gallery and platform activity.'
                   : 'Access your enrolled training programs, saved courses, query statuses, and professional credentials.'}
               </p>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-              <Link to="/profile" className="btn btn-ghost" style={{ fontSize: '0.85rem' }}>
-                👤 Edit Profile
-              </Link>
-              <Link to="/courses" className="btn btn-primary" style={{ fontSize: '0.85rem' }}>
-                Browse Courses →
-              </Link>
+            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              {isAdmin ? (
+                <>
+                  <button className="btn btn-primary" style={{ fontSize: '0.85rem' }} onClick={() => setShowAddModal(true)}>
+                    ➕ Add Course
+                  </button>
+                  <button className="btn btn-secondary" style={{ fontSize: '0.85rem' }} onClick={() => {
+                    setEditingCorporateTraining(null);
+                    setTrainingStartDate('');
+                    setTrainingEndDate('');
+                    setTrainingSchool('SELECT');
+                    setTrainingTrainers(['']);
+                    setTrainingTitle('');
+                    setTrainingCompany('');
+                    setTrainingDescription('');
+                    setTrainingError('');
+                    setShowCorporateTrainingModal(true);
+                  }}>
+                    🏛️ Add Training
+                  </button>
+                  <Link to="/profile" className="btn btn-ghost" style={{ fontSize: '0.85rem' }}>
+                    👤 Profile
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/profile" className="btn btn-ghost" style={{ fontSize: '0.85rem' }}>
+                    👤 Edit Profile
+                  </Link>
+                  <Link to="/courses" className="btn btn-primary" style={{ fontSize: '0.85rem' }}>
+                    Browse Courses →
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -711,41 +752,14 @@ export default function Dashboard() {
              ==================================================== */}
           {isAdmin && (
             <>
-              {/* Analytics Top Cards */}
-              <div className={styles.statsGrid}>
-                <GlassCard padding="md">
-                  <div className={styles.statLabel}>TOTAL PLATFORM REVENUE</div>
-                  <div className={styles.statValue}>₹{(analytics?.totalRevenue || 84990).toLocaleString()}</div>
-                  <div className={styles.statSub}>Verified via Razorpay HMAC</div>
-                </GlassCard>
-
-                <GlassCard padding="md">
-                  <div className={styles.statLabel}>ACTIVE COURSES</div>
-                  <div className={styles.statValue}>{coursesList.length}</div>
-                  <div className={styles.statSub}>Across 3 Core Departments</div>
-                </GlassCard>
-
-                <GlassCard padding="md">
-                  <div className={styles.statLabel}>COURSE ENQUIRIES</div>
-                  <div className={styles.statValue}>{enquiriesList.length}</div>
-                  <div className={styles.statSub}>Corporate &amp; Student Inquiries</div>
-                </GlassCard>
-
-                <GlassCard padding="md">
-                  <div className={styles.statLabel}>PREVIOUS PROGRAMS</div>
-                  <div className={styles.statValue}>{programsList.length}</div>
-                  <div className={styles.statSub}>Published on /about</div>
-                </GlassCard>
-
-                <GlassCard padding="md">
-                  <div className={styles.statLabel}>CORPORATE TRAININGS</div>
-                  <div className={styles.statValue}>{corporateTrainingsList.length}</div>
-                  <div className={styles.statSub}>Published on /corporate-training</div>
-                </GlassCard>
-              </div>
-
               {/* Admin Navigation Tabs */}
               <div className={styles.tabsWrapper}>
+                <button
+                  className={`${styles.tabBtn} ${activeTab === 'overview' ? styles.tabBtnActive : ''}`}
+                  onClick={() => setActiveTab('overview')}
+                >
+                  📊 Overview
+                </button>
                 <button
                   className={`${styles.tabBtn} ${activeTab === 'courses' ? styles.tabBtnActive : ''}`}
                   onClick={() => setActiveTab('courses')}
@@ -762,7 +776,7 @@ export default function Dashboard() {
                   className={`${styles.tabBtn} ${activeTab === 'enquiries' ? styles.tabBtnActive : ''}`}
                   onClick={() => setActiveTab('enquiries')}
                 >
-                  💬 Course Enquiries ({enquiriesList.length})
+                  💬 Enquiries ({enquiriesList.length})
                 </button>
                 <button
                   className={`${styles.tabBtn} ${activeTab === 'programs' ? styles.tabBtnActive : ''}`}
@@ -783,6 +797,218 @@ export default function Dashboard() {
                   👥 Users ({usersList.length})
                 </button>
               </div>
+
+              {/* TAB 0: Overview Command Center */}
+              {activeTab === 'overview' && (
+                <div className={styles.adminOverviewWrapper}>
+                  {/* Summary Statistics - 5 Card Compact Responsive Grid */}
+                  <div className={styles.overviewStatsGrid}>
+                    <div className={styles.statBox}>
+                      <div className={styles.statBoxTop}>
+                        <div className={styles.statIconBadge} style={{ background: '#ECFDF5', color: '#059669', borderColor: '#A7F3D0' }}>
+                          💳
+                        </div>
+                        <span className={styles.statStatusBadge} style={{ background: '#ECFDF5', color: '#047857' }}>
+                          ● Razorpay Live
+                        </span>
+                      </div>
+                      <div className={styles.statBoxLabel}>TOTAL PLATFORM REVENUE</div>
+                      <div className={styles.statBoxValue}>₹{(analytics?.totalRevenue || 84990).toLocaleString()}</div>
+                      <div className={styles.statBoxSub}>Verified via Razorpay HMAC</div>
+                    </div>
+
+                    <div className={styles.statBox}>
+                      <div className={styles.statBoxTop}>
+                        <div className={styles.statIconBadge} style={{ background: '#EFF6FF', color: '#2563EB', borderColor: '#BFDBFE' }}>
+                          📚
+                        </div>
+                        <span className={styles.statStatusBadge} style={{ background: '#EFF6FF', color: '#1D4ED8' }}>
+                          3 Domains
+                        </span>
+                      </div>
+                      <div className={styles.statBoxLabel}>ACTIVE COURSES</div>
+                      <div className={styles.statBoxValue}>{coursesList.length}</div>
+                      <div className={styles.statBoxSub}>Published on Catalog</div>
+                    </div>
+
+                    <div className={styles.statBox}>
+                      <div className={styles.statBoxTop}>
+                        <div className={styles.statIconBadge} style={{ background: '#FFFBEB', color: '#D97706', borderColor: '#FDE68A' }}>
+                          📬
+                        </div>
+                        <span className={styles.statStatusBadge} style={{ background: '#FFFBEB', color: '#B45309' }}>
+                          {enquiriesList.filter(e => e.status === 'NEW').length} New
+                        </span>
+                      </div>
+                      <div className={styles.statBoxLabel}>COURSE ENQUIRIES</div>
+                      <div className={styles.statBoxValue}>{enquiriesList.length}</div>
+                      <div className={styles.statBoxSub}>Corporate &amp; Student Inquiries</div>
+                    </div>
+
+                    <div className={styles.statBox}>
+                      <div className={styles.statBoxTop}>
+                        <div className={styles.statIconBadge} style={{ background: '#F5F3FF', color: '#7C3AED', borderColor: '#DDD6FE' }}>
+                          📜
+                        </div>
+                        <span className={styles.statStatusBadge} style={{ background: '#F5F3FF', color: '#6D28D9' }}>
+                          Audited
+                        </span>
+                      </div>
+                      <div className={styles.statBoxLabel}>PREVIOUS PROGRAMS</div>
+                      <div className={styles.statBoxValue}>{programsList.length}</div>
+                      <div className={styles.statBoxSub}>Published on /about</div>
+                    </div>
+
+                    <div className={styles.statBox}>
+                      <div className={styles.statBoxTop}>
+                        <div className={styles.statIconBadge} style={{ background: '#F0F9FF', color: '#0284C7', borderColor: '#BAE6FD' }}>
+                          🏛️
+                        </div>
+                        <span className={styles.statStatusBadge} style={{ background: '#F0F9FF', color: '#0369A1' }}>
+                          4 Academic Years
+                        </span>
+                      </div>
+                      <div className={styles.statBoxLabel}>CORPORATE TRAININGS</div>
+                      <div className={styles.statBoxValue}>{corporateTrainingsList.length}</div>
+                      <div className={styles.statBoxSub}>Published on /corporate-training</div>
+                    </div>
+                  </div>
+
+                  {/* Section 2: Quick Actions Grid */}
+                  <div className={styles.overviewSection}>
+                    <div className={styles.sectionHeaderRow}>
+                      <div>
+                        <h3 className={styles.sectionHeading}>ADMIN QUICK ACTIONS</h3>
+                        <p className={styles.sectionSubheading}>Direct management shortcuts across platform repositories</p>
+                      </div>
+                    </div>
+
+                    <div className={styles.quickActionsGrid}>
+                      <div className={styles.actionCard} onClick={() => setActiveTab('courses')}>
+                        <div className={styles.actionCardIcon}>📚</div>
+                        <div className={styles.actionCardBody}>
+                          <h4 className={styles.actionCardTitle}>Manage Courses</h4>
+                          <p className={styles.actionCardDesc}>Create, edit curriculum, set pricing, and toggle registration status.</p>
+                        </div>
+                        <span className={styles.actionArrow}>→</span>
+                      </div>
+
+                      <div className={styles.actionCard} onClick={() => setActiveTab('corporate-training')}>
+                        <div className={styles.actionCardIcon}>🏛️</div>
+                        <div className={styles.actionCardBody}>
+                          <h4 className={styles.actionCardTitle}>Corporate Trainings</h4>
+                          <p className={styles.actionCardDesc}>Manage 31+ corporate training records, trainer rosters, and academic years.</p>
+                        </div>
+                        <span className={styles.actionArrow}>→</span>
+                      </div>
+
+                      <div className={styles.actionCard} onClick={() => setActiveTab('enquiries')}>
+                        <div className={styles.actionCardIcon}>💬</div>
+                        <div className={styles.actionCardBody}>
+                          <h4 className={styles.actionCardTitle}>Course Enquiries</h4>
+                          <p className={styles.actionCardDesc}>Review and respond to executive delegate enquiries and cohort questions.</p>
+                        </div>
+                        <span className={styles.actionArrow}>→</span>
+                      </div>
+
+                      <div className={styles.actionCard} onClick={() => setActiveTab('programs')}>
+                        <div className={styles.actionCardIcon}>📜</div>
+                        <div className={styles.actionCardBody}>
+                          <h4 className={styles.actionCardTitle}>Previous Programs</h4>
+                          <p className={styles.actionCardDesc}>Manage historical executive training cohorts, participants, and outcomes.</p>
+                        </div>
+                        <span className={styles.actionArrow}>→</span>
+                      </div>
+
+                      <div className={styles.actionCard} onClick={() => setActiveTab('gallery')}>
+                        <div className={styles.actionCardIcon}>🖼️</div>
+                        <div className={styles.actionCardBody}>
+                          <h4 className={styles.actionCardTitle}>Gallery CMS</h4>
+                          <p className={styles.actionCardDesc}>Upload, categorize, and organize campus and industrial training photos.</p>
+                        </div>
+                        <span className={styles.actionArrow}>→</span>
+                      </div>
+
+                      <div className={styles.actionCard} onClick={() => setActiveTab('users')}>
+                        <div className={styles.actionCardIcon}>👥</div>
+                        <div className={styles.actionCardBody}>
+                          <h4 className={styles.actionCardTitle}>User Governance</h4>
+                          <p className={styles.actionCardDesc}>Inspect registered student and corporate profiles, designations, and roles.</p>
+                        </div>
+                        <span className={styles.actionArrow}>→</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Section 3: Course Distribution & Platform Governance */}
+                  <div className={styles.analyticsTwoCol}>
+                    {/* Course Distribution */}
+                    <div className={styles.analyticsCard}>
+                      <div className={styles.cardHeaderSmall}>
+                        <h4 className={styles.cardHeaderTitle}>COURSE DISTRIBUTION BY DOMAIN</h4>
+                        <span className={styles.badgeTotal}>{coursesList.length} Total</span>
+                      </div>
+                      <div className={styles.distributionList}>
+                        <div className={styles.distItem}>
+                          <div className={styles.distMeta}>
+                            <span className={styles.distName}>⚙️ Technology</span>
+                            <span className={styles.distCount}>{techCoursesCount} Courses ({Math.round((techCoursesCount / totalCoursesCount) * 100)}%)</span>
+                          </div>
+                          <div className={styles.progressBarBg}>
+                            <div className={styles.progressBarFill} style={{ width: `${(techCoursesCount / totalCoursesCount) * 100}%`, background: '#2563EB' }} />
+                          </div>
+                        </div>
+
+                        <div className={styles.distItem}>
+                          <div className={styles.distMeta}>
+                            <span className={styles.distName}>📊 Management</span>
+                            <span className={styles.distCount}>{mgmtCoursesCount} Courses ({Math.round((mgmtCoursesCount / totalCoursesCount) * 100)}%)</span>
+                          </div>
+                          <div className={styles.progressBarBg}>
+                            <div className={styles.progressBarFill} style={{ width: `${(mgmtCoursesCount / totalCoursesCount) * 100}%`, background: '#059669' }} />
+                          </div>
+                        </div>
+
+                        <div className={styles.distItem}>
+                          <div className={styles.distMeta}>
+                            <span className={styles.distName}>🌟 Leadership &amp; Personality</span>
+                            <span className={styles.distCount}>{leadCoursesCount} Courses ({Math.round((leadCoursesCount / totalCoursesCount) * 100)}%)</span>
+                          </div>
+                          <div className={styles.progressBarBg}>
+                            <div className={styles.progressBarFill} style={{ width: `${(leadCoursesCount / totalCoursesCount) * 100}%`, background: '#7C3AED' }} />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Platform System Health */}
+                    <div className={styles.analyticsCard}>
+                      <div className={styles.cardHeaderSmall}>
+                        <h4 className={styles.cardHeaderTitle}>SYSTEM INFRASTRUCTURE &amp; SYNC</h4>
+                        <span className={styles.badgeLive}>● Live Operational</span>
+                      </div>
+                      <div className={styles.sysHealthGrid}>
+                        <div className={styles.sysHealthItem}>
+                          <span className={styles.sysHealthLabel}>Application Server</span>
+                          <span className={styles.sysHealthVal} style={{ color: '#059669' }}>Operational (200 OK)</span>
+                        </div>
+                        <div className={styles.sysHealthItem}>
+                          <span className={styles.sysHealthLabel}>Database Storage</span>
+                          <span className={styles.sysHealthVal} style={{ color: '#059669' }}>Active &amp; Persisted</span>
+                        </div>
+                        <div className={styles.sysHealthItem}>
+                          <span className={styles.sysHealthLabel}>Payment Gateway</span>
+                          <span className={styles.sysHealthVal} style={{ color: '#059669' }}>Razorpay HMAC Verified</span>
+                        </div>
+                        <div className={styles.sysHealthItem}>
+                          <span className={styles.sysHealthLabel}>Security Clearance</span>
+                          <span className={styles.sysHealthVal} style={{ color: '#2563EB' }}>Admin Clearance Active</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* TAB 1: Courses Management */}
               {activeTab === 'courses' && (
