@@ -42,8 +42,8 @@ function formatDateRange(startDate, endDate, fallbackYear) {
 }
 
 export default function CorporateTraining() {
-  const [trainings, setTrainings] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [trainings, setTrainings] = useState(() => getAllCorporateTrainings());
+  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedYear, setSelectedYear] = useState('All');
   const [selectedSchool, setSelectedSchool] = useState('All');
@@ -51,9 +51,15 @@ export default function CorporateTraining() {
   // Load trainings and listen for real-time updates
   const loadTrainings = async () => {
     try {
-      const res = await api.getCorporateTrainings();
-      const list = res?.data || (Array.isArray(res) ? res : getAllCorporateTrainings());
-      setTrainings(list);
+      const local = getAllCorporateTrainings();
+      if (local && local.length > 0) {
+        setTrainings(local);
+      }
+      const res = await api.getCorporateTrainings().catch(() => null);
+      const list = res?.data || (Array.isArray(res) ? res : null);
+      if (Array.isArray(list) && list.length > 0) {
+        setTrainings(list);
+      }
     } catch {
       setTrainings(getAllCorporateTrainings());
     } finally {
