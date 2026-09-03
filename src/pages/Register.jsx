@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { courses, enrollUserInCourse } from '../data/courses';
+import { courses, COURSE_STATUS, isUserEnrolledInCourse, enrollUserInCourse } from '../data/courses';
 import styles from './Register.module.css';
 import api from '../services/api';
 
@@ -17,9 +17,11 @@ function loadRazorpayScript() {
 }
 
 export default function Register() {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const initialCourseId = searchParams.get('courseId') || searchParams.get('course') || '';
+  const rawCourseId = searchParams.get('courseId') || searchParams.get('course') || '';
 
+  const [user, setUser] = useState(null);
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -31,7 +33,7 @@ export default function Register() {
     phone: '',
     organization: '',
     role: '',
-    selectedCourse: initialCourseId,
+    selectedCourse: rawCourseId,
     selectedBatch: '',
   });
 
@@ -41,11 +43,48 @@ export default function Register() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Sync course from URL query parameters dynamically
+  // 1. Authenticate / Initialize Step 4 directly for logged-in users or course enrollment
+  useEffect(() => {
+    const stored = localStorage.getItem('sporic_user');
+    let currentUser = null;
+
+    if (stored) {
+      try {
+        currentUser = JSON.parse(stored);
+        setUser(currentUser);
+      } catch {
+        currentUser = null;
+      }
+    }
+
+    if (currentUser) {
+      // User is logged in: DIRECTLY OPEN STEP 4 (Program & Payment Checkout)
+      setStep(4);
+      setEmail(currentUser.email || '');
+      setFormData((prev) => ({
+        ...prev,
+        fullName: currentUser.fullName || currentUser.name || prev.fullName || 'Delegate',
+        phone: currentUser.phone || prev.phone || '',
+        organization: currentUser.organization || currentUser.company || prev.organization || 'Individual / Organization',
+        role: currentUser.designation || currentUser.role || prev.role || 'Professional',
+      }));
+    } else if (rawCourseId) {
+      // Unauthenticated user attempting to enroll: redirect to login with return redirect
+      const returnUrl = `/register?courseId=${encodeURIComponent(rawCourseId)}`;
+      navigate(`/login?redirect=${encodeURIComponent(returnUrl)}`);
+    } else {
+      // Unauthenticated generic visitor: start from Step 1
+      setStep(1);
+    }
+  }, [rawCourseId, navigate]);
+
+  // 2. Resolve course from URL query parameter
   useEffect(() => {
     const cid = searchParams.get('courseId') || searchParams.get('course') || '';
     if (cid) {
-      const matched = courses.find((c) => c.id.toLowerCase() === cid.toLowerCase() || c.code?.toLowerCase() === cid.toLowerCase());
+      const matched = courses.find(
+        (c) => c.id.toLowerCase() === cid.toLowerCase() || c.code?.toLowerCase() === cid.toLowerCase()
+      );
       if (matched) {
         setFormData((prev) => ({
           ...prev,
@@ -56,29 +95,41 @@ export default function Register() {
     }
   }, [searchParams]);
 
-  // Pre-fill logged-in user credentials if available
-  useEffect(() => {
-    const stored = localStorage.getItem('sporic_user');
-    if (stored) {
-      try {
-        const u = JSON.parse(stored);
-        if (u?.email) {
-          setEmail((prev) => prev || u.email);
-          setFormData((prev) => ({
-            ...prev,
-            fullName: prev.fullName || u.fullName || u.name || '',
-            phone: prev.phone || u.phone || '',
-            organization: prev.organization || u.organization || u.company || '',
-            role: prev.role || u.designation || '',
-          }));
-        }
-      } catch {
-        // ignore
-      }
-    }
-  }, []);
+  // 3. Resolve matched course object from state
+  const selectedCourseDetails =
+    courses.find(
+      (c) =>
+        formData.selectedCourse &&
+        (c.id.toLowerCase() === formData.selectedCourse.toLowerCase() ||
+          c.code?.toLowerCase() === formData.selectedCourse.toLowerCase())
+    ) ||
+    courses.find((c) => rawCourseId && c.id.toLowerCase() === rawCourseId.toLowerCase()) ||
+    courses[0];
 
-  // OTP Countdown Timer
+  // Check enrollment & availability statuses
+  const isAlreadyEnrolled = user?.email && selectedCourseDetails
+    ? isUserEnrolledInCourse(user.email, selectedCourseDetails.id)
+    : false;
+
+  const isClosed =
+    selectedCourseDetails?.status === COURSE_STATUS.CLOSED ||
+    selectedCourseDetails?.status === COURSE_STATUS.COMPLETED;
+
+  const isUpcoming = selectedCourseDetails?.status === COURSE_STATUS.UPCOMING;
+
+  const testAmountINR = selectedCourseDetails?.price || 4999;
+
+  // Set default batch if unset
+  useEffect(() => {
+    if (selectedCourseDetails?.sessions?.[0]?.date && !formData.selectedBatch) {
+      setFormData((prev) => ({
+        ...prev,
+        selectedBatch: selectedCourseDetails.sessions[0].date,
+      }));
+    }
+  }, [selectedCourseDetails, formData.selectedBatch]);
+
+  // OTP Countdown Timer (for standard unauthenticated registration)
   useEffect(() => {
     if (timer > 0) {
       const interval = setInterval(() => setTimer((t) => t - 1), 1000);
@@ -133,11 +184,8 @@ export default function Register() {
     setStep(4);
   };
 
-  const selectedCourseDetails = courses.find((c) => c.id === formData.selectedCourse) || courses[0];
-  const testAmountINR = selectedCourseDetails?.price || 1;
-
   // Generate UPI payment URI for QR code
-  const upiUri = `upi://pay?pa=deancc.sporic@vit.ac.in&pn=VIT-TEC%20SpoRIC&am=${testAmountINR}&cu=INR&tn=Enrollment%20${formData.selectedCourse || 'Course'}`;
+  const upiUri = `upi://pay?pa=deancc.sporic@vit.ac.in&pn=VIT-TEC%20SpoRIC&am=${testAmountINR}&cu=INR&tn=Enrollment%20${selectedCourseDetails?.id || 'Course'}`;
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=10&data=${encodeURIComponent(upiUri)}`;
 
   // Handle Razorpay Online Popup
@@ -163,17 +211,18 @@ export default function Register() {
         description: `Enrollment: ${selectedCourseDetails.title}`,
         image: '/vit_logo.png',
         prefill: {
-          name: formData.fullName,
-          email: email,
-          contact: formData.phone,
+          name: formData.fullName || user?.name || '',
+          email: email || user?.email || '',
+          contact: formData.phone || user?.phone || '',
         },
         theme: {
           color: '#0B2A6F',
         },
         handler: async function (response) {
-          const finalCourseId = formData.selectedCourse || selectedCourseDetails?.id;
-          if (email && finalCourseId) {
-            enrollUserInCourse(email, finalCourseId);
+          const finalCourseId = selectedCourseDetails?.id || formData.selectedCourse;
+          const userEmail = email || user?.email;
+          if (userEmail && finalCourseId) {
+            enrollUserInCourse(userEmail, finalCourseId);
           }
           setPaymentData({
             paymentId: response.razorpay_payment_id || `pay_${Date.now()}`,
@@ -210,11 +259,14 @@ export default function Register() {
     setLoading(true);
 
     setTimeout(() => {
-      const finalCourseId = formData.selectedCourse || selectedCourseDetails?.id;
-      if (email && finalCourseId) {
-        enrollUserInCourse(email, finalCourseId);
+      const finalCourseId = selectedCourseDetails?.id || formData.selectedCourse;
+      const userEmail = email || user?.email;
+      if (userEmail && finalCourseId) {
+        enrollUserInCourse(userEmail, finalCourseId);
       }
-      const generatedPayId = utrNumber.trim() ? `upi_utr_${utrNumber.trim()}` : `upi_${Date.now().toString(36).toUpperCase()}`;
+      const generatedPayId = utrNumber.trim()
+        ? `upi_utr_${utrNumber.trim()}`
+        : `upi_${Date.now().toString(36).toUpperCase()}`;
       setPaymentData({
         paymentId: generatedPayId,
         orderId: `ord_qr_${Date.now().toString(36)}`,
@@ -238,7 +290,7 @@ export default function Register() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
           >
-            <span className="section-label">Corporate Enrolment & Payment</span>
+            <span className="section-label">Corporate Enrolment &amp; Payment</span>
             <h1 className={styles.title}>APPLY / ENROL</h1>
             <p className={styles.subtitle}>
               Register for executive corporate training programs with live online payment checkout
@@ -260,19 +312,19 @@ export default function Register() {
             {step < 5 && (
               <div className={styles.stepperWrap}>
                 <div className={styles.stepper}>
-                  <div className={`${styles.stepNode} ${step >= 1 ? styles.activeNode : ''} ${step > 1 ? styles.completedNode : ''}`}>
-                    <span>1</span>
+                  <div className={`${styles.stepNode} ${step >= 1 ? styles.completedNode : ''}`}>
+                    <span>✓</span>
                   </div>
                   <div className={`${styles.stepLine} ${step >= 2 ? styles.activeLine : ''}`} />
-                  <div className={`${styles.stepNode} ${step >= 2 ? styles.activeNode : ''} ${step > 2 ? styles.completedNode : ''}`}>
-                    <span>2</span>
+                  <div className={`${styles.stepNode} ${step >= 2 ? styles.completedNode : ''}`}>
+                    <span>✓</span>
                   </div>
                   <div className={`${styles.stepLine} ${step >= 3 ? styles.activeLine : ''}`} />
-                  <div className={`${styles.stepNode} ${step >= 3 ? styles.activeNode : ''} ${step > 3 ? styles.completedNode : ''}`}>
-                    <span>3</span>
+                  <div className={`${styles.stepNode} ${step >= 3 ? styles.completedNode : ''}`}>
+                    <span>✓</span>
                   </div>
-                  <div className={`${styles.stepLine} ${step >= 4 ? styles.activeLine : ''}`} />
-                  <div className={`${styles.stepNode} ${step >= 4 ? styles.activeNode : ''}`}>
+                  <div className={`${styles.stepLine} ${styles.activeLine}`} />
+                  <div className={`${styles.stepNode} ${styles.activeNode}`}>
                     <span>4</span>
                   </div>
                 </div>
@@ -282,7 +334,7 @@ export default function Register() {
             {/* Error Message */}
             {error && <div className={styles.errorBanner}>{error}</div>}
 
-            {/* STEP 1: Enter Email */}
+            {/* STEP 1: Enter Email (Only for unauthenticated generic registration) */}
             {step === 1 && (
               <form onSubmit={handleSendOtp} className={styles.form}>
                 <div className={styles.stepHeader}>
@@ -291,41 +343,6 @@ export default function Register() {
                     Enter your work or personal email address to receive a secure verification OTP.
                   </p>
                 </div>
-
-                {/* Selected Course Summary Preview */}
-                {selectedCourseDetails && formData.selectedCourse && (
-                  <div style={{
-                    background: '#EFF6FF',
-                    border: '1px solid #BFDBFE',
-                    borderRadius: '12px',
-                    padding: '0.85rem 1rem',
-                    marginBottom: '1.25rem',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                  }}>
-                    <div style={{ textAlign: 'left' }}>
-                      <span style={{
-                        fontSize: '0.68rem',
-                        fontWeight: '800',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.06em',
-                        color: '#1D4ED8',
-                        display: 'block',
-                        marginBottom: '0.2rem',
-                      }}>
-                        Selected Program • {selectedCourseDetails.id}
-                      </span>
-                      <h4 style={{ fontSize: '0.92rem', color: '#0F172A', margin: 0, fontWeight: 700, lineHeight: 1.3 }}>
-                        {selectedCourseDetails.title}
-                      </h4>
-                    </div>
-                    <span className="tag tag-cyan" style={{ fontSize: '0.72rem', fontWeight: '700', whiteSpace: 'nowrap' }}>
-                      {selectedCourseDetails.hours} Hours
-                    </span>
-                  </div>
-                )}
 
                 <div className={styles.inputGroup}>
                   <label className={styles.label}>Corporate / Email Address *</label>
@@ -482,199 +499,267 @@ export default function Register() {
               </form>
             )}
 
-            {/* STEP 4: Program Selection & LIVE UPI QR / RAZORPAY PAYMENT */}
+            {/* STEP 4: DIRECT ENROLLMENT & PAYMENT CHECKOUT */}
             {step === 4 && (
               <div>
                 <div className={styles.stepHeader}>
-                  <h2 className={styles.cardHeading}>Program & Payment Checkout</h2>
+                  <h2 className={styles.cardHeading}>Program &amp; Payment Checkout</h2>
                   <p className={styles.cardSubheading}>
-                    Select your corporate training program and scan the QR code to complete payment.
+                    Confirm your corporate training program details and complete online payment.
                   </p>
                 </div>
 
-                <div className={styles.inputGroup}>
-                  <label className={styles.label}>Select Corporate Training Program *</label>
-                  <select
-                    value={formData.selectedCourse}
-                    onChange={(e) =>
-                      setFormData({ ...formData, selectedCourse: e.target.value, selectedBatch: '' })
-                    }
-                    className={styles.select}
-                    required
-                  >
-                    <option value="">Choose program from catalog...</option>
-                    {courses.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        [{c.category}] {c.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {/* Authenticated Profile Summary (Read-Only) */}
+                {user && (
+                  <div style={{
+                    background: '#F8FAFC',
+                    border: '1px solid #E2E8F0',
+                    borderRadius: '12px',
+                    padding: '1rem 1.15rem',
+                    marginBottom: '1.25rem',
+                    textAlign: 'left',
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem', borderBottom: '1px solid #E2E8F0', paddingBottom: '0.4rem' }}>
+                      <span style={{ fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#1D4ED8' }}>
+                        Enrolling As
+                      </span>
+                      <Link to="/profile" style={{ fontSize: '0.75rem', color: '#1D4ED8', fontWeight: '700', textDecoration: 'none' }}>
+                        Edit Profile ↗
+                      </Link>
+                    </div>
 
-                {selectedCourseDetails && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.5rem', fontSize: '0.84rem' }}>
+                      <div>
+                        <span style={{ color: '#64748B', display: 'block', fontSize: '0.72rem', textTransform: 'uppercase' }}>Delegate Name</span>
+                        <strong style={{ color: '#0F172A' }}>{formData.fullName || user.name || 'Delegate'}</strong>
+                      </div>
+                      <div>
+                        <span style={{ color: '#64748B', display: 'block', fontSize: '0.72rem', textTransform: 'uppercase' }}>Email</span>
+                        <span style={{ color: '#0F172A', fontWeight: '600' }}>{email || user.email}</span>
+                      </div>
+                      <div>
+                        <span style={{ color: '#64748B', display: 'block', fontSize: '0.72rem', textTransform: 'uppercase' }}>Phone</span>
+                        <span style={{ color: '#0F172A', fontWeight: '600' }}>{formData.phone || user.phone || '—'}</span>
+                      </div>
+                      <div>
+                        <span style={{ color: '#64748B', display: 'block', fontSize: '0.72rem', textTransform: 'uppercase' }}>Organization</span>
+                        <span style={{ color: '#0F172A', fontWeight: '600' }}>{formData.organization || user.organization || user.company || '—'}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Status Handling: Already Enrolled / Closed / Upcoming */}
+                {isAlreadyEnrolled ? (
+                  <div style={{ textAlign: 'center', padding: '1.75rem 1.25rem', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '14px', margin: '1rem 0' }}>
+                    <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🎓</div>
+                    <h3 style={{ color: '#166534', fontSize: '1.25rem', fontWeight: 800, margin: '0 0 0.5rem' }}>
+                      You Are Already Enrolled!
+                    </h3>
+                    <p style={{ color: '#15803D', fontSize: '0.9rem', marginBottom: '1.25rem', lineHeight: 1.5 }}>
+                      You have an active registration for <strong>{selectedCourseDetails.title}</strong> ({selectedCourseDetails.id}).
+                    </p>
+                    <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                      <Link to="/dashboard?tab=courses" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', fontWeight: 700 }}>
+                        Go to Student Dashboard →
+                      </Link>
+                      <Link to="/courses" className="btn btn-secondary" style={{ padding: '0.75rem 1.5rem' }}>
+                        Browse More Courses
+                      </Link>
+                    </div>
+                  </div>
+                ) : isClosed ? (
+                  <div style={{ textAlign: 'center', padding: '1.75rem 1.25rem', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '14px', margin: '1rem 0' }}>
+                    <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>⏰</div>
+                    <h3 style={{ color: '#991B1B', fontSize: '1.25rem', fontWeight: 800, margin: '0 0 0.5rem' }}>
+                      Registration Closed
+                    </h3>
+                    <p style={{ color: '#B91C1C', fontSize: '0.9rem', marginBottom: '1.25rem', lineHeight: 1.5 }}>
+                      Registration is currently closed for <strong>{selectedCourseDetails.title}</strong> ({selectedCourseDetails.id}).
+                    </p>
+                    <Link to="/courses" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', fontWeight: 700 }}>
+                      Explore Available Courses →
+                    </Link>
+                  </div>
+                ) : isUpcoming ? (
+                  <div style={{ textAlign: 'center', padding: '1.75rem 1.25rem', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '14px', margin: '1rem 0' }}>
+                    <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🗓️</div>
+                    <h3 style={{ color: '#92400E', fontSize: '1.25rem', fontWeight: 800, margin: '0 0 0.5rem' }}>
+                      Upcoming Cohort
+                    </h3>
+                    <p style={{ color: '#B45309', fontSize: '0.9rem', marginBottom: '1.25rem', lineHeight: 1.5 }}>
+                      Enrollment for <strong>{selectedCourseDetails.title}</strong> ({selectedCourseDetails.id}) will open soon.
+                    </p>
+                    <Link to="/courses" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', fontWeight: 700 }}>
+                      Browse Open Programs →
+                    </Link>
+                  </div>
+                ) : (
                   <>
+                    {/* Course Selection Dropdown */}
                     <div className={styles.inputGroup}>
-                      <label className={styles.label}>Select Upcoming Cohort Batch *</label>
-                      <div className={styles.batchesList}>
-                        {selectedCourseDetails.sessions?.map((session) => (
-                          <label
-                            key={session.batch}
-                            className={`${styles.batchItem} ${formData.selectedBatch === session.date ? styles.activeBatch : ''}`}
-                          >
-                            <input
-                              type="radio"
-                              name="selected_batch"
-                              value={session.date}
-                              checked={formData.selectedBatch === session.date}
-                              onChange={(e) => setFormData({ ...formData, selectedBatch: e.target.value })}
-                              required
-                            />
-                            <div className={styles.batchInfo}>
-                              <span className={styles.batchTitle}>Batch {session.batch}</span>
-                              <span className={styles.batchDate}>Starts: {session.date}</span>
-                            </div>
-                          </label>
+                      <label className={styles.label}>Select Corporate Training Program *</label>
+                      <select
+                        value={selectedCourseDetails.id}
+                        onChange={(e) =>
+                          setFormData({ ...formData, selectedCourse: e.target.value, selectedBatch: '' })
+                        }
+                        className={styles.select}
+                        required
+                      >
+                        {courses.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            [{c.id}] {c.title} ({c.hours} Hours)
+                          </option>
                         ))}
-                      </div>
+                      </select>
                     </div>
 
-                    {/* Price & Plan Banner */}
-                    <div style={{ background: '#EFF6FF', border: '1.5px solid #DBEAFE', borderRadius: '12px', padding: '1.2rem', margin: '1.25rem 0' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                          <div style={{ fontWeight: 800, color: '#0B2A6F', fontSize: '1.05rem' }}>
-                            {selectedCourseDetails.title}
-                          </div>
-                          <div style={{ fontSize: '0.8rem', color: '#667085' }}>
-                            {selectedCourseDetails.hours} Hours • SpoRIC Certification Included
-                          </div>
-                        </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: '0.8rem', color: '#98A2B3', textDecoration: 'line-through' }}>₹4,999</div>
-                          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#1D4ED8' }}>₹{testAmountINR}</div>
-                        </div>
+                    {/* Preselected Course Summary Banner */}
+                    <div style={{
+                      background: '#EFF6FF',
+                      border: '1px solid #BFDBFE',
+                      borderRadius: '10px',
+                      padding: '0.85rem 1rem',
+                      margin: '1rem 0',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      textAlign: 'left',
+                    }}>
+                      <div>
+                        <span style={{ fontSize: '0.68rem', fontWeight: '800', textTransform: 'uppercase', color: '#1D4ED8', display: 'block' }}>
+                          {selectedCourseDetails.domain} • {selectedCourseDetails.category}
+                        </span>
+                        <strong style={{ fontSize: '0.92rem', color: '#0F172A', display: 'block' }}>
+                          {selectedCourseDetails.title}
+                        </strong>
                       </div>
-                      <div style={{ marginTop: '0.5rem', fontSize: '0.78rem', color: '#166534', background: '#DCFCE7', padding: '0.35rem 0.6rem', borderRadius: '6px', fontWeight: 600 }}>
-                        ⚡ Testing Sandbox Mode: Program cost reduced to ₹{testAmountINR} for live verification.
-                      </div>
+                      <span className="tag tag-cyan" style={{ fontSize: '0.72rem', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                        {selectedCourseDetails.hours} Hours
+                      </span>
                     </div>
 
-                    {/* Payment Mode Selector Tabs */}
-                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem' }}>
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod('qr')}
-                        style={{
-                          flex: 1,
-                          padding: '0.65rem 1rem',
-                          borderRadius: '8px',
-                          border: paymentMethod === 'qr' ? '2px solid #0B2A6F' : '1px solid #D0D5DD',
-                          background: paymentMethod === 'qr' ? '#F0F4FF' : '#FFFFFF',
-                          color: paymentMethod === 'qr' ? '#0B2A6F' : '#344054',
-                          fontWeight: 700,
-                          fontSize: '0.88rem',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        📱 Instant UPI QR Code
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPaymentMethod('razorpay')}
-                        style={{
-                          flex: 1,
-                          padding: '0.65rem 1rem',
-                          borderRadius: '8px',
-                          border: paymentMethod === 'razorpay' ? '2px solid #0B2A6F' : '1px solid #D0D5DD',
-                          background: paymentMethod === 'razorpay' ? '#F0F4FF' : '#FFFFFF',
-                          color: paymentMethod === 'razorpay' ? '#0B2A6F' : '#344054',
-                          fontWeight: 700,
-                          fontSize: '0.88rem',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        💳 Razorpay Gateway (Cards/NetBanking)
-                      </button>
-                    </div>
-
-                    {/* METHOD 1: LIVE VISIBLE UPI QR CODE */}
-                    {paymentMethod === 'qr' && (
-                      <form onSubmit={handleConfirmQrPayment} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '1.5rem', textAlign: 'center' }}>
-                        <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0B2A6F', marginBottom: '0.25rem' }}>
-                          Scan to Pay ₹{testAmountINR} with any UPI App
+                    {/* Batch Selection */}
+                    {selectedCourseDetails && (
+                      <div className={styles.inputGroup} style={{ marginTop: '0.5rem' }}>
+                        <label className={styles.label}>Select Upcoming Cohort Batch *</label>
+                        <div className={styles.batchesList}>
+                          {selectedCourseDetails.sessions?.map((session) => (
+                            <label
+                              key={session.batch}
+                              className={`${styles.batchItem} ${formData.selectedBatch === session.date ? styles.activeBatch : ''}`}
+                            >
+                              <input
+                                type="radio"
+                                name="selected_batch"
+                                value={session.date}
+                                checked={formData.selectedBatch === session.date}
+                                onChange={(e) => setFormData({ ...formData, selectedBatch: e.target.value })}
+                                required
+                              />
+                              <div className={styles.batchInfo}>
+                                <span className={styles.batchTitle}>Batch {session.batch}</span>
+                                <span className={styles.batchDate}>Starts: {session.date}</span>
+                              </div>
+                            </label>
+                          ))}
                         </div>
-                        <div style={{ fontSize: '0.8rem', color: '#64748B', marginBottom: '1rem' }}>
-                          Google Pay • PhonePe • Paytm • BHIM UPI • CRED
-                        </div>
-
-                        {/* Visible QR Image */}
-                        <div style={{ display: 'inline-block', padding: '10px', background: '#FFFFFF', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', marginBottom: '1rem' }}>
-                          <img
-                            src={qrCodeUrl}
-                            alt="UPI Payment QR Code"
-                            style={{ width: '220px', height: '220px', display: 'block', margin: '0 auto' }}
-                          />
-                        </div>
-
-                        <div style={{ fontSize: '0.82rem', color: '#475569', marginBottom: '1rem' }}>
-                          UPI ID: <strong style={{ color: '#0B2A6F' }}>deancc.sporic@vit.ac.in</strong>
-                        </div>
-
-                        <div className={styles.inputGroup} style={{ maxWidth: '340px', margin: '0 auto 1.25rem auto', textAlign: 'left' }}>
-                          <label className={styles.label} style={{ fontSize: '0.8rem' }}>UPI Reference / UTR Number (Optional)</label>
-                          <input
-                            type="text"
-                            placeholder="e.g. 423589021948"
-                            value={utrNumber}
-                            onChange={(e) => setUtrNumber(e.target.value)}
-                            className={styles.input}
-                          />
-                        </div>
-
-                        <button
-                          type="submit"
-                          disabled={loading}
-                          className={`btn btn-primary ${styles.submitBtn}`}
-                          style={{ maxWidth: '340px', margin: '0 auto', background: '#16A34A', borderColor: '#16A34A' }}
-                        >
-                          {loading ? 'Verifying Transaction...' : '✓ I Have Paid ₹' + testAmountINR + ' — Confirm Enrolment'}
-                        </button>
-                      </form>
+                      </div>
                     )}
 
-                    {/* METHOD 2: RAZORPAY POPUP GATEWAY */}
-                    {paymentMethod === 'razorpay' && (
-                      <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '1.75rem', textAlign: 'center' }}>
-                        <div style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0B2A6F', marginBottom: '0.5rem' }}>
-                          Razorpay Secure Checkout
-                        </div>
-                        <p style={{ fontSize: '0.85rem', color: '#64748B', maxWidth: '420px', margin: '0 auto 1.5rem auto' }}>
-                          Pay seamlessly via Debit/Credit Cards, Net Banking, or Razorpay Wallets with 256-bit encryption.
-                        </p>
-
+                    {/* Payment Mode Selection */}
+                    <div style={{ marginTop: '1.25rem', borderTop: '1px solid #E2E8F0', paddingTop: '1.25rem' }}>
+                      <label className={styles.label} style={{ marginBottom: '0.75rem', display: 'block' }}>
+                        Choose Payment Method
+                      </label>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.25rem' }}>
                         <button
                           type="button"
-                          onClick={handleRazorpayPopup}
-                          disabled={loading}
-                          className={`btn btn-primary ${styles.submitBtn}`}
-                          style={{ maxWidth: '320px', margin: '0 auto', background: '#0B2A6F' }}
+                          onClick={() => setPaymentMethod('qr')}
+                          className={paymentMethod === 'qr' ? styles.activeBatch : styles.batchItem}
+                          style={{ justifyContent: 'center', fontWeight: 700, fontSize: '0.88rem' }}
                         >
-                          {loading ? 'Opening Razorpay Modal...' : '🚀 Open Razorpay Popup (₹' + testAmountINR + ')'}
+                          📱 UPI QR Scan (Instant)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPaymentMethod('razorpay')}
+                          className={paymentMethod === 'razorpay' ? styles.activeBatch : styles.batchItem}
+                          style={{ justifyContent: 'center', fontWeight: 700, fontSize: '0.88rem' }}
+                        >
+                          💳 Online Card / NetBanking
                         </button>
                       </div>
-                    )}
+
+                      {/* Payment Method 1: UPI QR Scanner */}
+                      {paymentMethod === 'qr' && (
+                        <form onSubmit={handleConfirmQrPayment} className={styles.form}>
+                          <div style={{ textAlign: 'center', padding: '1rem', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+                            <img
+                              src={qrCodeUrl}
+                              alt="Scan UPI QR Code to Pay"
+                              style={{ width: '180px', height: '180px', margin: '0 auto', display: 'block', borderRadius: '8px' }}
+                            />
+                            <p style={{ fontSize: '0.8rem', color: '#64748B', marginTop: '0.5rem', marginBottom: 0 }}>
+                              Scan with GPay, PhonePe, Paytm, or BHIM UPI
+                            </p>
+                            <p style={{ fontSize: '0.95rem', fontWeight: 800, color: '#0B2A6F', marginTop: '0.25rem' }}>
+                              Fee: ₹{testAmountINR}
+                            </p>
+                          </div>
+
+                          <div className={styles.inputGroup} style={{ marginTop: '0.75rem' }}>
+                            <label className={styles.label}>UPI Transaction UTR Number (Optional for Demo)</label>
+                            <input
+                              type="text"
+                              placeholder="e.g. 423985729183"
+                              value={utrNumber}
+                              onChange={(e) => setUtrNumber(e.target.value)}
+                              className={styles.input}
+                            />
+                          </div>
+
+                          <button
+                            type="submit"
+                            disabled={loading}
+                            className={`btn btn-primary ${styles.submitBtn}`}
+                          >
+                            {loading ? 'Confirming Enrollment...' : '✓ Confirm Enrollment (₹' + testAmountINR + ')'}
+                          </button>
+                        </form>
+                      )}
+
+                      {/* Payment Method 2: Razorpay */}
+                      {paymentMethod === 'razorpay' && (
+                        <div style={{ textAlign: 'center', padding: '1.5rem 1rem' }}>
+                          <p style={{ fontSize: '0.9rem', color: '#64748B', marginBottom: '1rem' }}>
+                            Pay securely via Credit/Debit Cards, Net Banking, or Corporate Wallets.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={handleRazorpayPopup}
+                            disabled={loading}
+                            className={`btn btn-primary ${styles.submitBtn}`}
+                            style={{ maxWidth: '320px', margin: '0 auto' }}
+                          >
+                            {loading ? 'Opening Gateway...' : '🚀 Open Payment Gateway (₹' + testAmountINR + ')'}
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </>
                 )}
               </div>
             )}
 
-            {/* STEP 5: Success Receipt with Payment ID */}
+            {/* STEP 5: Success Receipt with Payment Reference ID */}
             {step === 5 && (
               <div className={styles.successBlock}>
                 <div className={styles.successIcon}>✓</div>
-                <h2 className={styles.cardHeading}>Enrolment & Payment Confirmed!</h2>
+                <h2 className={styles.cardHeading}>Enrolment &amp; Payment Confirmed!</h2>
                 <p className={styles.cardSubheading}>
-                  Thank you, <strong>{formData.fullName}</strong>. Your payment was verified and your corporate training reservation is confirmed with SpoRIC.
+                  Thank you, <strong>{formData.fullName || user?.name || 'Delegate'}</strong>. Your payment was verified and your corporate training reservation is confirmed with SpoRIC.
                 </p>
 
                 <div className={styles.receipt}>
@@ -692,11 +777,11 @@ export default function Register() {
                   </div>
                   <div className={styles.receiptRow}>
                     <span>Delegate / Contact:</span>
-                    <strong>{formData.fullName} ({email})</strong>
+                    <strong>{formData.fullName || user?.name} ({email || user?.email})</strong>
                   </div>
                   <div className={styles.receiptRow}>
                     <span>Organization:</span>
-                    <strong>{formData.organization}</strong>
+                    <strong>{formData.organization || user?.organization || user?.company}</strong>
                   </div>
                   <div className={styles.receiptRow}>
                     <span>Selected Program:</span>
@@ -711,19 +796,19 @@ export default function Register() {
                 </div>
 
                 <p className={styles.finalInstruction}>
-                  An automated payment receipt and onboarding package have been emailed to <strong>{email}</strong>.
+                  An automated payment receipt and onboarding package have been dispatched to <strong>{email || user?.email}</strong>.
                 </p>
 
                 <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
                   <Link
-                    to="/dashboard"
+                    to="/dashboard?tab=courses"
                     className={`btn btn-primary ${styles.submitBtn}`}
                     style={{ flex: 1, textAlign: 'center' }}
                   >
                     Go to Student Dashboard
                   </Link>
                   <Link
-                    to="/technology"
+                    to="/courses"
                     className="btn btn-secondary"
                     style={{ flex: 1, textAlign: 'center', padding: '0.85rem' }}
                   >
