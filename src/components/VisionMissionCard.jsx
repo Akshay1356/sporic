@@ -2,173 +2,222 @@ import { useState } from 'react';
 import styles from './VisionMissionCard.module.css';
 
 export function VisionCard() {
-  const [isRevealed, setIsRevealed] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <div
-      className={`${styles.cardContainer} ${isRevealed ? styles.cardRevealed : ''}`}
-      onClick={() => setIsRevealed(!isRevealed)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          setIsRevealed(!isRevealed);
-        }
-      }}
+      className={`${styles.card} ${isHovered ? styles.cardActive : ''}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={() => setIsHovered(!isHovered)}
+      onFocus={() => setIsHovered(true)}
+      onBlur={() => setIsHovered(false)}
       tabIndex={0}
-      role="button"
-      aria-label="Vision Card - Hover or tap to reveal the institutional vision statement"
+      role="region"
+      aria-label="VIT-TEC Vision - Interactive Card"
     >
-      {/* Glow background accent */}
-      <div className={styles.cardGlow} />
+      {/* 1. Background Grid & Ambient Glow Layer */}
+      <div className={styles.bgCanvas}>
+        <div className={styles.ambientGlow} />
+        <div className={styles.techGrid} />
+      </div>
 
-      {/* Main Content Area (Guaranteed Readable Width & Text Priority) */}
-      <div className={styles.contentArea}>
-        {/* Header Badges */}
-        <div className={styles.headerRow}>
-          <span className={styles.categoryBadge}>Strategic Core</span>
-          <span className={styles.tagBadge}>Vision Statement</span>
+      {/* 2. Technical Directional Visualization Layer (SVG Animated Architecture) */}
+      <div className={styles.svgLayer} aria-hidden="true">
+        <svg viewBox="0 0 400 200" preserveAspectRatio="none" className={styles.visionSvg}>
+          <defs>
+            <linearGradient id="visGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#1D4ED8" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#38BDF8" stopOpacity="0.95" />
+            </linearGradient>
+            <filter id="visGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
+
+          {/* Strategic Trajectory Vector Path */}
+          <path
+            d="M 10 160 Q 120 180, 220 120 T 380 40"
+            fill="none"
+            stroke="rgba(56, 189, 248, 0.2)"
+            strokeWidth="1.5"
+            className={styles.trajectoryBase}
+          />
+          <path
+            d="M 10 160 Q 120 180, 220 120 T 380 40"
+            fill="none"
+            stroke="url(#visGrad)"
+            strokeWidth="2.2"
+            strokeDasharray="12 8"
+            className={styles.trajectoryStream}
+          />
+
+          {/* Concentric Horizon Radar / Orbit Guides */}
+          <circle cx="340" cy="50" r="45" fill="none" stroke="rgba(56, 189, 248, 0.12)" strokeDasharray="3 3" className={styles.radarOrbitOuter} />
+          <circle cx="340" cy="50" r="28" fill="none" stroke="rgba(56, 189, 248, 0.22)" className={styles.radarOrbitInner} />
+          <circle cx="340" cy="50" r="14" fill="rgba(29, 78, 216, 0.25)" className={styles.radarCoreGlow} />
+          <circle cx="340" cy="50" r="5" fill="#38BDF8" filter="url(#visGlow)" />
+
+          {/* Strategic Nodes along path */}
+          <circle cx="90" cy="168" r="3.5" fill="#38BDF8" className={styles.nodePulse1} />
+          <circle cx="210" cy="125" r="4.5" fill="#60A5FA" className={styles.nodePulse2} />
+          <circle cx="295" cy="72" r="4" fill="#38BDF8" className={styles.nodePulse3} />
+
+          {/* Directional Signal Runner that shoots across on hover */}
+          <circle cx="0" cy="0" r="4.5" fill="#FFFFFF" filter="url(#visGlow)" className={styles.signalRunnerVision} />
+        </svg>
+      </div>
+
+      {/* 3. Foreground Interactive Content Layer */}
+      <div className={styles.contentLayer}>
+        {/* Top Header Row with dynamic status */}
+        <div className={styles.topRow}>
+          <div className={styles.badgeGroup}>
+            <span className={styles.categoryBadge}>Strategic Core</span>
+            <span className={styles.statusIndicator}>
+              <span className={styles.statusDot} />
+              {isHovered ? 'DIRECTION ACTIVE' : 'SYSTEM IDLE'}
+            </span>
+          </div>
+          <span className={styles.codeTag}>SEC-01 // VISION</span>
         </div>
 
         {/* Title */}
-        <h3 className={styles.cardTitle}>VIT-TEC VISION</h3>
+        <h3 className={styles.title}>VIT-TEC VISION</h3>
 
-        {/* Subtitle / Preview (Visible in default state, fades gracefully into statement) */}
-        <p className={styles.cardSubtitle}>
-          Future Horizon &amp; Global Competence
-        </p>
+        {/* Content Body: Idle Preview vs Revealed Statement */}
+        <div className={styles.bodyBlock}>
+          <div className={styles.idleState}>
+            <p className={styles.idleSubtitle}>
+              Future Horizon &amp; Global Competence
+            </p>
+            <div className={styles.interactionHint}>
+              <span className={styles.hintBeam} />
+              <span className={styles.hintText}>Hover to activate strategic direction →</span>
+            </div>
+          </div>
 
-        {/* Revealed Full Vision Statement */}
-        <div className={styles.statementWrapper}>
-          <p className={styles.visionStatement}>
-            Impart skills to enhance performance, productivity and global competence across industries.
-          </p>
+          <div className={styles.revealedState}>
+            <p className={styles.fullStatement}>
+              Impart skills to enhance performance, productivity and global competence across industries.
+            </p>
+          </div>
         </div>
-
-        {/* Interactive Cue */}
-        <div className={styles.interactiveCue}>
-          <span className={styles.cueIcon}>✨</span>
-          <span className={styles.cueText}>
-            {isRevealed ? 'Revealed' : 'Hover or tap to reveal'}
-          </span>
-        </div>
-      </div>
-
-      {/* Interactive Decorative Graphic (Positioned safely behind/right with lower z-index) */}
-      <div className={styles.graphicContainer} aria-hidden="true">
-        <svg viewBox="0 0 140 140" className={styles.visionSvg}>
-          {/* Concentric Guide Orbits */}
-          <circle cx="70" cy="70" r="54" fill="none" stroke="rgba(56, 189, 248, 0.18)" strokeWidth="1" strokeDasharray="3 3" />
-          <circle cx="70" cy="70" r="38" fill="none" stroke="rgba(56, 189, 248, 0.28)" strokeWidth="1" />
-          <circle cx="70" cy="70" r="22" fill="none" stroke="rgba(29, 78, 216, 0.45)" strokeWidth="1.5" />
-
-          {/* Radiant Network Rays */}
-          <line x1="70" y1="70" x2="30" y2="30" className={styles.networkRay} strokeWidth="1.5" />
-          <line x1="70" y1="70" x2="110" y2="30" className={styles.networkRay} strokeWidth="1.5" />
-          <line x1="70" y1="70" x2="118" y2="85" className={styles.networkRay} strokeWidth="1.5" />
-          <line x1="70" y1="70" x2="32" y2="95" className={styles.networkRay} strokeWidth="1.5" />
-
-          {/* Connected Nodes */}
-          <g className={styles.orbitNode}>
-            <circle cx="30" cy="30" r="4" fill="#38BDF8" filter="drop-shadow(0 0 4px #38BDF8)" />
-            <circle cx="110" cy="30" r="4" fill="#38BDF8" filter="drop-shadow(0 0 4px #38BDF8)" />
-            <circle cx="118" cy="85" r="3.5" fill="#60A5FA" />
-            <circle cx="32" cy="95" r="3.5" fill="#60A5FA" />
-          </g>
-
-          {/* Central Glowing Pulse Core */}
-          <circle cx="70" cy="70" r="14" fill="rgba(29, 78, 216, 0.35)" className={styles.pulseCoreRing} />
-          <circle cx="70" cy="70" r="8" fill="#38BDF8" filter="drop-shadow(0 0 8px #38BDF8)" />
-          <circle cx="70" cy="70" r="3.5" fill="#FFFFFF" />
-        </svg>
       </div>
     </div>
   );
 }
 
 export function MissionCard() {
-  const [isRevealed, setIsRevealed] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <div
-      className={`${styles.cardContainer} ${isRevealed ? styles.cardRevealed : ''}`}
-      onClick={() => setIsRevealed(!isRevealed)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          setIsRevealed(!isRevealed);
-        }
-      }}
+      className={`${styles.card} ${isHovered ? styles.cardActive : ''}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={() => setIsHovered(!isHovered)}
+      onFocus={() => setIsHovered(true)}
+      onBlur={() => setIsHovered(false)}
       tabIndex={0}
-      role="button"
-      aria-label="Mission Card - Hover or tap to reveal the institutional mission statements"
+      role="region"
+      aria-label="VIT-TEC Mission - Interactive Card"
     >
-      {/* Glow background accent */}
-      <div className={styles.cardGlow} />
+      {/* 1. Background Grid & Ambient Glow Layer */}
+      <div className={styles.bgCanvas}>
+        <div className={styles.ambientGlow} />
+        <div className={styles.techGrid} />
+      </div>
 
-      {/* Main Content Area (Guaranteed Readable Width & Text Priority) */}
-      <div className={styles.contentArea}>
-        {/* Header Badges */}
-        <div className={styles.headerRow}>
-          <span className={styles.categoryBadge}>Execution Track</span>
-          <span className={styles.tagBadge}>Mission Pathway</span>
+      {/* 2. Technical Execution Pathway Visualization Layer */}
+      <div className={styles.svgLayer} aria-hidden="true">
+        <svg viewBox="0 0 400 200" preserveAspectRatio="none" className={styles.missionSvg}>
+          <defs>
+            <linearGradient id="misGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#0284C7" stopOpacity="0.75" />
+              <stop offset="100%" stopColor="#38BDF8" stopOpacity="0.95" />
+            </linearGradient>
+            <filter id="misGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
+
+          {/* Stepped Multi-Stage Execution Pathway */}
+          <path
+            d="M 15 150 L 110 150 L 160 90 L 260 90 L 310 40 L 385 40"
+            fill="none"
+            stroke="rgba(56, 189, 248, 0.2)"
+            strokeWidth="1.5"
+            className={styles.trajectoryBase}
+          />
+          <path
+            d="M 15 150 L 110 150 L 160 90 L 260 90 L 310 40 L 385 40"
+            fill="none"
+            stroke="url(#misGrad)"
+            strokeWidth="2.2"
+            strokeDasharray="14 10"
+            className={styles.trajectoryStreamMission}
+          />
+
+          {/* Milestone Step Nodes */}
+          <g className={styles.milestoneNodes}>
+            <circle cx="110" cy="150" r="4" fill="#0284C7" stroke="#38BDF8" strokeWidth="1.5" />
+            <circle cx="160" cy="90" r="4" fill="#0284C7" stroke="#38BDF8" strokeWidth="1.5" />
+            <circle cx="260" cy="90" r="4.5" fill="#1D4ED8" stroke="#38BDF8" strokeWidth="1.5" />
+            <circle cx="310" cy="40" r="5" fill="#1D4ED8" stroke="#38BDF8" strokeWidth="2" />
+            {/* Impact Target Core */}
+            <circle cx="385" cy="40" r="12" fill="rgba(2, 132, 199, 0.25)" />
+            <circle cx="385" cy="40" r="5" fill="#38BDF8" filter="url(#misGlow)" />
+            <circle cx="385" cy="40" r="2" fill="#FFFFFF" />
+          </g>
+
+          {/* Traveling Pulse Particle */}
+          <circle cx="0" cy="0" r="4.5" fill="#FFFFFF" filter="url(#misGlow)" className={styles.signalRunnerMission} />
+        </svg>
+      </div>
+
+      {/* 3. Foreground Interactive Content Layer */}
+      <div className={styles.contentLayer}>
+        {/* Top Header Row */}
+        <div className={styles.topRow}>
+          <div className={styles.badgeGroup}>
+            <span className={styles.categoryBadge}>Execution Track</span>
+            <span className={styles.statusIndicator}>
+              <span className={styles.statusDot} />
+              {isHovered ? 'PATHWAY ACTIVE' : 'SYSTEM IDLE'}
+            </span>
+          </div>
+          <span className={styles.codeTag}>SEC-02 // MISSION</span>
         </div>
 
         {/* Title */}
-        <h3 className={styles.cardTitle}>VIT-TEC MISSION</h3>
+        <h3 className={styles.title}>VIT-TEC MISSION</h3>
 
-        {/* Subtitle / Preview */}
-        <p className={styles.cardSubtitle}>
-          Collaboration &amp; Regional Co-Creation
-        </p>
+        {/* Content Body: Idle Preview vs Revealed Statement */}
+        <div className={styles.bodyBlock}>
+          <div className={styles.idleState}>
+            <p className={styles.idleSubtitle}>
+              Collaboration &amp; Regional Co-Creation
+            </p>
+            <div className={styles.interactionHint}>
+              <span className={styles.hintBeam} />
+              <span className={styles.hintText}>Hover to activate execution pathway →</span>
+            </div>
+          </div>
 
-        {/* Revealed Full Mission Statements */}
-        <div className={styles.statementWrapper}>
-          <ul className={styles.missionList}>
-            <li>
-              Thriving collaboration with national &amp; international industries and institutions.
-            </li>
-            <li>
-              Rewarding Co-creations through upskilling &amp; reskilling SME / MSME sectors in the region.
-            </li>
-          </ul>
+          <div className={styles.revealedState}>
+            <ul className={styles.missionList}>
+              <li>
+                Thriving collaboration with national &amp; international industries and institutions.
+              </li>
+              <li>
+                Rewarding Co-creations through upskilling &amp; reskilling SME / MSME sectors in the region.
+              </li>
+            </ul>
+          </div>
         </div>
-
-        {/* Interactive Cue */}
-        <div className={styles.interactiveCue}>
-          <span className={styles.cueIcon}>✨</span>
-          <span className={styles.cueText}>
-            {isRevealed ? 'Revealed' : 'Hover or tap to reveal'}
-          </span>
-        </div>
-      </div>
-
-      {/* Interactive Decorative Graphic (Positioned safely behind/right with lower z-index) */}
-      <div className={styles.graphicContainer} aria-hidden="true">
-        <svg viewBox="0 0 140 140" className={styles.missionSvg}>
-          {/* Stepped Pathway Axis */}
-          <path
-            d="M 18 105 Q 45 95 65 65 T 115 25"
-            fill="none"
-            stroke="rgba(56, 189, 248, 0.45)"
-            strokeWidth="2"
-            className={styles.pathwayGuide}
-          />
-
-          {/* Stepped Phase Indicator Arcs */}
-          <path d="M 35 118 L 45 95" stroke="rgba(29, 78, 216, 0.45)" strokeWidth="1.5" />
-          <path d="M 75 80 L 65 65" stroke="rgba(29, 78, 216, 0.45)" strokeWidth="1.5" />
-          <path d="M 105 45 L 115 25" stroke="rgba(29, 78, 216, 0.45)" strokeWidth="1.5" />
-
-          {/* Sequential Phase Nodes */}
-          <circle cx="18" cy="105" r="4.5" fill="#1D4ED8" stroke="#38BDF8" strokeWidth="1.5" />
-          <circle cx="65" cy="65" r="5.5" fill="#1D4ED8" stroke="#38BDF8" strokeWidth="2" />
-          <circle cx="115" cy="25" r="7" fill="rgba(56, 189, 248, 0.3)" />
-          <circle cx="115" cy="25" r="4.5" fill="#38BDF8" filter="drop-shadow(0 0 6px #38BDF8)" />
-          <circle cx="115" cy="25" r="2" fill="#FFFFFF" />
-
-          {/* Moving Pathway Pulse Particle */}
-          <circle cx="20" cy="100" r="3.5" className={styles.pathwayPulseDot} />
-        </svg>
       </div>
     </div>
   );

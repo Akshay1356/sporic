@@ -1,75 +1,266 @@
-/* VisionMissionCard.module.css - Interactive Reveal Information Module */
+/* VisionMissionCard.module.css - Interactive Animated Information Modules */
 
-.cardContainer {
+.card {
   position: relative;
   width: 100%;
-  min-height: 220px;
-  height: auto;
+  min-height: 225px;
   border-radius: 16px;
-  background: linear-gradient(135deg, #071B4A 0%, #0F2458 100%);
-  border: 1.5px solid rgba(56, 189, 248, 0.25);
-  box-shadow: 0 8px 24px rgba(7, 27, 74, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #071B4A 0%, #0A1E52 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.22);
+  box-shadow: 0 8px 24px rgba(7, 27, 74, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.1);
   margin-bottom: 1.5rem;
   cursor: pointer;
   outline: none;
-  padding: 1.6rem 1.85rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   overflow: hidden;
-  transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
-}
-
-.cardContainer:last-child {
-  margin-bottom: 0;
-}
-
-.cardContainer:hover,
-.cardContainer:focus-visible,
-.cardRevealed {
-  border-color: #38BDF8;
-  box-shadow: 0 14px 36px rgba(7, 27, 74, 0.25), 0 0 24px rgba(56, 189, 248, 0.22);
-  transform: translateY(-2px);
-}
-
-.cardContainer:focus-visible {
-  outline: 2px solid #38BDF8;
-  outline-offset: 2px;
-}
-
-/* Glow accent */
-.cardGlow {
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at 30% 30%, rgba(29, 78, 216, 0.18) 0%, transparent 60%);
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* ====================================================
-   1. MAIN CONTENT AREA (PRIORITY & GUARANTEED VISIBILITY)
-   ==================================================== */
-.contentArea {
-  position: relative;
-  z-index: 3;
-  flex: 1 1 auto;
-  max-width: calc(100% - 135px);
   display: flex;
   flex-direction: column;
 }
 
-.headerRow {
+.card:last-child {
+  margin-bottom: 0;
+}
+
+.card:hover,
+.card:focus-visible,
+.cardActive {
+  border-color: #38BDF8;
+  box-shadow: 0 16px 40px rgba(7, 27, 74, 0.4), 0 0 28px rgba(56, 189, 248, 0.25);
+  transform: translateY(-3px);
+}
+
+.card:focus-visible {
+  outline: 2px solid #38BDF8;
+  outline-offset: 2px;
+}
+
+/* ====================================================
+   1. BACKGROUND CANVAS & AMBIENT GLOW
+   ==================================================== */
+.bgCanvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.ambientGlow {
+  position: absolute;
+  top: -40%;
+  right: -20%;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(29, 78, 216, 0.25) 0%, rgba(56, 189, 248, 0.08) 50%, transparent 70%);
+  transition: all 0.6s ease;
+}
+
+.cardActive .ambientGlow {
+  transform: scale(1.25);
+  background: radial-gradient(circle, rgba(29, 78, 216, 0.4) 0%, rgba(56, 189, 248, 0.18) 50%, transparent 70%);
+}
+
+.techGrid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.8;
+}
+
+/* ====================================================
+   2. SVG TECHNICAL VISUALIZATION LAYER
+   ==================================================== */
+.svgLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.65;
+  transition: opacity 0.5s ease;
+}
+
+.cardActive .svgLayer {
+  opacity: 0.9;
+}
+
+.visionSvg,
+.missionSvg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Stream Lines & Flow Animations */
+.trajectoryBase {
+  stroke: rgba(56, 189, 248, 0.18);
+}
+
+.trajectoryStream {
+  stroke-dasharray: 12 8;
+  animation: visionStreamTravel 12s linear infinite;
+}
+
+.trajectoryStreamMission {
+  stroke-dasharray: 14 10;
+  animation: missionStreamTravel 10s linear infinite;
+}
+
+@keyframes visionStreamTravel {
+  0% {
+    stroke-dashoffset: 200;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes missionStreamTravel {
+  0% {
+    stroke-dashoffset: 240;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Radar & Nodes Pulse */
+.radarOrbitOuter {
+  transform-origin: 340px 50px;
+  animation: orbitRotate 20s linear infinite;
+}
+
+.radarOrbitInner {
+  transform-origin: 340px 50px;
+  animation: orbitRotate 12s linear infinite reverse;
+}
+
+.radarCoreGlow {
+  transform-origin: 340px 50px;
+  animation: corePulse 3s ease-in-out infinite alternate;
+}
+
+@keyframes orbitRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes corePulse {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+.nodePulse1,
+.nodePulse2,
+.nodePulse3 {
+  animation: nodeGlowPulse 2.5s ease-in-out infinite alternate;
+}
+
+.nodePulse2 {
+  animation-delay: 0.6s;
+}
+
+.nodePulse3 {
+  animation-delay: 1.2s;
+}
+
+@keyframes nodeGlowPulse {
+  0% {
+    opacity: 0.4;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Directional Signal Runners */
+.signalRunnerVision {
+  offset-path: path("M 10 160 Q 120 180, 220 120 T 380 40");
+  animation: signalTravelVision 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.signalRunnerMission {
+  offset-path: path("M 15 150 L 110 150 L 160 90 L 260 90 L 310 40 L 385 40");
+  animation: signalTravelMission 4.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes signalTravelVision {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes signalTravelMission {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+/* ====================================================
+   3. FOREGROUND INTERACTIVE CONTENT LAYER
+   ==================================================== */
+.contentLayer {
+  position: relative;
+  z-index: 3;
+  padding: 1.65rem 1.85rem;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.topRow {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 0.4rem;
+  justify-content: space-between;
+  margin-bottom: 0.45rem;
+}
+
+.badgeGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
 }
 
 .categoryBadge {
+  font-family: var(--font-heading, sans-serif);
   font-size: 0.68rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -77,41 +268,126 @@
   color: #38BDF8;
 }
 
-.tagBadge {
+.statusIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-size: 0.62rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   color: #94A3B8;
   background: rgba(255, 255, 255, 0.06);
   padding: 0.15rem 0.5rem;
   border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
 }
 
-.cardTitle {
+.cardActive .statusIndicator {
+  color: #38BDF8;
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #94A3B8;
+  transition: background 0.3s ease;
+}
+
+.cardActive .statusDot {
+  background: #38BDF8;
+  box-shadow: 0 0 6px #38BDF8;
+}
+
+.codeTag {
+  font-family: monospace;
+  font-size: 0.62rem;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 0.05em;
+}
+
+.title {
   font-family: var(--font-heading, sans-serif);
   font-size: 1.35rem;
   font-weight: 800;
   color: #FFFFFF;
   letter-spacing: -0.01em;
-  margin: 0 0 0.35rem;
+  margin: 0 0 0.4rem;
 }
 
-.cardSubtitle {
-  font-size: 0.84rem;
+.bodyBlock {
+  position: relative;
+}
+
+/* Idle State Preview */
+.idleState {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 120px;
+}
+
+.cardActive .idleState {
+  opacity: 0;
+  transform: translateY(-8px);
+  max-height: 0;
+  margin: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.idleSubtitle {
+  font-size: 0.88rem;
   color: #94A3B8;
+  margin: 0 0 0.85rem;
+  line-height: 1.45;
   font-weight: 500;
-  margin: 0 0 0.65rem;
-  line-height: 1.4;
 }
 
-.statementWrapper {
-  margin-top: 0.25rem;
+.interactionHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #38BDF8;
 }
 
-.visionStatement {
-  font-size: 0.96rem;
+.hintBeam {
+  width: 14px;
+  height: 2px;
+  background: #38BDF8;
+  box-shadow: 0 0 6px #38BDF8;
+  border-radius: 1px;
+}
+
+.hintText {
+  letter-spacing: 0.02em;
+}
+
+/* Revealed Full Statement State */
+.revealedState {
+  transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0;
+  transform: translateY(12px);
+  max-height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.cardActive .revealedState {
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 350px;
+  pointer-events: auto;
+  margin-top: 0.35rem;
+}
+
+.fullStatement {
+  font-size: 0.98rem;
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.98);
   margin: 0;
@@ -129,8 +405,8 @@
 }
 
 .missionList li {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.96);
+  font-size: 0.92rem;
+  color: rgba(255, 255, 255, 0.98);
   line-height: 1.5;
   position: relative;
   padding-left: 1.25rem;
@@ -147,192 +423,48 @@
   top: -1px;
 }
 
-.interactiveCue {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #38BDF8;
-  margin-top: 0.65rem;
-  opacity: 0.85;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.cardContainer:hover .interactiveCue,
-.cardRevealed .interactiveCue {
-  opacity: 1;
-  transform: translateX(2px);
-}
-
-.cueIcon {
-  font-size: 0.85rem;
-}
-
-.cueText {
-  letter-spacing: 0.03em;
-}
-
 /* ====================================================
-   2. INTERACTIVE DECORATIVE GRAPHICS (BACKGROUND / RIGHT)
-   ==================================================== */
-.graphicContainer {
-  position: absolute;
-  right: 1.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 130px;
-  height: 130px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  z-index: 2;
-  pointer-events: none;
-  opacity: 0.85;
-  transition: opacity 0.35s ease, transform 0.35s ease;
-}
-
-.cardContainer:hover .graphicContainer,
-.cardContainer:focus-visible .graphicContainer,
-.cardRevealed .graphicContainer {
-  opacity: 0.4;
-  transform: translateY(-50%) scale(1.08);
-}
-
-/* Vision: Expanding Horizon Network */
-.visionSvg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.pulseCoreRing {
-  transform-origin: center;
-  animation: visionCorePulse 4s ease-in-out infinite;
-}
-
-.networkRay {
-  stroke: rgba(56, 189, 248, 0.4);
-  stroke-dasharray: 4 4;
-  animation: visionRayFlow 8s linear infinite;
-}
-
-.orbitNode {
-  animation: visionNodeOrbit 6s ease-in-out infinite alternate;
-}
-
-@keyframes visionCorePulse {
-  0%, 100% {
-    r: 12;
-    opacity: 0.8;
-  }
-  50% {
-    r: 16;
-    opacity: 0.4;
-  }
-}
-
-@keyframes visionRayFlow {
-  0% {
-    stroke-dashoffset: 0;
-  }
-  100% {
-    stroke-dashoffset: 24;
-  }
-}
-
-@keyframes visionNodeOrbit {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(2px, -2px);
-  }
-}
-
-/* Mission: Directional Pathway & Trajectory */
-.missionSvg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.pathwayGuide {
-  stroke: rgba(56, 189, 248, 0.35);
-  stroke-dasharray: 4 4;
-}
-
-.pathwayPulseDot {
-  fill: #38BDF8;
-  filter: drop-shadow(0 0 6px #38BDF8);
-  animation: missionPathTravel 3.5s ease-in-out infinite;
-}
-
-@keyframes missionPathTravel {
-  0% {
-    cx: 20;
-    cy: 100;
-    opacity: 0.3;
-  }
-  50% {
-    cx: 65;
-    cy: 55;
-    opacity: 1;
-  }
-  100% {
-    cx: 110;
-    cy: 25;
-    opacity: 0.3;
-  }
-}
-
-/* Reduced Motion */
-@media (prefers-reduced-motion: reduce) {
-  .pulseCoreRing,
-  .networkRay,
-  .orbitNode,
-  .pathwayPulseDot {
-    animation: none;
-  }
-}
-
-/* ====================================================
-   3. RESPONSIVE BREAKPOINTS
+   4. RESPONSIVE BREAKPOINTS
    ==================================================== */
 @media (max-width: 768px) {
-  .cardContainer {
-    padding: 1.4rem 1.35rem;
+  .card {
     min-height: auto;
   }
 
-  .contentArea {
-    max-width: 100%;
+  .contentLayer {
+    padding: 1.4rem 1.35rem;
   }
 
-  .graphicContainer {
-    right: 0.75rem;
-    width: 90px;
-    height: 90px;
-    opacity: 0.2;
+  .title {
+    font-size: 1.22rem;
   }
 
-  .cardContainer:hover .graphicContainer,
-  .cardRevealed .graphicContainer {
-    opacity: 0.15;
-  }
-}
-
-@media (max-width: 480px) {
-  .cardTitle {
-    font-size: 1.2rem;
-  }
-
-  .visionStatement {
-    font-size: 0.88rem;
+  .fullStatement {
+    font-size: 0.92rem;
   }
 
   .missionList li {
-    font-size: 0.84rem;
+    font-size: 0.88rem;
+  }
+}
+
+/* Reduced Motion Preference */
+@media (prefers-reduced-motion: reduce) {
+  .trajectoryStream,
+  .trajectoryStreamMission,
+  .radarOrbitOuter,
+  .radarOrbitInner,
+  .radarCoreGlow,
+  .nodePulse1,
+  .nodePulse2,
+  .nodePulse3,
+  .signalRunnerVision,
+  .signalRunnerMission {
+    animation: none;
+  }
+
+  .idleState,
+  .revealedState {
+    transition: opacity 0.1s ease;
   }
 }
