@@ -43,28 +43,26 @@ function formatDateRange(startDate, endDate, fallbackYear) {
 
 export default function CorporateTraining() {
   const [trainings, setTrainings] = useState(() => getAllCorporateTrainings());
-  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedYear, setSelectedYear] = useState('All');
   const [selectedSchool, setSelectedSchool] = useState('All');
 
-  // Load trainings and listen for real-time updates
-  const loadTrainings = async () => {
-    try {
-      const local = getAllCorporateTrainings();
-      if (local && local.length > 0) {
-        setTrainings(local);
-      }
-      const res = await api.getCorporateTrainings().catch(() => null);
-      const list = res?.data || (Array.isArray(res) ? res : null);
-      if (Array.isArray(list) && list.length > 0) {
-        setTrainings(list);
-      }
-    } catch {
-      setTrainings(getAllCorporateTrainings());
-    } finally {
-      setLoading(false);
+  // Sync latest records on mount and upon any custom/storage events
+  const loadTrainings = () => {
+    // 1. Immediately read latest storage or static records
+    const local = getAllCorporateTrainings();
+    if (local && local.length > 0) {
+      setTrainings(local);
     }
+    // 2. Refresh from backend / Supabase if available without blocking
+    api.getCorporateTrainings()
+      .then((res) => {
+        const list = res?.data || (Array.isArray(res) ? res : null);
+        if (Array.isArray(list) && list.length > 0) {
+          setTrainings(list);
+        }
+      })
+      .catch(() => {});
   };
 
   useEffect(() => {
@@ -266,12 +264,7 @@ export default function CorporateTraining() {
           </div>
 
           {/* Year-by-Year Chronological Tables */}
-          {loading ? (
-            <div className={styles.loadingState}>
-              <div className="spinner" style={{ margin: '0 auto 1rem auto' }} />
-              <p>Loading corporate training records...</p>
-            </div>
-          ) : groupedByYear.length > 0 ? (
+          {groupedByYear.length > 0 ? (
             <div className={styles.yearGroupsContainer}>
               {groupedByYear.map(({ year, records }) => (
                 <div key={year} className={styles.yearBlock}>
