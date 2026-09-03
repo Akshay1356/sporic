@@ -1,209 +1,487 @@
-/* IndustryTraining.module.css - Theme 05 Deep Navy & White Theme */
+/* IndustryTraining.module.css - Premium VIT-TEC Enterprise Training Ecosystem */
+
 .industrySection {
-  background: #F6F8FC;
+  background: #F8FAFC;
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(29, 78, 216, 0.05) 0%, transparent 60%),
+    radial-gradient(circle at 85% 20%, rgba(2, 132, 199, 0.04) 0%, transparent 50%);
   position: relative;
   overflow: hidden;
-  padding: 6rem 0;
+  padding: 6.5rem 0;
+  border-top: 1px solid #E2E8F0;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+/* Subtle background technical grid */
+.bgTechPattern {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(#CBD5E1 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.45;
+  pointer-events: none;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 4rem;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 3.5rem;
   align-items: center;
+  position: relative;
+  z-index: 2;
 }
 
-/* 3D Spinning Cube Graphic */
+/* ====================================================
+   LEFT: INTERACTIVE VIT-TEC TRAINING ECOSYSTEM
+   ==================================================== */
 .visualCol {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 400px;
+  position: relative;
+  min-height: 480px;
+  width: 100%;
+}
+
+.ecosystemStage {
   position: relative;
   width: 100%;
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.cubeWrapper {
-  position: relative;
-  width: 200px;
-  height: 200px;
-  perspective: 800px;
-}
-
-.cube {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  transform-style: preserve-3d;
-  animation: rotateCube 15s infinite linear;
-}
-
-.face {
-  position: absolute;
-  width: 200px;
-  height: 200px;
-  background: #FFFFFF;
-  border: 1.5px solid #0B2A6F;
-  box-shadow: 0 4px 20px rgba(11, 42, 111, 0.08);
+  max-width: 480px;
+  height: 480px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-heading);
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #0B2A6F;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  border-radius: var(--radius-md);
 }
 
-.front  { transform: rotateY(0deg) translateZ(100px); }
-.back   { transform: rotateY(180deg) translateZ(100px); }
-.left   { transform: rotateY(-90deg) translateZ(100px); }
-.right  { transform: rotateY(90deg) translateZ(100px); }
-.top    { transform: rotateX(90deg) translateZ(100px); }
-.bottom { transform: rotateX(-90deg) translateZ(100px); }
-
-.rings {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 320px;
-  height: 320px;
-  transform-style: preserve-3d;
-  pointer-events: none;
-}
-
-.ring {
+/* SVG Orbit Lines & Connectors */
+.orbitSvg {
   position: absolute;
   inset: 0;
-  border: 1px dashed rgba(29, 78, 216, 0.25);
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.orbitRing {
+  fill: none;
+  stroke: rgba(203, 213, 225, 0.6);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 6;
+}
+
+.connectorLine {
+  stroke: rgba(148, 163, 184, 0.35);
+  stroke-width: 1.5;
+  transition: stroke 0.3s ease, stroke-width 0.3s ease;
+}
+
+.connectorLineActive {
+  stroke: #1D4ED8;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 6px rgba(29, 78, 216, 0.4));
+}
+
+.pulseDot {
+  fill: #1D4ED8;
+  filter: drop-shadow(0 0 4px #1D4ED8);
+}
+
+/* Central Hub Card */
+.centralHub {
+  position: absolute;
+  z-index: 5;
+  width: 160px;
+  height: 160px;
   border-radius: 50%;
-  animation: rotateRing linear infinite;
+  background: linear-gradient(145deg, #FFFFFF 0%, #F1F5F9 100%);
+  border: 2px solid #38BDF8;
+  box-shadow: 
+    0 12px 36px rgba(11, 42, 111, 0.12),
+    0 0 24px rgba(56, 189, 248, 0.25),
+    inset 0 1px 2px #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.85rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  cursor: pointer;
 }
 
-.ring:nth-child(1) {
-  transform: rotateX(70deg) rotateY(10deg);
-  animation-duration: 10s;
+.centralHub:hover,
+.centralHubHighlighted {
+  transform: scale(1.05);
+  border-color: #1D4ED8;
+  box-shadow: 
+    0 16px 44px rgba(11, 42, 111, 0.18),
+    0 0 32px rgba(29, 78, 216, 0.35);
 }
 
-.ring:nth-child(2) {
-  transform: rotateX(70deg) rotateY(-30deg);
-  animation-duration: 15s;
-  border-color: rgba(29, 78, 216, 0.4);
+.hubLogoImg {
+  height: 28px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 0.25rem;
 }
 
-.ring:nth-child(3) {
-  transform: rotateX(20deg) rotateY(80deg);
-  animation-duration: 12s;
+.hubTitle {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #071B4A;
+  line-height: 1.1;
+  margin: 0;
 }
 
-@keyframes rotateCube {
-  0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
-  100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
+.hubSubtitle {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #1D4ED8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
 }
 
-@keyframes rotateRing {
-  0% { transform: inherit rotate(0deg); }
-  100% { transform: inherit rotate(360deg); }
+.hubBadge {
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #64748B;
+  background: #E2E8F0;
+  padding: 0.1rem 0.45rem;
+  border-radius: 9999px;
+  margin-top: 0.35rem;
 }
 
+/* Ecosystem Orbit Nodes */
+.nodeItem {
+  position: absolute;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+
+.nodePill {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 9999px;
+  padding: 0.4rem 0.75rem;
+  box-shadow: 0 4px 14px rgba(11, 42, 111, 0.06);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.nodeItem:hover .nodePill,
+.nodeItemActive .nodePill {
+  background: #EFF6FF;
+  border-color: #1D4ED8;
+  transform: scale(1.08);
+  box-shadow: 
+    0 8px 24px rgba(29, 78, 216, 0.2),
+    0 0 16px rgba(56, 189, 248, 0.25);
+}
+
+.nodeIcon {
+  color: #1D4ED8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+}
+
+.nodeText {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #0F172A;
+  letter-spacing: -0.01em;
+}
+
+.nodeItemActive .nodeText {
+  color: #1D4ED8;
+}
+
+/* Tooltip on Active Node */
+.nodeTooltip {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 6px;
+  background: #071B4A;
+  color: #FFFFFF;
+  font-size: 0.68rem;
+  font-weight: 500;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+  z-index: 10;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+/* Node Absolute Positions inside 480x480 Stage */
+.posTop {
+  top: 2%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.posTopRight {
+  top: 22%;
+  right: 0%;
+}
+
+.posBottomRight {
+  bottom: 20%;
+  right: 0%;
+}
+
+.posBottom {
+  bottom: 2%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.posBottomLeft {
+  bottom: 20%;
+  left: 0%;
+}
+
+.posTopLeft {
+  top: 22%;
+  left: 0%;
+}
+
+/* ====================================================
+   RIGHT: ENTERPRISE INFO & FEATURE CARDS
+   ==================================================== */
 .infoCol {
   text-align: left;
 }
 
+.eyebrow {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #1D4ED8;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  padding: 0.28rem 0.8rem;
+  border-radius: 9999px;
+  margin-bottom: 0.75rem;
+}
+
+.title {
+  font-family: var(--font-heading, sans-serif);
+  font-size: clamp(1.85rem, 2.75vw, 2.4rem);
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1.25;
+  margin: 0 0 1rem;
+  letter-spacing: -0.02em;
+}
+
 .description {
-  font-size: 1.05rem;
-  color: #667085;
-  line-height: 1.7;
+  font-size: 0.98rem;
+  color: #475569;
+  line-height: 1.65;
   margin-bottom: 2rem;
 }
 
-.points {
+.featureCards {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.15rem;
   margin-bottom: 2rem;
 }
 
-.pointCard {
+.featureCard {
   background: #FFFFFF;
-  border: 1px solid #E4E7EC;
-  border-radius: var(--radius-md);
-  box-shadow: 0 4px 16px rgba(11, 42, 111, 0.03);
-  padding: 1.25rem;
-  transition: all var(--transition-fast);
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 1.25rem 1.35rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  box-shadow: 0 4px 16px rgba(11, 42, 111, 0.04);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+  position: relative;
 }
 
-.pointCard:hover {
-  border-color: #CBD5E1;
-  box-shadow: 0 8px 24px rgba(11, 42, 111, 0.08);
+.featureCard:hover,
+.featureCardHighlighted {
+  border-color: #38BDF8;
+  transform: translateX(4px);
+  box-shadow: 
+    0 10px 28px rgba(11, 42, 111, 0.08),
+    0 0 16px rgba(56, 189, 248, 0.15);
 }
 
-.pointCard h4 {
+.cardIconBox {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: #EFF6FF;
+  border: 1px solid #DBEAFE;
+  color: #1D4ED8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+
+.featureCard:hover .cardIconBox,
+.featureCardHighlighted .cardIconBox {
+  background: linear-gradient(135deg, #1D4ED8 0%, #0284C7 100%);
+  color: #FFFFFF;
+  transform: scale(1.05);
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardHeading {
+  font-family: var(--font-heading, sans-serif);
   font-size: 1rem;
   font-weight: 700;
-  color: #101828;
-  margin-bottom: 0.25rem;
+  color: #0F172A;
+  margin: 0 0 0.25rem;
 }
 
-.pointCard p {
+.cardText {
   font-size: 0.85rem;
-  color: #667085;
+  color: #64748B;
+  line-height: 1.5;
+  margin: 0;
 }
 
 .actionRow {
   display: flex;
+  align-items: center;
 }
 
-@media (max-width: 991px) {
-  .industrySection {
-    padding: 4rem 0;
-  }
+.partnerBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #1D4ED8 0%, #0284C7 100%) !important;
+  color: #FFFFFF !important;
+  padding: 0.75rem 1.6rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(29, 78, 216, 0.35);
+  transition: all 0.25s ease;
+}
+
+.partnerBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(29, 78, 216, 0.45);
+}
+
+/* ====================================================
+   RESPONSIVE BREAKPOINTS
+   ==================================================== */
+@media (max-width: 1023px) {
   .grid {
     grid-template-columns: 1fr;
-    gap: 2.5rem;
+    gap: 3rem;
   }
+
   .visualCol {
     order: -1;
-    height: 280px;
+    min-height: 420px;
   }
-  .cubeWrapper {
-    width: 140px;
-    height: 140px;
+
+  .ecosystemStage {
+    max-width: 420px;
+    height: 420px;
   }
-  .face {
-    width: 140px;
-    height: 140px;
-    font-size: 0.75rem;
+
+  .posTopRight {
+    right: 2%;
   }
-  .front  { transform: rotateY(0deg) translateZ(70px); }
-  .back   { transform: rotateY(180deg) translateZ(70px); }
-  .left   { transform: rotateY(-90deg) translateZ(70px); }
-  .right  { transform: rotateY(90deg) translateZ(70px); }
-  .top    { transform: rotateX(90deg) translateZ(70px); }
-  .bottom { transform: rotateX(-90deg) translateZ(70px); }
-  .rings {
-    width: 240px;
-    height: 240px;
+
+  .posBottomRight {
+    right: 2%;
+  }
+
+  .posBottomLeft {
+    left: 2%;
+  }
+
+  .posTopLeft {
+    left: 2%;
   }
 }
 
-@media (max-width: 580px) {
+@media (max-width: 640px) {
   .industrySection {
-    padding: 3rem 0;
+    padding: 4.5rem 0;
   }
-  .description {
-    font-size: 0.95rem;
-    margin-bottom: 1.5rem;
+
+  .visualCol {
+    min-height: auto;
   }
-  .points {
+
+  .ecosystemStage {
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+
+  .orbitSvg {
+    display: none;
+  }
+
+  .centralHub {
+    position: static;
+    width: 100%;
+    height: auto;
+    border-radius: 16px;
+    padding: 1.25rem 1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .nodeItem {
+    position: static;
+    transform: none !important;
+    width: 100%;
+  }
+
+  .nodePill {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .nodeTooltip {
+    display: none;
+  }
+
+  .featureCards {
     gap: 0.85rem;
   }
-  .pointCard {
+
+  .featureCard {
     padding: 1rem;
   }
 }

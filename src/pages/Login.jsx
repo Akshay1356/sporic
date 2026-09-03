@@ -54,17 +54,33 @@ export default function Login() {
 
     setLoading(true);
     setError('');
-    setInfoMessage('');
+    setInfoMessage('Authenticating credentials...');
 
     try {
       const data = await api.login(email, password, getExpectedRole());
-      setLoading(false);
-      if (data.user) {
-        localStorage.setItem('sporic_user', JSON.stringify(data.user));
+      const loggedUser = data.user;
+      if (loggedUser) {
+        localStorage.setItem('sporic_user', JSON.stringify(loggedUser));
       }
-      navigate('/dashboard');
+
+      setInfoMessage('✓ Login successful! Redirecting...');
+      const redirectTo = searchParams.get('redirect');
+
+      setTimeout(() => {
+        setLoading(false);
+        if (loggedUser?.role === 'ADMIN') {
+          navigate('/dashboard');
+        } else if (!loggedUser?.phone || !loggedUser?.designation) {
+          navigate('/profile?incomplete=1');
+        } else if (redirectTo) {
+          navigate(redirectTo);
+        } else {
+          navigate('/courses');
+        }
+      }, 700);
     } catch (err) {
       setLoading(false);
+      setInfoMessage('');
       setError(err.message || 'Authentication failed. Please check credentials.');
     }
   };
@@ -80,7 +96,7 @@ export default function Login() {
 
     setLoading(true);
     setError('');
-    setInfoMessage('');
+    setInfoMessage('Creating your account...');
 
     try {
       const assignedRole = selectedRole === 'admin' ? 'ADMIN' : 'STUDENT';
@@ -94,24 +110,36 @@ export default function Login() {
         role: assignedRole,
       });
 
-      setLoading(false);
-      if (regData.user) {
-        localStorage.setItem('sporic_user', JSON.stringify(regData.user));
+      const loggedUser = regData.user;
+      if (loggedUser) {
+        localStorage.setItem('sporic_user', JSON.stringify(loggedUser));
       }
-      navigate('/dashboard');
+
+      setInfoMessage('✓ Account created successfully! Redirecting...');
+      setTimeout(() => {
+        setLoading(false);
+        if (loggedUser?.role === 'ADMIN') {
+          navigate('/dashboard');
+        } else if (!loggedUser?.phone || !loggedUser?.designation) {
+          navigate('/profile?incomplete=1');
+        } else {
+          navigate('/courses');
+        }
+      }, 700);
     } catch (err) {
       setLoading(false);
+      setInfoMessage('');
       setError(err.message || 'Account registration failed. Please try again.');
     }
   };
 
   const handleSendOtp = async (e) => {
     e.preventDefault();
-    if (!email) return setError('Please enter your registered email address.');
+    if (!email) return setError('Please enter your email address.');
 
     setLoading(true);
     setError('');
-    setInfoMessage('');
+    setInfoMessage('Sending OTP...');
 
     try {
       const data = await api.sendOtp(email, 'LOGIN');
@@ -120,11 +148,12 @@ export default function Login() {
       setTimer(60);
       setInfoMessage(
         data?.otpPreview
-          ? `${data?.message || 'Verification code sent'} (Preview Code: ${data.otpPreview})`
-          : data?.message || `A verification OTP has been dispatched to ${email}`
+          ? `✓ Code sent! (Testing Code: ${data.otpPreview})`
+          : `✓ Verification OTP has been dispatched to ${email}`
       );
     } catch (err) {
       setLoading(false);
+      setInfoMessage('');
       setError(err.message || 'Failed to dispatch verification code.');
     }
   };
@@ -135,17 +164,33 @@ export default function Login() {
 
     setLoading(true);
     setError('');
-    setInfoMessage('');
+    setInfoMessage('Verifying OTP...');
 
     try {
       const data = await api.loginWithOtp(email, otp, getExpectedRole());
-      setLoading(false);
-      if (data.user) {
-        localStorage.setItem('sporic_user', JSON.stringify(data.user));
+      const loggedUser = data.user;
+      if (loggedUser) {
+        localStorage.setItem('sporic_user', JSON.stringify(loggedUser));
       }
-      navigate('/dashboard');
+
+      setInfoMessage('✓ Login successful! Redirecting...');
+      const redirectTo = searchParams.get('redirect');
+
+      setTimeout(() => {
+        setLoading(false);
+        if (loggedUser?.role === 'ADMIN') {
+          navigate('/dashboard');
+        } else if (!loggedUser?.phone || !loggedUser?.designation) {
+          navigate('/profile?incomplete=1');
+        } else if (redirectTo) {
+          navigate(redirectTo);
+        } else {
+          navigate('/courses');
+        }
+      }, 700);
     } catch (err) {
       setLoading(false);
+      setInfoMessage('');
       setError(err.message || 'Invalid or expired OTP verification code.');
     }
   };

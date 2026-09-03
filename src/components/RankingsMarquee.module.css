@@ -1,0 +1,232 @@
+/* RankingsMarquee.module.css - SPORIC / VIT-TEC Rankings & Recognitions Ticker */
+
+.marqueeWrapper {
+  position: relative;
+  width: 100%;
+  height: 38px;
+  margin-top: var(--nav-height, 70px);
+  background: #051336;
+  background: linear-gradient(90deg, #051336 0%, #071B4A 25%, #0B245E 50%, #071B4A 75%, #051336 100%);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.22);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  z-index: 900;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Fixed Label on the Left */
+.labelBadge {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  height: 100%;
+  padding: 0 1rem 0 1.25rem;
+  background: linear-gradient(90deg, #071B4A 80%, rgba(7, 27, 74, 0.9) 100%);
+  border-right: 1px solid rgba(56, 189, 248, 0.3);
+  z-index: 10;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.35);
+}
+
+.labelIcon {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.labelText {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #38BDF8;
+  white-space: nowrap;
+}
+
+/* Gradient Fade Masks for smooth text entry and exit */
+.marqueeFadeLeft {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 210px;
+  width: 32px;
+  background: linear-gradient(90deg, #071B4A 0%, transparent 100%);
+  z-index: 5;
+  pointer-events: none;
+}
+
+.marqueeFadeRight {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 48px;
+  background: linear-gradient(270deg, #051336 0%, transparent 100%);
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Continuous Horizontal Ticker Viewport */
+.tickerViewport {
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  mask-image: linear-gradient(to right, transparent 0%, black 20px, black calc(100% - 20px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 20px, black calc(100% - 20px), transparent 100%);
+}
+
+/* Seamless Double-Track Container */
+.tickerTrack {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  will-change: transform;
+  animation: scrollContinuous 55s linear infinite;
+}
+
+.marqueeWrapper:hover .tickerTrack {
+  animation-play-state: paused;
+}
+
+/* Ticker Items Content Row */
+.tickerGroup {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.tickerItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-heading, sans-serif);
+  font-size: 0.78rem;
+  color: #E2E8F0;
+  white-space: nowrap;
+  padding: 0 0.5rem;
+  letter-spacing: 0.01em;
+}
+
+.itemCategory {
+  font-weight: 500;
+  color: #CBD5E1;
+}
+
+.itemRank {
+  font-weight: 800;
+  color: #38BDF8;
+  letter-spacing: 0.02em;
+}
+
+.itemSubject {
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.itemAccred {
+  font-weight: 800;
+  color: #6EE7B7;
+}
+
+.itemDivider {
+  color: rgba(56, 189, 248, 0.45);
+  font-size: 0.75rem;
+  padding: 0 0.4rem;
+  user-select: none;
+}
+
+/* Keyframe for continuous Right-to-Left loop */
+@keyframes scrollContinuous {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Reduced Motion Fallback */
+@media (prefers-reduced-motion: reduce) {
+  .tickerTrack {
+    animation: none;
+  }
+  .tickerViewport {
+    overflow-x: auto;
+  }
+}
+
+/* Tablet Responsiveness */
+@media (max-width: 991px) {
+  .marqueeWrapper {
+    height: 36px;
+  }
+
+  .labelBadge {
+    padding: 0 0.75rem 0 1rem;
+  }
+
+  .labelText {
+    font-size: 0.68rem;
+  }
+
+  .tickerItem {
+    font-size: 0.75rem;
+  }
+
+  .marqueeFadeLeft {
+    left: 175px;
+    width: 24px;
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 640px) {
+  .marqueeWrapper {
+    height: 34px;
+  }
+
+  .labelBadge {
+    padding: 0 0.6rem;
+    gap: 0.3rem;
+  }
+
+  .labelText {
+    font-size: 0.62rem;
+    letter-spacing: 0.04em;
+  }
+
+  .tickerItem {
+    font-size: 0.72rem;
+    padding: 0 0.35rem;
+  }
+
+  .itemDivider {
+    padding: 0 0.25rem;
+  }
+
+  .marqueeFadeLeft {
+    left: 145px;
+    width: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .labelText {
+    display: none;
+  }
+
+  .labelBadge {
+    padding: 0 0.5rem;
+  }
+
+  .marqueeFadeLeft {
+    left: 40px;
+    width: 12px;
+  }
+}

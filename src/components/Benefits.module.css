@@ -1,21 +1,50 @@
-/* Benefits.module.css - Theme 05 Why VIT-TEC Deep Navy Section */
+/* Benefits.module.css - SPORIC / VIT-TEC Connected Ecosystem */
+
 .benefitsSection {
   background: #071B4A;
-  background-image: radial-gradient(circle at 50% 0%, rgba(29, 78, 216, 0.25) 0%, transparent 70%);
-  padding: 6rem 0;
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(29, 78, 216, 0.18) 0%, transparent 65%),
+    radial-gradient(circle at 50% 10%, rgba(56, 189, 248, 0.08) 0%, transparent 50%);
+  padding: 6.5rem 0;
   position: relative;
   overflow: hidden;
   color: #FFFFFF;
 }
 
+/* Subtle background network grid dots */
+.bgGridPattern {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
 .sectionHeader {
   text-align: center;
-  margin-bottom: 3.5rem;
+  margin-bottom: 4rem;
+  position: relative;
+  z-index: 2;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #38BDF8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  padding: 0.3rem 0.9rem;
+  border-radius: 9999px;
+  margin-bottom: 0.85rem;
 }
 
 .title {
-  font-family: var(--font-heading);
-  font-size: clamp(1.85rem, 3.5vw, 2.75rem);
+  font-family: var(--font-heading, sans-serif);
+  font-size: clamp(2rem, 3.5vw, 2.85rem);
   font-weight: 800;
   color: #FFFFFF;
   margin-bottom: 0.75rem;
@@ -24,92 +53,381 @@
 
 .subtitle {
   font-size: 1.05rem;
-  color: rgba(255, 255, 255, 0.75);
-  max-width: 600px;
+  color: #94A3B8;
+  max-width: 620px;
   margin: 0 auto;
+  line-height: 1.6;
 }
 
-.grid {
+/* ====================================================
+   DESKTOP ECOSYSTEM CONTAINER
+   ==================================================== */
+.ecosystemWrapper {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  z-index: 2;
+}
+
+/* SVG Connector Lines Layer */
+.connectorSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.connectorLine {
+  stroke: rgba(56, 189, 248, 0.22);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+  transition: stroke 0.3s ease, stroke-width 0.3s ease;
+}
+
+.connectorLineActive {
+  stroke: #38BDF8;
+  stroke-width: 2.5;
+  stroke-dasharray: none;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.6));
+}
+
+.pulseDot {
+  fill: #38BDF8;
+  filter: drop-shadow(0 0 4px #38BDF8);
+}
+
+/* Desktop Grid Layout */
+.ecosystemGrid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: 1fr 340px 1fr;
+  grid-template-rows: auto auto auto;
+  gap: 2rem 2.5rem;
+  align-items: center;
+  position: relative;
+  z-index: 2;
 }
 
-.featureCard {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-lg);
-  padding: 2rem 1.25rem;
+/* ====================================================
+   CENTRAL VIT-TEC HUB
+   ==================================================== */
+.centralCore {
+  grid-column: 2;
+  grid-row: 2;
+  background: linear-gradient(145deg, rgba(15, 34, 82, 0.92) 0%, rgba(7, 27, 74, 0.98) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 24px;
+  padding: 2.25rem 1.75rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  backdrop-filter: blur(8px);
-  transition: all var(--transition-base);
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.5),
+    0 0 40px rgba(29, 78, 216, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  position: relative;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.featureCard:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(56, 189, 248, 0.4);
+.centralCore:hover,
+.centralCoreHighlighted {
+  border-color: #38BDF8;
+  transform: scale(1.02);
+  box-shadow: 
+    0 25px 60px rgba(0, 0, 0, 0.6),
+    0 0 50px rgba(56, 189, 248, 0.35),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+/* Subtle glowing pulse ring behind the core */
+.corePulseRing {
+  position: absolute;
+  inset: -10px;
+  border-radius: 30px;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  pointer-events: none;
+  animation: pulseGlow 4s infinite ease-in-out;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.03);
+    opacity: 0.7;
+  }
+}
+
+.coreLogoWrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: rgba(29, 78, 216, 0.3);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.15rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.coreLogoImg {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+}
+
+.coreBadge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #38BDF8;
+  background: rgba(56, 189, 248, 0.15);
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  margin-bottom: 0.5rem;
+}
+
+.coreTitle {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: 0.02em;
+  margin: 0 0 0.25rem;
+  line-height: 1.2;
+}
+
+.coreSubtitle {
+  font-size: 0.78rem;
+  color: #CBD5E1;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.coreMeta {
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.75rem;
+  color: #94A3B8;
+}
+
+/* ====================================================
+   BENEFIT CARDS
+   ==================================================== */
+.benefitCard {
+  background: rgba(15, 34, 82, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 1.5rem 1.35rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  position: relative;
+  cursor: default;
+}
+
+.benefitCard:hover,
+.benefitCardActive {
+  background: rgba(29, 78, 216, 0.22);
+  border-color: #38BDF8;
   transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 
+    0 14px 32px rgba(0, 0, 0, 0.35),
+    0 0 20px rgba(56, 189, 248, 0.18);
 }
 
-.iconCircle {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
+/* Specific Grid Positions on Desktop */
+.posTopLeft {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.posMidLeft {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.posTopRight {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.posMidRight {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.posBottomCenter {
+  grid-column: 2;
+  grid-row: 3;
+}
+
+/* Card Internals */
+.cardIconWrap {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
   background: rgba(29, 78, 216, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(56, 189, 248, 0.3);
   color: #38BDF8;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1.25rem;
-  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  transition: background 0.25s ease, transform 0.25s ease, color 0.25s ease;
 }
 
-.featureCard:hover .iconCircle {
-  background: var(--primary-light);
+.benefitCard:hover .cardIconWrap,
+.benefitCardActive .cardIconWrap {
+  background: linear-gradient(135deg, #1D4ED8 0%, #0284C7 100%);
   color: #FFFFFF;
   transform: scale(1.08);
 }
 
-.featureTitle {
-  font-family: var(--font-heading);
-  font-size: 1rem;
+.cardContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardTitle {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 1.05rem;
   font-weight: 700;
   color: #FFFFFF;
   line-height: 1.35;
+  margin: 0 0 0.35rem;
 }
 
-@media (max-width: 1100px) {
-  .grid {
-    grid-template-columns: repeat(3, 1fr);
+.cardDesc {
+  font-size: 0.85rem;
+  color: #94A3B8;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ====================================================
+   TABLET RESPONSIVENESS
+   ==================================================== */
+@media (max-width: 1023px) and (min-width: 768px) {
+  .connectorSvg {
+    display: none;
+  }
+
+  .ecosystemGrid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto auto;
+    gap: 1.5rem;
+  }
+
+  .centralCore {
+    grid-column: 1 / span 2;
+    grid-row: 1;
+    max-width: 440px;
+    margin: 0 auto 1rem;
+    width: 100%;
+  }
+
+  .posTopLeft {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .posTopRight {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .posMidLeft {
+    grid-column: 1;
+    grid-row: 3;
+  }
+
+  .posMidRight {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .posBottomCenter {
+    grid-column: 1 / span 2;
+    grid-row: 4;
+    max-width: 500px;
+    margin: 0 auto;
+    width: 100%;
   }
 }
 
-@media (max-width: 768px) {
+/* ====================================================
+   MOBILE RESPONSIVENESS
+   ==================================================== */
+@media (max-width: 767px) {
   .benefitsSection {
-    padding: 4rem 0;
+    padding: 4.5rem 0;
   }
+
   .sectionHeader {
-    margin-bottom: 2.25rem;
+    margin-bottom: 2.5rem;
   }
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-  }
-  .featureCard {
-    padding: 1.5rem 1rem;
-  }
-}
 
-@media (max-width: 480px) {
-  .benefitsSection {
-    padding: 3rem 0;
+  .connectorSvg {
+    display: none;
   }
-  .grid {
-    grid-template-columns: 1fr;
+
+  .ecosystemGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    position: relative;
+  }
+
+  /* Mobile vertical connector spine */
+  .ecosystemGrid::before {
+    content: '';
+    position: absolute;
+    top: 140px;
+    bottom: 40px;
+    left: 28px;
+    width: 2px;
+    background: linear-gradient(180deg, #38BDF8 0%, rgba(56, 189, 248, 0.1) 100%);
+    z-index: 1;
+  }
+
+  .centralCore {
+    width: 100%;
+    padding: 1.75rem 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .benefitCard {
+    width: 100%;
+    padding: 1.25rem 1rem;
+    z-index: 2;
+  }
+
+  .cardIconWrap {
+    width: 42px;
+    height: 42px;
+  }
+
+  .cardTitle {
+    font-size: 0.98rem;
+  }
+
+  .cardDesc {
+    font-size: 0.82rem;
   }
 }

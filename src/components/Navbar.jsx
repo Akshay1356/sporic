@@ -8,6 +8,7 @@ import styles from './Navbar.module.css';
 const navLinks = [
   { label: 'Home', path: '/' },
   { label: 'About', path: '/about' },
+  { label: 'Courses', path: '/courses' },
   { label: 'Technology', path: '/technology' },
   { label: 'Management', path: '/management' },
   { label: 'Personality', path: '/personality' },
@@ -21,7 +22,7 @@ export default function Navbar() {
   const scrollY = useScrollPosition();
   const location = useLocation();
   const navigate = useNavigate();
-  const isScrolled = scrollY > 30;
+  const isScrolled = scrollY > 20;
 
   // Check login state on location change
   useEffect(() => {
@@ -49,6 +50,22 @@ export default function Navbar() {
     navigate('/');
   };
 
+  const displayName = (
+    currentUser?.fullName ||
+    currentUser?.name ||
+    currentUser?.email?.split('@')[0] ||
+    'User'
+  ).split(' ')[0];
+
+  const avatarInitial = (
+    currentUser?.fullName ||
+    currentUser?.name ||
+    currentUser?.email ||
+    'U'
+  )[0].toUpperCase();
+
+  const isAdmin = currentUser?.role === 'ADMIN';
+
   return (
     <>
       <header
@@ -56,16 +73,25 @@ export default function Navbar() {
         role="banner"
       >
         <div className={styles.navInner}>
-          {/* Logo & Brand */}
+          {/* ====================================================
+              LEFT SECTION: VIT LOGO & VIT-TEC BRANDING
+             ==================================================== */}
           <Link to="/" className={styles.logo} aria-label="VIT-TEC Home">
-            <img src="/vit_logo.png" alt="Vellore Institute of Technology" className={styles.vitLogoImg} />
+            <img
+              src="/vit_logo.png"
+              alt="Vellore Institute of Technology"
+              className={styles.vitLogoImg}
+            />
+            <div className={styles.brandDivider} />
             <div className={styles.brandText}>
               <span className={styles.brandTitle}>VIT-TEC</span>
               <span className={styles.brandSubtitle}>Technology Enhancement Centre</span>
             </div>
           </Link>
 
-          {/* Desktop nav links */}
+          {/* ====================================================
+              CENTER SECTION: BALANCED NAVIGATION LINKS
+             ==================================================== */}
           <nav className={styles.desktopNav} aria-label="Primary navigation">
             {navLinks.map((link) => (
               <NavLink
@@ -81,144 +107,155 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* Desktop CTAs & Auth State */}
+          {/* ====================================================
+              RIGHT SECTION: USER / ADMIN / GUEST CONTROLS
+             ==================================================== */}
           <div className={styles.navActions}>
             {currentUser ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div className={styles.accountGroup}>
+                {/* Profile Badge Pill */}
                 <Link
-                  to="/dashboard"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    textDecoration: 'none',
-                    padding: '0.45rem 0.9rem',
-                    borderRadius: '8px',
-                    background: 'rgba(255, 255, 255, 0.12)',
-                    border: '1px solid rgba(255, 255, 255, 0.25)',
-                    color: '#fff',
-                    fontSize: '0.85rem',
-                    fontWeight: '600',
-                  }}
+                  to="/profile"
+                  className={styles.profilePill}
+                  title="View Account Profile Settings"
                 >
-                  <span>Hi, {currentUser.name?.split(' ')[0]}</span>
-                  <span
-                    style={{
-                      padding: '0.15rem 0.45rem',
-                      borderRadius: '4px',
-                      background: 'var(--primary-light)',
-                      fontSize: '0.7rem',
-                      fontWeight: '700',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    {currentUser.role}
+                  <div className={styles.avatarMini}>{avatarInitial}</div>
+                  <span className={styles.userName}>{displayName}</span>
+                  <span className={isAdmin ? styles.badgeAdmin : styles.badgeRole}>
+                    {isAdmin ? 'ADMIN' : currentUser.role || 'USER'}
                   </span>
                 </Link>
+
+                {/* Dashboard Action */}
+                <Link to="/dashboard" className={styles.dashBtn}>
+                  Dashboard
+                </Link>
+
+                {/* Secondary Logout */}
                 <button
                   onClick={handleLogout}
-                  className="btn btn-ghost"
-                  style={{ padding: '0.45rem 0.9rem', fontSize: '0.85rem', color: '#fff' }}
+                  className={styles.logoutBtn}
+                  aria-label="Log out"
                 >
                   Logout
                 </button>
               </div>
             ) : (
-              <>
-                <Link to="/login" className={`btn btn-ghost ${styles.loginBtn}`}>
+              <div className={styles.guestGroup}>
+                <Link to="/login" className={styles.loginBtn}>
                   Login
                 </Link>
-                <Link to="/register" className={`btn ${styles.applyBtn}`}>
-                  Apply / Enquire
+                <Link to="/register" className={styles.applyBtn}>
+                  Apply / Register
                 </Link>
-              </>
+              </div>
             )}
           </div>
 
-          {/* Mobile hamburger */}
+          {/* ====================================================
+              RESPONSIVE HAMBURGER TOGGLE
+             ==================================================== */}
           <button
             className={styles.hamburger}
-            aria-expanded={mobileOpen}
-            aria-controls="mobile-menu"
+            onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
-            onClick={() => setMobileOpen((v) => !v)}
+            aria-expanded={mobileOpen}
           >
-            <span className={`${styles.hamburgerLine} ${mobileOpen ? styles.hamOpen1 : ''}`} />
-            <span className={`${styles.hamburgerLine} ${mobileOpen ? styles.hamOpen2 : ''}`} />
-            <span className={`${styles.hamburgerLine} ${mobileOpen ? styles.hamOpen3 : ''}`} />
+            <span className={`${styles.bar} ${mobileOpen ? styles.bar1Open : ''}`} />
+            <span className={`${styles.bar} ${mobileOpen ? styles.bar2Open : ''}`} />
+            <span className={`${styles.bar} ${mobileOpen ? styles.bar3Open : ''}`} />
           </button>
         </div>
       </header>
 
-      {/* Mobile menu overlay */}
+      {/* ====================================================
+          MOBILE & TABLET DRAWER NAVIGATION
+         ==================================================== */}
       <AnimatePresence>
         {mobileOpen && (
-          <motion.div
-            id="mobile-menu"
-            className={styles.mobileMenu}
-            initial={{ opacity: 0, x: '100%' }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: '100%' }}
-            transition={{ type: 'tween', duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-            role="dialog"
-            aria-label="Mobile navigation menu"
-          >
-            <div className={styles.mobileMenuInner}>
-              <div className={styles.mobileMenuHeader}>
-                <img src="/vit_logo.png" alt="Vellore Institute of Technology" style={{ height: '40px' }} />
-                <button
-                  className={styles.closeBtn}
-                  onClick={() => setMobileOpen(false)}
-                  aria-label="Close menu"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <nav aria-label="Mobile navigation">
-                {navLinks.map((link, i) => (
-                  <motion.div
+          <>
+            <motion.div
+              className={styles.mobileOverlay}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setMobileOpen(false)}
+            />
+            <motion.div
+              className={styles.mobileDrawer}
+              initial={{ opacity: 0, y: -16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+            >
+              <nav className={styles.mobileNav} aria-label="Mobile navigation">
+                {navLinks.map((link) => (
+                  <NavLink
                     key={link.path}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 + i * 0.05 }}
+                    to={link.path}
+                    end={link.path === '/'}
+                    className={({ isActive }) =>
+                      `${styles.mobileNavLink} ${isActive ? styles.mobileNavLinkActive : ''}`
+                    }
                   >
-                    <NavLink
-                      to={link.path}
-                      end={link.path === '/'}
-                      className={({ isActive }) =>
-                        `${styles.mobileNavLink} ${isActive ? styles.mobileNavLinkActive : ''}`
-                      }
-                    >
-                      {link.label}
-                    </NavLink>
-                  </motion.div>
+                    {link.label}
+                  </NavLink>
                 ))}
-              </nav>
 
-              <div className={styles.mobileCTAs}>
-                {currentUser ? (
-                  <>
-                    <Link to="/dashboard" className={`btn btn-primary ${styles.mobileCTA}`}>
-                      Dashboard ({currentUser.role})
-                    </Link>
-                    <button onClick={handleLogout} className={`btn btn-secondary ${styles.mobileCTA}`}>
-                      Logout
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <Link to="/login" className={`btn btn-secondary ${styles.mobileCTA}`}>
-                      Login
-                    </Link>
-                    <Link to="/register" className={`btn btn-primary ${styles.mobileCTA}`}>
-                      Apply / Enquire
-                    </Link>
-                  </>
-                )}
-              </div>
-            </div>
-          </motion.div>
+                <div className={styles.mobileActions}>
+                  {currentUser ? (
+                    <>
+                      <div className={styles.mobileUserBadge}>
+                        <span>👤 {currentUser.fullName || currentUser.name || 'User'}</span>
+                        <span className={isAdmin ? styles.badgeAdmin : styles.badgeRole}>
+                          {isAdmin ? 'ADMIN' : currentUser.role || 'USER'}
+                        </span>
+                      </div>
+                      <Link
+                        to="/profile"
+                        className="btn btn-ghost"
+                        style={{ width: '100%', justifyContent: 'center' }}
+                      >
+                        👤 Profile Settings
+                      </Link>
+                      <Link
+                        to="/dashboard"
+                        className={styles.applyBtn}
+                        style={{ width: '100%', textAlign: 'center', justifyContent: 'center' }}
+                      >
+                        Go to Dashboard →
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className={styles.logoutBtn}
+                        style={{ width: '100%', padding: '0.65rem' }}
+                      >
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        to="/login"
+                        className={styles.loginBtn}
+                        style={{ width: '100%', textAlign: 'center' }}
+                      >
+                        Login
+                      </Link>
+                      <Link
+                        to="/register"
+                        className={styles.applyBtn}
+                        style={{ width: '100%', textAlign: 'center' }}
+                      >
+                        Apply / Register
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </nav>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </>
