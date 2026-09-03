@@ -92,7 +92,9 @@ export default function Profile() {
       window.dispatchEvent(new Event('storage'));
 
       // 2. Dispatch to backend API
-      await api.updateProfile(updatedUser).catch(() => null);
+      if (api && typeof api.updateProfile === 'function') {
+        await api.updateProfile(updatedUser).catch(() => null);
+      }
 
       setUser(updatedUser);
       setLoading(false);

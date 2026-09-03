@@ -317,6 +317,42 @@ class ApiService {
     localStorage.removeItem('sporic_user');
   }
 
+  // --- Profile & User Management ---
+  async updateProfile(userData) {
+    const stored = localStorage.getItem('sporic_user');
+    const existing = stored ? JSON.parse(stored) : {};
+    const updated = {
+      ...existing,
+      ...userData,
+      updatedAt: new Date().toISOString(),
+    };
+    localStorage.setItem('sporic_user', JSON.stringify(updated));
+
+    try {
+      const registeredUsers = JSON.parse(localStorage.getItem('sporic_registered_users') || '[]');
+      const idx = registeredUsers.findIndex((u) => u.email === updated.email);
+      if (idx >= 0) {
+        registeredUsers[idx] = { ...registeredUsers[idx], ...updated };
+        localStorage.setItem('sporic_registered_users', JSON.stringify(registeredUsers));
+      }
+    } catch {
+      // ignore
+    }
+
+    try {
+      const res = await this.request('/auth/profile', {
+        method: 'PUT',
+        body: JSON.stringify(userData),
+      });
+      return res.data || res;
+    } catch (err) {
+      if (this.isNetworkError(err)) {
+        return { success: true, user: updated, message: 'Profile updated successfully' };
+      }
+      throw err;
+    }
+  }
+
   // --- Courses & Categories ---
   async getCourses(params = {}) {
     try {
