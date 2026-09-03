@@ -181,14 +181,59 @@ class ApiService {
     }
   }
 
+  async checkEmailExists(email) {
+    const normalizedEmail = email.toLowerCase().trim();
+    try {
+      const res = await this.request(`/auth/check-email?email=${encodeURIComponent(normalizedEmail)}`);
+      return res.data || res;
+    } catch {
+      // Local fallback
+      const registeredUsers = JSON.parse(localStorage.getItem('sporic_registered_users') || '[]');
+      const found = registeredUsers.some((u) => u.email === normalizedEmail);
+      return { exists: found };
+    }
+  }
+
+  async resetPasswordWithOtp(email, otp, newPassword) {
+    const normalizedEmail = email.toLowerCase().trim();
+    const trimmedOtp = otp.trim();
+
+    // Verify OTP first
+    await this.verifyOtp(normalizedEmail, trimmedOtp, 'RESET_PASSWORD');
+
+    const registeredUsers = JSON.parse(localStorage.getItem('sporic_registered_users') || '[]');
+    const idx = registeredUsers.findIndex((u) => u.email === normalizedEmail);
+    if (idx >= 0) {
+      registeredUsers[idx].password = newPassword;
+      registeredUsers[idx].updatedAt = new Date().toISOString();
+      localStorage.setItem('sporic_registered_users', JSON.stringify(registeredUsers));
+    }
+
+    try {
+      await this.request('/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({ email: normalizedEmail, otp: trimmedOtp, newPassword }),
+      });
+    } catch {
+      // Fallback active
+    }
+
+    return { success: true, message: 'Password reset successfully. You can now login.' };
+  }
+
   async register(registrationData) {
     const normalizedEmail = registrationData.email.toLowerCase().trim();
-    const assignedRole = registrationData.role || 'STUDENT';
+    // Normal registration is ALWAYS assigned the STUDENT / Corporate role (never ADMIN)
+    const assignedRole = 'STUDENT';
 
     try {
       const res = await this.request('/auth/register', {
         method: 'POST',
-        body: JSON.stringify(registrationData),
+        body: JSON.stringify({
+          ...registrationData,
+          email: normalizedEmail,
+          role: assignedRole,
+        }),
       });
       const data = res.data || res;
       if (data?.token) {
@@ -200,11 +245,18 @@ class ApiService {
         const mockUser = {
           id: 'usr_' + Date.now(),
           email: normalizedEmail,
+          fullName: registrationData.fullName,
           name: registrationData.fullName,
-          phone: registrationData.phone,
-          organization: registrationData.organization,
+          phone: registrationData.phone || '',
+          designation: registrationData.designation || 'Corporate Executive',
+          organization: registrationData.organization || registrationData.company || 'Corporate Partner / VIT',
+          company: registrationData.company || registrationData.organization || 'Corporate Partner / VIT',
+          industrySector: registrationData.industrySector || 'Automotive & Manufacturing',
           role: assignedRole,
+          emailVerified: true,
           accountStatus: 'ACTIVE',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         };
 
         const mockToken = 'mock_jwt_token_' + Date.now();
@@ -226,7 +278,7 @@ class ApiService {
         }
         localStorage.setItem('sporic_registered_users', JSON.stringify(registeredUsers));
 
-        return { user: mockUser, token: mockToken };
+        return { success: true, user: mockUser, token: mockToken };
       }
       throw err;
     }
@@ -244,6 +296,9 @@ class ApiService {
       if (data?.token) {
         this.setToken(data.token);
       }
+      if (data?.user) {
+        localStorage.setItem('sporic_user', JSON.stringify(data.user));
+      }
       return data;
     } catch (err) {
       if (this.isNetworkError(err)) {
@@ -252,48 +307,84 @@ class ApiService {
         const matched = registeredUsers.find((u) => u.email === normalizedEmail);
 
         if (matched) {
-          if (!matched.password || matched.password === password || password.length >= 6) {
+          // If password matches or user has existing credentials
+          if (!matched.password || matched.password === password) {
             const mockToken = 'mock_jwt_token_' + Date.now();
             this.setToken(mockToken);
-            localStorage.setItem('sporic_user', JSON.stringify(matched));
-            return { user: matched, token: mockToken };
+            const userSession = {
+              ...matched,
+              lastLoginAt: new Date().toISOString(),
+            };
+            // Never expose password in active session object
+            delete userSession.password;
+            localStorage.setItem('sporic_user', JSON.stringify(userSession));
+            return { success: true, user: userSession, token: mockToken };
           }
-          throw new Error('Incorrect password. Please try again.');
+          throw new Error('Incorrect password. Please try again or use Forgot Password.');
         }
 
         // 2. Institutional Demo Credentials
         const isAdmin =
           expectedRole === 'ADMIN' ||
-          normalizedEmail.includes('admin') ||
-          normalizedEmail === 'deancc.sporic@vit.ac.in';
+          normalizedEmail === 'deancc.sporic@vit.ac.in' ||
+          normalizedEmail === 'admin@vit.ac.in';
 
-        const isFaculty =
-          expectedRole === 'FACULTY' ||
-          normalizedEmail.includes('faculty');
+        if (isAdmin && (password === 'admin123' || password.length >= 6)) {
+          const mockUser = {
+            id: 'usr_admin_01',
+            email: normalizedEmail,
+            fullName: 'Dr. Dean SpoRIC',
+            name: 'Dr. Dean SpoRIC',
+            phone: '+91 73587 82571',
+            designation: 'Dean, SpoRIC',
+            organization: 'VIT Chennai',
+            company: 'VIT Chennai',
+            industrySector: 'Higher Education & Research',
+            role: 'ADMIN',
+            emailVerified: true,
+            accountStatus: 'ACTIVE',
+            lastLoginAt: new Date().toISOString(),
+          };
 
-        if (isAdmin || isFaculty || password.length >= 4) {
-          const userRole = isAdmin ? 'ADMIN' : (isFaculty ? 'FACULTY' : 'STUDENT');
+          const mockToken = 'mock_jwt_admin_' + Date.now();
+          this.setToken(mockToken);
+          localStorage.setItem('sporic_user', JSON.stringify(mockUser));
+          return { success: true, user: mockUser, token: mockToken };
+        }
+
+        // 3. Fallback for demo users
+        if (password && password.length >= 6 && expectedRole !== 'ADMIN') {
+          const userName = normalizedEmail.split('@')[0].replace(/[\._]/g, ' ');
+          const formattedName = userName.charAt(0).toUpperCase() + userName.slice(1);
 
           const mockUser = {
-            id: 'usr_' + (isAdmin ? 'admin_01' : (isFaculty ? 'fac_01' : 'std_01')),
+            id: 'usr_' + Date.now(),
             email: normalizedEmail,
-            name: isAdmin
-              ? 'Dr. Dean SpoRIC'
-              : isFaculty
-              ? 'Dr. Senior Faculty Researcher'
-              : normalizedEmail.split('@')[0].replace('.', ' '),
-            role: userRole,
+            fullName: formattedName,
+            name: formattedName,
+            phone: '+91 99403 51232',
+            designation: 'Corporate Executive',
+            organization: 'Corporate Partner',
+            company: 'Corporate Partner',
+            industrySector: 'Automotive & Manufacturing',
+            role: 'STUDENT',
+            emailVerified: true,
             accountStatus: 'ACTIVE',
+            lastLoginAt: new Date().toISOString(),
           };
 
           const mockToken = 'mock_jwt_token_' + Date.now();
           this.setToken(mockToken);
           localStorage.setItem('sporic_user', JSON.stringify(mockUser));
 
-          return { user: mockUser, token: mockToken };
+          // Save into registered users
+          registeredUsers.push({ ...mockUser, password });
+          localStorage.setItem('sporic_registered_users', JSON.stringify(registeredUsers));
+
+          return { success: true, user: mockUser, token: mockToken };
         }
 
-        throw new Error('Invalid email or password. Please check your credentials.');
+        throw new Error('Invalid email or password. Please check your credentials or register a new account.');
       }
       throw err;
     }
@@ -325,6 +416,8 @@ class ApiService {
     const updated = {
       ...existing,
       ...userData,
+      // Ensure role cannot be elevated to ADMIN by user profile edits
+      role: existing.role === 'ADMIN' ? 'ADMIN' : 'STUDENT',
       updatedAt: new Date().toISOString(),
     };
     localStorage.setItem('sporic_user', JSON.stringify(updated));
