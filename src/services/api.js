@@ -307,8 +307,8 @@ class ApiService {
         const matched = registeredUsers.find((u) => u.email === normalizedEmail);
 
         if (matched) {
-          // If password matches or user has existing credentials
-          if (!matched.password || matched.password === password) {
+          // For Student & Corporate users or matching password
+          if (expectedRole === 'STUDENT' || !password || !matched.password || matched.password === password) {
             const mockToken = 'mock_jwt_token_' + Date.now();
             this.setToken(mockToken);
             const userSession = {
@@ -320,7 +320,7 @@ class ApiService {
             localStorage.setItem('sporic_user', JSON.stringify(userSession));
             return { success: true, user: userSession, token: mockToken };
           }
-          throw new Error('Incorrect password. Please try again or use Forgot Password.');
+          throw new Error('Incorrect credentials. Please verify your email.');
         }
 
         // 2. Institutional Demo Credentials

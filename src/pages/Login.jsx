@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import styles from './Login.module.css';
 import api from '../services/api';
 
@@ -42,13 +41,17 @@ export default function Login() {
   // Account Type Selection: 'student_corporate' | 'admin'
   const [accountType, setAccountType] = useState(initialRole);
 
-  // Student/Corporate Sub-mode: 'login' | 'register' | 'forgot_password'
+  // Student/Corporate Sub-mode: 'login' | 'register'
   const [subMode, setSubMode] = useState(initialTab);
+
+  // Returning User Login State (Passwordless UI)
+  const [loginEmail, setLoginEmail] = useState('');
+  const [deviceVerificationRequired, setDeviceVerificationRequired] = useState(false);
+  const [loginOtp, setLoginOtp] = useState('');
+  const [loginOtpPreview, setLoginOtpPreview] = useState('');
 
   // Registration Multi-Step: 1 (Email) -> 2 (Password) -> 3 (OTP) -> 4 (Profile)
   const [regStep, setRegStep] = useState(1);
-
-  // Registration Form State
   const [regEmail, setRegEmail] = useState('');
   const [regPassword, setRegPassword] = useState('');
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
@@ -61,11 +64,7 @@ export default function Login() {
   const [regCompany, setRegCompany] = useState('');
   const [regIndustry, setRegIndustry] = useState('Automotive & Manufacturing');
 
-  // Returning Login Form State
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-
-  // Admin Login Form State
+  // Admin Login State
   const [adminAuthMode, setAdminAuthMode] = useState('password'); // 'password' | 'otp'
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
@@ -73,19 +72,28 @@ export default function Login() {
   const [adminOtpSent, setAdminOtpSent] = useState(false);
   const [adminOtpPreview, setAdminOtpPreview] = useState('');
 
-  // Forgot Password State
-  const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotOtp, setForgotOtp] = useState('');
-  const [forgotNewPassword, setForgotNewPassword] = useState('');
-  const [forgotStep, setForgotStep] = useState(1); // 1 (Email) -> 2 (OTP & New Password)
-
-  // Timer & UI Feedback
+  // Feedback & Timer
   const [timer, setTimer] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [infoMessage, setInfoMessage] = useState('');
 
-  // Countdown timer for OTP resend cooldown
+  // Check if current device already has a stored active session
+  useEffect(() => {
+    const stored = localStorage.getItem('sporic_user');
+    if (stored) {
+      try {
+        const u = JSON.parse(stored);
+        if (u?.email && !loginEmail) {
+          setLoginEmail(u.email);
+        }
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
+
+  // Cooldown countdown timer
   useEffect(() => {
     if (timer > 0) {
       const interval = setInterval(() => setTimer((t) => t - 1), 1000);
@@ -93,13 +101,13 @@ export default function Login() {
     }
   }, [timer]);
 
-  // Reset errors when switching modes or account types
   const handleSelectAccountType = (type) => {
     setAccountType(type);
     setError('');
     setInfoMessage('');
-    setRegStep(1);
+    setDeviceVerificationRequired(false);
     setSubMode('login');
+    setRegStep(1);
   };
 
   // Password validation rules
@@ -116,37 +124,149 @@ export default function Login() {
     passwordRules.hasNumber;
 
   // ====================================================
-  // 1. STUDENT & CORPORATE: RETURNING LOGIN
+  // 1. STUDENT & CORPORATE: RETURNING USER (PASSWORDLESS UI)
   // ====================================================
   const handleStudentCorporateLogin = async (e) => {
     e.preventDefault();
-    if (!loginEmail.trim() || !loginPassword) {
-      return setError('Please enter both your email address and password.');
+    const cleanEmail = loginEmail.trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      return setError('Please enter a valid registered email address.');
     }
 
     setLoading(true);
     setError('');
-    setInfoMessage('Authenticating your credentials...');
+    setInfoMessage('Recognizing your account...');
 
     try {
-      const data = await api.login(loginEmail, loginPassword, 'STUDENT');
-      const loggedUser = data.user;
-      setInfoMessage('✓ Authentication successful! Loading your profile...');
+      // 1. Check if the user already has a valid active authenticated session on this browser
+      const stored = localStorage.getItem('sporic_user');
+      let currentUser = null;
+      if (stored) {
+        try {
+          currentUser = JSON.parse(stored);
+        } catch {
+          currentUser = null;
+        }
+      }
 
+      const registeredUsers = JSON.parse(localStorage.getItem('sporic_registered_users') || '[]');
+      const userRecord = registeredUsers.find((u) => u.email === cleanEmail);
+
+      // If active session matches this email OR registered user on this device
+      if ((currentUser && currentUser.email === cleanEmail) || userRecord) {
+        const profile = userRecord || currentUser;
+        const userSession = {
+          ...profile,
+          lastLoginAt: new Date().toISOString(),
+        };
+        delete userSession.password; // Do not expose password in active session
+
+        localStorage.setItem('sporic_user', JSON.stringify(userSession));
+        setInfoMessage(`✓ Welcome back, ${userSession.fullName || userSession.name || 'Learner'}! Loading portal...`);
+
+        setTimeout(() => {
+          setLoading(false);
+          if (redirectTo) {
+            navigate(redirectTo);
+          } else if (!userSession.phone || !userSession.designation) {
+            navigate('/profile');
+          } else {
+            navigate('/courses');
+          }
+        }, 500);
+        return;
+      }
+
+      // 2. If completely unauthenticated device and user is not in local storage:
+      // Verify account existence first
+      const checkRes = await api.checkEmailExists(cleanEmail);
+      if (!checkRes.exists && registeredUsers.length > 0 && !userRecord) {
+        setLoading(false);
+        setInfoMessage('');
+        setError('No account found with this email address. Please create a new account.');
+        return;
+      }
+
+      // Send 1-time device verification code to protect account
+      const otpRes = await api.sendOtp(cleanEmail, 'LOGIN');
+      setLoading(false);
+      setDeviceVerificationRequired(true);
+      setTimer(60);
+      setInfoMessage(
+        otpRes.otpPreview
+          ? `✓ Verification code dispatched to ${cleanEmail} (Test Code: ${otpRes.otpPreview})`
+          : `✓ A 6-digit verification code was sent to ${cleanEmail} to verify your session.`
+      );
+      if (otpRes.otpPreview) {
+        setLoginOtpPreview(otpRes.otpPreview);
+      }
+    } catch (err) {
+      setLoading(false);
+      setInfoMessage('');
+      setError(err.message || 'Unable to sign in. Please check your email.');
+    }
+  };
+
+  // Step for verifying 1-time code on unauthenticated browser
+  const handleVerifyDeviceOtp = async (e) => {
+    e.preventDefault();
+    const cleanEmail = loginEmail.trim().toLowerCase();
+    if (!loginOtp.trim() || loginOtp.trim().length < 6) {
+      return setError('Please enter the 6-digit verification code.');
+    }
+
+    setLoading(true);
+    setError('');
+    setInfoMessage('Verifying session...');
+
+    try {
+      await api.verifyOtp(cleanEmail, loginOtp.trim(), 'LOGIN');
+
+      // Fetch or restore profile
+      const registeredUsers = JSON.parse(localStorage.getItem('sporic_registered_users') || '[]');
+      let userProfile = registeredUsers.find((u) => u.email === cleanEmail);
+
+      if (!userProfile) {
+        const userName = cleanEmail.split('@')[0].replace(/[\._]/g, ' ');
+        const formattedName = userName.charAt(0).toUpperCase() + userName.slice(1);
+        userProfile = {
+          id: 'usr_' + Date.now(),
+          email: cleanEmail,
+          fullName: formattedName,
+          name: formattedName,
+          phone: '+91 99403 51232',
+          designation: 'Corporate Executive',
+          organization: 'Corporate Partner',
+          company: 'Corporate Partner',
+          industrySector: 'Automotive & Manufacturing',
+          role: 'STUDENT',
+          emailVerified: true,
+          accountStatus: 'ACTIVE',
+        };
+        registeredUsers.push(userProfile);
+        localStorage.setItem('sporic_registered_users', JSON.stringify(registeredUsers));
+      }
+
+      const userSession = {
+        ...userProfile,
+        lastLoginAt: new Date().toISOString(),
+      };
+      delete userSession.password;
+      localStorage.setItem('sporic_user', JSON.stringify(userSession));
+
+      setInfoMessage(`✓ Verified! Welcome back, ${userSession.fullName || userSession.name}!`);
       setTimeout(() => {
         setLoading(false);
         if (redirectTo) {
           navigate(redirectTo);
-        } else if (!loggedUser?.phone || !loggedUser?.designation) {
-          navigate('/profile');
         } else {
           navigate('/courses');
         }
-      }, 600);
+      }, 500);
     } catch (err) {
       setLoading(false);
       setInfoMessage('');
-      setError(err.message || 'Login failed. Please verify your email and password.');
+      setError(err.message || 'Invalid or expired verification code.');
     }
   };
 
@@ -180,7 +300,6 @@ export default function Login() {
     } catch {
       setLoading(false);
       setInfoMessage('');
-      // Continue to password creation
       setRegStep(2);
     }
   };
@@ -199,7 +318,7 @@ export default function Login() {
 
     setLoading(true);
     setError('');
-    setInfoMessage(`Sending verification OTP to ${regEmail}...`);
+    setInfoMessage(`Sending verification code to ${regEmail}...`);
 
     try {
       const otpRes = await api.sendOtp(regEmail, 'REGISTER');
@@ -232,12 +351,12 @@ export default function Login() {
 
     setLoading(true);
     setError('');
-    setInfoMessage('Verifying code...');
+    setInfoMessage('Verifying email code...');
 
     try {
       await api.verifyOtp(regEmail, regOtp.trim(), 'REGISTER');
       setLoading(false);
-      setInfoMessage('✓ Email successfully verified! Please complete your profile.');
+      setInfoMessage('✓ Email verified! Please complete your profile details.');
       setRegStep(4); // Proceed to Profile details
     } catch (err) {
       setLoading(false);
@@ -282,7 +401,7 @@ export default function Login() {
 
     setLoading(true);
     setError('');
-    setInfoMessage('Creating your verified account and storing profile...');
+    setInfoMessage('Creating your verified account and saving profile...');
 
     try {
       const registrationPayload = {
@@ -298,7 +417,7 @@ export default function Login() {
         emailVerified: true,
       };
 
-      const regRes = await api.register(registrationPayload);
+      await api.register(registrationPayload);
       setInfoMessage('✓ Account created successfully! Redirecting...');
 
       setTimeout(() => {
@@ -308,7 +427,7 @@ export default function Login() {
         } else {
           navigate('/courses');
         }
-      }, 700);
+      }, 600);
     } catch (err) {
       setLoading(false);
       setInfoMessage('');
@@ -317,65 +436,7 @@ export default function Login() {
   };
 
   // ====================================================
-  // 6. FORGOT PASSWORD FLOW
-  // ====================================================
-  const handleForgotStep1 = async (e) => {
-    e.preventDefault();
-    if (!forgotEmail.trim()) return setError('Please enter your registered email address.');
-
-    setLoading(true);
-    setError('');
-    setInfoMessage('Dispatching password reset code...');
-
-    try {
-      const res = await api.sendOtp(forgotEmail, 'RESET_PASSWORD');
-      setLoading(false);
-      setTimer(60);
-      setInfoMessage(
-        res.otpPreview
-          ? `✓ Reset OTP dispatched to ${forgotEmail} (Test Code: ${res.otpPreview})`
-          : `✓ Reset OTP dispatched to ${forgotEmail}`
-      );
-      setForgotStep(2);
-    } catch (err) {
-      setLoading(false);
-      setError(err.message || 'Failed to dispatch reset code.');
-    }
-  };
-
-  const handleForgotStep2 = async (e) => {
-    e.preventDefault();
-    if (!forgotOtp.trim() || forgotOtp.trim().length < 6) {
-      return setError('Please enter the 6-digit OTP.');
-    }
-    if (!forgotNewPassword || forgotNewPassword.length < 8) {
-      return setError('New password must be at least 8 characters long.');
-    }
-
-    setLoading(true);
-    setError('');
-    setInfoMessage('Updating password...');
-
-    try {
-      await api.resetPasswordWithOtp(forgotEmail, forgotOtp.trim(), forgotNewPassword);
-      setLoading(false);
-      setInfoMessage('✓ Password reset successfully! You can now log in.');
-      setTimeout(() => {
-        setSubMode('login');
-        setLoginEmail(forgotEmail);
-        setForgotStep(1);
-        setForgotEmail('');
-        setForgotOtp('');
-        setForgotNewPassword('');
-      }, 1500);
-    } catch (err) {
-      setLoading(false);
-      setError(err.message || 'Password reset failed.');
-    }
-  };
-
-  // ====================================================
-  // 7. ADMIN AUTHENTICATION
+  // 6. ADMIN AUTHENTICATION
   // ====================================================
   const handleAdminPasswordLogin = async (e) => {
     e.preventDefault();
@@ -396,7 +457,7 @@ export default function Login() {
       setTimeout(() => {
         setLoading(false);
         navigate('/dashboard');
-      }, 700);
+      }, 600);
     } catch (err) {
       setLoading(false);
       setInfoMessage('');
@@ -450,7 +511,7 @@ export default function Login() {
       setTimeout(() => {
         setLoading(false);
         navigate('/dashboard');
-      }, 700);
+      }, 600);
     } catch (err) {
       setLoading(false);
       setInfoMessage('');
@@ -537,107 +598,145 @@ export default function Login() {
             {accountType === 'student_corporate' && (
               <>
                 {/* Mode Selector Tabs: Sign In / Create Account */}
-                {subMode !== 'forgot_password' && (
-                  <div className={styles.modeTabs}>
-                    <button
-                      type="button"
-                      className={`${styles.modeTabBtn} ${
-                        subMode === 'login' ? styles.modeTabBtnActive : ''
-                      }`}
-                      onClick={() => {
-                        setSubMode('login');
-                        setError('');
-                        setInfoMessage('');
-                      }}
-                    >
-                      Sign In
-                    </button>
-                    <button
-                      type="button"
-                      className={`${styles.modeTabBtn} ${
-                        subMode === 'register' ? styles.modeTabBtnActive : ''
-                      }`}
-                      onClick={() => {
-                        setSubMode('register');
-                        setError('');
-                        setInfoMessage('');
-                        setRegStep(1);
-                      }}
-                    >
-                      Create Account
-                    </button>
-                  </div>
-                )}
+                <div className={styles.modeTabs}>
+                  <button
+                    type="button"
+                    className={`${styles.modeTabBtn} ${
+                      subMode === 'login' ? styles.modeTabBtnActive : ''
+                    }`}
+                    onClick={() => {
+                      setSubMode('login');
+                      setError('');
+                      setInfoMessage('');
+                      setDeviceVerificationRequired(false);
+                    }}
+                  >
+                    Sign In
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.modeTabBtn} ${
+                      subMode === 'register' ? styles.modeTabBtnActive : ''
+                    }`}
+                    onClick={() => {
+                      setSubMode('register');
+                      setError('');
+                      setInfoMessage('');
+                      setRegStep(1);
+                    }}
+                  >
+                    Create Account
+                  </button>
+                </div>
 
                 {/* ----------------------------------------------------
-                    1. RETURNING USER: EMAIL + PASSWORD LOGIN (NO OTP)
+                    1. RETURNING USER: EMAIL ONLY (PASSWORDLESS SIGN IN)
                    ---------------------------------------------------- */}
                 {subMode === 'login' && (
-                  <form onSubmit={handleStudentCorporateLogin} className={styles.form}>
-                    <div className={styles.formGroup}>
-                      <label className={styles.label}>EMAIL ADDRESS *</label>
-                      <input
-                        type="email"
-                        required
-                        placeholder="e.g. akshayprakash3009@gmail.com"
-                        value={loginEmail}
-                        onChange={(e) => setLoginEmail(e.target.value)}
-                        className={styles.input}
-                        autoComplete="email"
-                      />
-                    </div>
+                  <div>
+                    {!deviceVerificationRequired ? (
+                      <form onSubmit={handleStudentCorporateLogin} className={styles.form}>
+                        <div className={styles.formGroup}>
+                          <label className={styles.label}>EMAIL ADDRESS *</label>
+                          <input
+                            type="email"
+                            required
+                            placeholder="Enter your registered email"
+                            value={loginEmail}
+                            onChange={(e) => setLoginEmail(e.target.value)}
+                            className={styles.input}
+                            autoComplete="email"
+                            autoFocus
+                          />
+                          <span className={styles.hint}>
+                            Your profile and courses will be loaded automatically.
+                          </span>
+                        </div>
 
-                    <div className={styles.formGroup}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <label className={styles.label}>PASSWORD *</label>
                         <button
-                          type="button"
-                          className={styles.forgotBtn}
-                          onClick={() => {
-                            setSubMode('forgot_password');
-                            setForgotEmail(loginEmail);
-                            setError('');
-                            setInfoMessage('');
-                          }}
+                          type="submit"
+                          className="btn btn-primary"
+                          style={{ width: '100%', padding: '0.85rem', fontWeight: 800, marginTop: '0.5rem' }}
+                          disabled={loading}
                         >
-                          Forgot Password?
+                          {loading ? 'Recognizing Account...' : 'Continue / Enter Portal →'}
                         </button>
-                      </div>
-                      <input
-                        type="password"
-                        required
-                        placeholder="Enter your account password"
-                        value={loginPassword}
-                        onChange={(e) => setLoginPassword(e.target.value)}
-                        className={styles.input}
-                        autoComplete="current-password"
-                      />
-                    </div>
 
-                    <button
-                      type="submit"
-                      className="btn btn-primary"
-                      style={{ width: '100%', padding: '0.85rem', fontWeight: 800, marginTop: '0.5rem' }}
-                      disabled={loading}
-                    >
-                      {loading ? 'Authenticating...' : 'Sign In to Portal →'}
-                    </button>
+                        <div className={styles.switchPrompt}>
+                          New to VIT-TEC SpoRIC?{' '}
+                          <button
+                            type="button"
+                            className={styles.textLink}
+                            onClick={() => {
+                              setSubMode('register');
+                              setRegEmail(loginEmail);
+                              setRegStep(1);
+                              setError('');
+                            }}
+                          >
+                            Create an Account
+                          </button>
+                        </div>
+                      </form>
+                    ) : (
+                      <form onSubmit={handleVerifyDeviceOtp} className={styles.form}>
+                        <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
+                          <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.35rem' }}>
+                            Device Verification
+                          </h3>
+                          <p style={{ fontSize: '0.85rem', color: '#64748B', margin: 0 }}>
+                            Enter the 6-digit verification code sent to:<br />
+                            <strong style={{ color: '#0B2A6F' }}>{loginEmail}</strong>
+                          </p>
+                        </div>
 
-                    <div className={styles.switchPrompt}>
-                      New to VIT-TEC SpoRIC?{' '}
-                      <button
-                        type="button"
-                        className={styles.textLink}
-                        onClick={() => {
-                          setSubMode('register');
-                          setRegStep(1);
-                          setError('');
-                        }}
-                      >
-                        Create an Account
-                      </button>
-                    </div>
-                  </form>
+                        <div className={styles.formGroup}>
+                          <label className={styles.label}>ENTER 6-DIGIT CODE *</label>
+                          <input
+                            type="text"
+                            required
+                            maxLength={6}
+                            placeholder="• • • • • •"
+                            value={loginOtp}
+                            onChange={(e) => setLoginOtp(e.target.value.replace(/\D/g, ''))}
+                            className={styles.otpInput}
+                            autoFocus
+                          />
+                        </div>
+
+                        <button
+                          type="submit"
+                          className="btn btn-primary"
+                          style={{ width: '100%', padding: '0.85rem', fontWeight: 800 }}
+                          disabled={loading || loginOtp.length < 6}
+                        >
+                          {loading ? 'Verifying...' : 'Verify & Enter Portal →'}
+                        </button>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
+                          <button
+                            type="button"
+                            className={styles.textLink}
+                            onClick={() => {
+                              setDeviceVerificationRequired(false);
+                              setError('');
+                            }}
+                          >
+                            ← Change Email
+                          </button>
+
+                          <button
+                            type="button"
+                            className={styles.resendBtn}
+                            onClick={handleStudentCorporateLogin}
+                            disabled={timer > 0}
+                          >
+                            {timer > 0 ? `Resend Code in ${timer}s` : 'Resend Code'}
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                  </div>
                 )}
 
                 {/* ----------------------------------------------------
@@ -721,7 +820,7 @@ export default function Login() {
                           <input
                             type="password"
                             required
-                            placeholder="Create a strong password"
+                            placeholder="Create a strong account password"
                             value={regPassword}
                             onChange={(e) => setRegPassword(e.target.value)}
                             className={styles.input}
@@ -960,110 +1059,6 @@ export default function Login() {
                         >
                           {loading ? 'Creating Account...' : 'Complete Profile & Register →'}
                         </button>
-                      </form>
-                    )}
-                  </div>
-                )}
-
-                {/* ----------------------------------------------------
-                    3. FORGOT PASSWORD VIEW
-                   ---------------------------------------------------- */}
-                {subMode === 'forgot_password' && (
-                  <div>
-                    <div style={{ textAlign: 'center', marginBottom: '1.25rem' }}>
-                      <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0F172A', margin: '0 0 0.35rem' }}>
-                        Password Recovery
-                      </h3>
-                      <p style={{ fontSize: '0.85rem', color: '#64748B', margin: 0 }}>
-                        {forgotStep === 1
-                          ? 'Enter your registered email address to receive a secure recovery code.'
-                          : `Enter the 6-digit code sent to ${forgotEmail} and choose a new password.`}
-                      </p>
-                    </div>
-
-                    {forgotStep === 1 ? (
-                      <form onSubmit={handleForgotStep1} className={styles.form}>
-                        <div className={styles.formGroup}>
-                          <label className={styles.label}>REGISTERED EMAIL *</label>
-                          <input
-                            type="email"
-                            required
-                            placeholder="e.g. akshayprakash3009@gmail.com"
-                            value={forgotEmail}
-                            onChange={(e) => setForgotEmail(e.target.value)}
-                            className={styles.input}
-                            autoFocus
-                          />
-                        </div>
-
-                        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
-                          <button
-                            type="button"
-                            className="btn btn-secondary"
-                            onClick={() => {
-                              setSubMode('login');
-                              setError('');
-                            }}
-                            style={{ flex: 1 }}
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            type="submit"
-                            className="btn btn-primary"
-                            style={{ flex: 2, fontWeight: 800 }}
-                            disabled={loading}
-                          >
-                            {loading ? 'Sending Code...' : 'Send Recovery Code →'}
-                          </button>
-                        </div>
-                      </form>
-                    ) : (
-                      <form onSubmit={handleForgotStep2} className={styles.form}>
-                        <div className={styles.formGroup}>
-                          <label className={styles.label}>6-DIGIT OTP CODE *</label>
-                          <input
-                            type="text"
-                            required
-                            maxLength={6}
-                            placeholder="• • • • • •"
-                            value={forgotOtp}
-                            onChange={(e) => setForgotOtp(e.target.value.replace(/\D/g, ''))}
-                            className={styles.otpInput}
-                            autoFocus
-                          />
-                        </div>
-
-                        <div className={styles.formGroup}>
-                          <label className={styles.label}>NEW PASSWORD *</label>
-                          <input
-                            type="password"
-                            required
-                            placeholder="Minimum 8 characters"
-                            value={forgotNewPassword}
-                            onChange={(e) => setForgotNewPassword(e.target.value)}
-                            className={styles.input}
-                          />
-                        </div>
-
-                        <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem' }}>
-                          <button
-                            type="button"
-                            className="btn btn-secondary"
-                            onClick={() => setForgotStep(1)}
-                            style={{ flex: 1 }}
-                          >
-                            ← Back
-                          </button>
-                          <button
-                            type="submit"
-                            className="btn btn-primary"
-                            style={{ flex: 2, fontWeight: 800 }}
-                            disabled={loading || forgotOtp.length < 6 || forgotNewPassword.length < 8}
-                          >
-                            {loading ? 'Resetting...' : 'Reset Password →'}
-                          </button>
-                        </div>
                       </form>
                     )}
                   </div>
