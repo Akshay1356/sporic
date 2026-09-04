@@ -390,3 +390,17 @@ model ContactInquiry {
 
   @@index([status])
 }
+
+// ----------------------------------------------------
+// 8. Corporate Training Gallery Photos
+// ----------------------------------------------------
+model GalleryPhoto {
+  id          String   @id @default(uuid())
+  src         String
+  title       String
+  category    String
+  description String
+  createdAt   DateTime @default(now())
+
+  @@index([category])
+}

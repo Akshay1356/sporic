@@ -11,6 +11,7 @@ import notificationRoutes from './notification.routes.js';
 import uploadRoutes from './upload.routes.js';
 import adminRoutes from './admin.routes.js';
 import contactRoutes from './contact.routes.js';
+import galleryRoutes from './gallery.routes.js';
 
 const router = Router();
 
@@ -28,5 +29,6 @@ router.use('/notifications', notificationRoutes);
 router.use('/uploads', uploadRoutes);
 router.use('/admin', adminRoutes);
 router.use('/contact', contactRoutes);
+router.use('/gallery', galleryRoutes);
 
 export default router;

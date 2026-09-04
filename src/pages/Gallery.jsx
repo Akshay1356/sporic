@@ -1,25 +1,36 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getAllGalleryItems, GALLERY_CATEGORIES } from '../data/galleryData';
+import { getAllGalleryItems, GALLERY_CATEGORIES, galleryPhotos, galleryCategories } from '../data/galleryData';
 import api from '../services/api';
+import galleryService from '../services/galleryService';
 import styles from './Gallery.module.css';
 
 export default function Gallery() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [lightboxIndex, setLightboxIndex] = useState(null);
-  const [photos, setPhotos] = useState(getAllGalleryItems());
+  const [photos, setPhotos] = useState(getAllGalleryItems() || galleryPhotos || []);
 
   const loadPhotos = useCallback(async () => {
     try {
       const localPhotos = getAllGalleryItems();
-      setPhotos(localPhotos);
+      if (localPhotos && localPhotos.length > 0) {
+        setPhotos(localPhotos);
+      }
 
+      // Try api.getGallery first (supports categories & cloud sync)
       const res = await api.getGallery(activeCategory);
       if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
         setPhotos(res.data);
+        return;
+      }
+
+      // Fallback to galleryService
+      const servicePhotos = await galleryService.getGalleryPhotos();
+      if (Array.isArray(servicePhotos) && servicePhotos.length > 0) {
+        setPhotos(servicePhotos);
       }
     } catch {
-      setPhotos(getAllGalleryItems());
+      setPhotos(getAllGalleryItems() || galleryPhotos);
     }
   }, [activeCategory]);
 

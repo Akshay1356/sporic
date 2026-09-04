@@ -1,130 +1,190 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
-import VitTecAnimation from './VitTecAnimation';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import styles from './Hero.module.css';
 
-export default function Hero() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const navigate = useNavigate();
+const slides = [
+  {
+    id: 'slide-1',
+    src: '/hero-slides/slide1-corporate-training.png',
+    alt: 'VIT-TEC Corporate Training — Transform Your Career With World-Class Industry Training',
+  },
+  {
+    id: 'slide-2',
+    src: '/hero-slides/slide2-rankings-recognitions.png',
+    alt: 'VIT-TEC Rankings and Recognitions — National & International Accreditations',
+  },
+  {
+    id: 'slide-3',
+    src: '/hero-slides/slide3-industry-partners.png',
+    alt: 'VIT-TEC Industry Partners — Collaborating for a Skilled and Future-Ready Workforce',
+  },
+  {
+    id: 'slide-4',
+    src: '/hero-slides/slide4-our-courses.png',
+    alt: 'VIT-TEC Our Courses — Technology, Management, Personality, and Leadership',
+  },
+  {
+    id: 'slide-5',
+    src: '/hero-slides/slide5-industry-collaborations.png',
+    alt: 'VIT-TEC Industry Collaborations — Building Talent for a Smarter Tomorrow',
+  },
+];
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/courses?search=${encodeURIComponent(searchQuery.trim())}`);
-    } else {
-      navigate('/courses');
+const SLIDE_INTERVAL = 5500; // 5.5 seconds display time per slide
+
+export default function Hero() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const touchStartX = useRef(null);
+  const touchEndX = useRef(null);
+  const timerRef = useRef(null);
+
+  const resetTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    if (!isPaused) {
+      timerRef.current = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % slides.length);
+      }, SLIDE_INTERVAL);
+    }
+  }, [isPaused]);
+
+  // Handle auto-advance
+  useEffect(() => {
+    resetTimer();
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [resetTimer]);
+
+  const handleNext = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % slides.length);
+    resetTimer();
+  }, [resetTimer]);
+
+  const handlePrev = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
+    resetTimer();
+  }, [resetTimer]);
+
+  const handleDotClick = useCallback((index) => {
+    setCurrentIndex(index);
+    resetTimer();
+  }, [resetTimer]);
+
+  // Touch gesture handling for mobile
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchEndX.current = null;
+  };
+
+  const handleTouchMove = (e) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    const diff = touchStartX.current - touchEndX.current;
+    if (diff > 45) {
+      handleNext();
+    } else if (diff < -45) {
+      handlePrev();
+    }
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
+
+  // Keyboard navigation
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowLeft') {
+      handlePrev();
+    } else if (e.key === 'ArrowRight') {
+      handleNext();
     }
   };
 
   return (
-    <section className={styles.hero} aria-label="VIT-TEC Hero Section">
-      <div className={styles.heroOverlay} />
-
-      <div className={styles.container}>
-        <div className={styles.heroCenteredWrapper}>
-          <motion.div
-            className={styles.heroContent}
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          >
-            {/* Small Eyebrow Badge */}
-            <div className={styles.eyebrow}>
-              <span className={styles.eyebrowDot} />
-              <span>VIT Technology Enhancement Centre</span>
-            </div>
-
-            {/* Central VIT-TEC Innovation & Technology Animation */}
-            <div className={styles.animationSlot}>
-              <VitTecAnimation />
-            </div>
-
-            {/* Supporting Description */}
-            <motion.p
-              className={styles.heroDescription}
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: 'easeOut', delay: 0.3 }}
-            >
-              Industry-aligned training and research centre driving innovation, employability and excellence.
-            </motion.p>
-
-            {/* Prominent Course Search Bar */}
-            <motion.div
-              className={styles.searchContainer}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: 'easeOut', delay: 0.4 }}
-            >
-              <form onSubmit={handleSearchSubmit} className={styles.searchForm}>
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#38BDF8"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  style={{ marginRight: '8px', flexShrink: 0 }}
-                >
-                  <circle cx="11" cy="11" r="8" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search courses (e.g. AI, Python, Management, EV, CAD)..."
-                  className={styles.searchInput}
-                  aria-label="Search courses by keyword"
+    <section
+      className={styles.heroSection}
+      aria-label="VIT-TEC Featured Slideshow"
+      role="region"
+      aria-roledescription="carousel"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      <div className={styles.slideshowWrapper}>
+        <div className={styles.slidesContainer}>
+          {slides.map((slide, index) => {
+            const isActive = index === currentIndex;
+            return (
+              <div
+                key={slide.id}
+                className={`${styles.slide} ${isActive ? styles.slideActive : ''}`}
+                aria-hidden={!isActive}
+                role="group"
+                aria-roledescription="slide"
+                aria-label={`Slide ${index + 1} of ${slides.length}`}
+              >
+                <img
+                  src={slide.src}
+                  alt={slide.alt}
+                  className={styles.slideImage}
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  fetchPriority={index === 0 ? 'high' : 'auto'}
+                  decoding="async"
                 />
-                <button type="submit" className={styles.searchButton}>
-                  <span>Search</span>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </form>
-
-              {/* Quick Topic Badges */}
-              <div className={styles.searchTags}>
-                <span>Popular:</span>
-                <Link to="/courses?search=AI" className={styles.searchTagBtn}>Generative AI</Link>
-                <Link to="/courses?search=Full+Stack" className={styles.searchTagBtn}>Full Stack</Link>
-                <Link to="/courses?search=EV" className={styles.searchTagBtn}>EV Powertrain</Link>
-                <Link to="/courses?search=Management" className={styles.searchTagBtn}>Operations</Link>
-                <Link to="/courses?search=Leadership" className={styles.searchTagBtn}>Leadership</Link>
               </div>
-            </motion.div>
+            );
+          })}
+        </div>
 
-            {/* CTAs */}
-            <motion.div
-              className={styles.heroCTAs}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: 'easeOut', delay: 0.55 }}
-            >
-              <Link to="/courses" className={styles.ctaPrimary}>
-                Browse All Courses
-                <ArrowIcon />
-              </Link>
-              <Link to="/about" className={styles.ctaSecondary}>
-                Learn More About Us →
-              </Link>
-            </motion.div>
-          </motion.div>
+        {/* Previous Arrow Button */}
+        <button
+          type="button"
+          className={`${styles.arrowButton} ${styles.arrowPrev}`}
+          onClick={handlePrev}
+          aria-label="Previous slide"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
+
+        {/* Next Arrow Button */}
+        <button
+          type="button"
+          className={`${styles.arrowButton} ${styles.arrowNext}`}
+          onClick={handleNext}
+          aria-label="Next slide"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </button>
+
+        {/* Elegant Indicator Dots */}
+        <div className={styles.indicators} role="tablist" aria-label="Slideshow Controls">
+          {slides.map((_, index) => {
+            const isActive = index === currentIndex;
+            return (
+              <button
+                key={index}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                aria-label={`Go to slide ${index + 1}`}
+                className={`${styles.indicatorDot} ${isActive ? styles.indicatorDotActive : ''}`}
+                onClick={() => handleDotClick(index)}
+              />
+            );
+          })}
         </div>
       </div>
     </section>
-  );
-}
-
-function ArrowIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
   );
 }

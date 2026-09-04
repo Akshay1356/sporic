@@ -28,10 +28,11 @@ async function main() {
 
   // 1. Create Core Users with BCrypt Hashed Passwords
   const adminPassword = await bcrypt.hash('Admin@VIT2026', 10);
+  const adminSporicPassword = await bcrypt.hash('Sp0rIC#2026!vIt9$xK', 10);
   const facultyPassword = await bcrypt.hash('Faculty@VIT2026', 10);
   const studentPassword = await bcrypt.hash('Student@VIT2026', 10);
 
-  const admin = await prisma.user.create({
+  await prisma.user.create({
     data: {
       email: 'admin@vit.ac.in',
       name: 'Dr. Dean SpoRIC',
@@ -39,6 +40,19 @@ async function main() {
       role: 'ADMIN',
       department: 'Sponsored Research & Industrial Consultancy',
       designation: 'Dean, SpoRIC',
+      organization: 'VIT Chennai',
+      phone: '044 3993 1196',
+    },
+  });
+
+  await prisma.user.create({
+    data: {
+      email: 'admin.sporic@vit.ac.in',
+      name: 'Dr. Dean SpoRIC Administration',
+      passwordHash: adminSporicPassword,
+      role: 'ADMIN',
+      department: 'Sponsored Research & Industrial Consultancy',
+      designation: 'Dean, SpoRIC Admin',
       organization: 'VIT Chennai',
       phone: '044 3993 1196',
     },

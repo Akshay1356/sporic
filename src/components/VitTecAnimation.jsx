@@ -71,28 +71,28 @@ export default function VitTecAnimation() {
         {/* --- 1. CONVERGING CIRCUIT GRID & RADIAL TELEMETRY --- */}
         <g className={styles.circuitGrid}>
           {/* Horizontal Axis lines */}
-          <line x1="60" y1="170" x2="250" y2="170" stroke="#38BDF8" strokeOpacity="0.3" strokeWidth="1" strokeDasharray="5 5" />
-          <line x1="630" y1="170" x2="820" y2="170" stroke="#38BDF8" strokeOpacity="0.3" strokeWidth="1" strokeDasharray="5 5" />
+          <line x1="60" y1="170" x2="200" y2="170" stroke="#38BDF8" strokeOpacity="0.3" strokeWidth="1" strokeDasharray="5 5" />
+          <line x1="680" y1="170" x2="820" y2="170" stroke="#38BDF8" strokeOpacity="0.3" strokeWidth="1" strokeDasharray="5 5" />
 
-          {/* Diagonal Angular Connectors */}
-          <path d="M 100 65 L 220 65 L 310 125" stroke="#60A5FA" strokeOpacity="0.35" strokeWidth="1.2" fill="none" />
-          <path d="M 780 65 L 660 65 L 570 125" stroke="#60A5FA" strokeOpacity="0.35" strokeWidth="1.2" fill="none" />
-          <path d="M 100 275 L 220 275 L 310 215" stroke="#60A5FA" strokeOpacity="0.35" strokeWidth="1.2" fill="none" />
-          <path d="M 780 275 L 660 275 L 570 215" stroke="#60A5FA" strokeOpacity="0.35" strokeWidth="1.2" fill="none" />
+          {/* Diagonal Angular Connectors (Framing Central Safe Zone) */}
+          <path d="M 100 65 L 190 65 L 250 105" stroke="#60A5FA" strokeOpacity="0.35" strokeWidth="1.2" fill="none" />
+          <path d="M 780 65 L 690 65 L 630 105" stroke="#60A5FA" strokeOpacity="0.35" strokeWidth="1.2" fill="none" />
+          <path d="M 100 275 L 190 275 L 250 245" stroke="#60A5FA" strokeOpacity="0.35" strokeWidth="1.2" fill="none" />
+          <path d="M 780 275 L 690 275 L 630 245" stroke="#60A5FA" strokeOpacity="0.35" strokeWidth="1.2" fill="none" />
 
           {/* Node Connection Points */}
           <circle cx="100" cy="65" r="3.5" fill="#38BDF8" className={styles.pulsingDot} />
-          <circle cx="220" cy="65" r="2.5" fill="#93C5FD" />
-          <circle cx="310" cy="125" r="3" fill="#38BDF8" />
+          <circle cx="190" cy="65" r="2.5" fill="#93C5FD" />
+          <circle cx="250" cy="105" r="3" fill="#38BDF8" />
           <circle cx="780" cy="65" r="3.5" fill="#38BDF8" className={styles.pulsingDot} />
-          <circle cx="660" cy="65" r="2.5" fill="#93C5FD" />
-          <circle cx="570" cy="125" r="3" fill="#38BDF8" />
+          <circle cx="690" cy="65" r="2.5" fill="#93C5FD" />
+          <circle cx="630" cy="105" r="3" fill="#38BDF8" />
           <circle cx="100" cy="275" r="3.5" fill="#38BDF8" className={styles.pulsingDot} />
-          <circle cx="220" cy="275" r="2.5" fill="#93C5FD" />
-          <circle cx="310" cy="215" r="3" fill="#38BDF8" />
+          <circle cx="190" cy="275" r="2.5" fill="#93C5FD" />
+          <circle cx="250" cy="245" r="3" fill="#38BDF8" />
           <circle cx="780" cy="275" r="3.5" fill="#38BDF8" className={styles.pulsingDot} />
-          <circle cx="660" cy="275" r="2.5" fill="#93C5FD" />
-          <circle cx="570" cy="215" r="3" fill="#38BDF8" />
+          <circle cx="690" cy="275" r="2.5" fill="#93C5FD" />
+          <circle cx="630" cy="245" r="3" fill="#38BDF8" />
         </g>
 
         {/* --- 2. ORBITAL ROTATING RINGS --- */}
@@ -166,7 +166,7 @@ export default function VitTecAnimation() {
             fill="url(#coreBrandGrad)"
             initial={{ opacity: 0, scale: 0.85, letterSpacing: '0.18em' }}
             animate={{ opacity: 1, scale: 1, letterSpacing: '0.07em' }}
-            transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
+            transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
           >
             VIT-TEC
           </motion.text>
