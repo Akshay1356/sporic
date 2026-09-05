@@ -3,6 +3,70 @@
 .loginPage {
   background: #F8FAFC;
   min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.loginPage > :not(.ambientBackground) {
+  position: relative;
+  z-index: 1;
+}
+
+.ambientBackground {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ambientGrid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.28;
+  background-image: radial-gradient(#94A3B8 0.8px, transparent 0.8px);
+  background-size: 26px 26px;
+  mask-image: linear-gradient(to bottom, black, transparent 78%);
+}
+
+.ambientOrb {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  filter: blur(8px);
+  opacity: 0.42;
+  animation: ambientFloat 12s ease-in-out infinite alternate;
+}
+
+.orbOne {
+  width: 360px;
+  height: 360px;
+  top: 18%;
+  left: -120px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.28), transparent 68%);
+}
+
+.orbTwo {
+  width: 430px;
+  height: 430px;
+  top: 42%;
+  right: -170px;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.2), transparent 70%);
+  animation-delay: -4s;
+}
+
+.orbThree {
+  width: 260px;
+  height: 260px;
+  bottom: -100px;
+  left: 42%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.16), transparent 70%);
+  animation-delay: -8s;
+}
+
+@keyframes ambientFloat {
+  from { transform: translate3d(0, -12px, 0) scale(0.96); }
+  to { transform: translate3d(24px, 18px, 0) scale(1.04); }
 }
 
 .banner {
@@ -81,7 +145,7 @@
 }
 
 .accountTypeBtnActive {
-  background: linear-gradient(135deg, #0B2A6F 0%, #1D4ED8 100%) !important;
+  background: #06113F !important;
   border-color: #1D4ED8 !important;
   color: #FFFFFF !important;
   box-shadow: 0 10px 24px rgba(11, 42, 111, 0.22) !important;
@@ -434,4 +498,18 @@
   .formCard {
     padding: 1.75rem 1.25rem;
   }
+}
+
+
+/* Interactive particle layer behind the login content. */
+.particles {
+  position: fixed !important;
+  inset: 0;
+  z-index: 0 !important;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.particles canvas {
+  display: block;
 }

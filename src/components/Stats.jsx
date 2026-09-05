@@ -52,8 +52,8 @@ function AnimatedNumber({ target, suffix, isVisible }) {
   useEffect(() => {
     if (!isVisible) return;
     
-    // Slowed down smoothly to 3.0 seconds with ease-out curve
-    const duration = 3000;
+    // Smooth ease-out count-up, slightly slowed for readability.
+    const duration = 4000;
     const startTime = performance.now();
 
     const updateCounter = (currentTime) => {
@@ -99,7 +99,13 @@ export default function Stats() {
           transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
         >
           {statsData.map((item, idx) => (
-            <div key={idx} className={styles.statItem}>
+            <motion.div
+              key={idx}
+              className={styles.statItem}
+              initial={{ opacity: 0, x: -18 }}
+              animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -18 }}
+              transition={{ duration: 0.55, delay: 0.15 + idx * 0.1, ease: 'easeOut' }}
+            >
               <div className={styles.iconWrapper}>{item.icon}</div>
               <div className={styles.statContent}>
                 <div className={styles.statNumber}>
@@ -111,7 +117,7 @@ export default function Stats() {
                 </div>
                 <div className={styles.statLabel}>{item.label}</div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </motion.div>
       </div>

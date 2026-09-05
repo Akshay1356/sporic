@@ -197,7 +197,7 @@
   font-weight: 800;
   color: #FFFFFF;
   background: #0B2A6F;
-  background: linear-gradient(135deg, #0B2A6F 0%, #1D4ED8 100%);
+  background: #06113F;
   padding: 0.35rem 1rem;
   border-radius: var(--radius-sm, 8px);
   box-shadow: 0 2px 8px rgba(11, 42, 111, 0.18);

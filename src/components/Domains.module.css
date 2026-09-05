@@ -74,7 +74,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, transparent, #1D4ED8, transparent);
+  background: #06113F;
   opacity: 0;
   transition: opacity var(--transition-base);
 }

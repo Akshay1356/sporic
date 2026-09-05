@@ -169,6 +169,53 @@
   box-shadow: 0 2px 8px rgba(29, 78, 216, 0.25);
 }
 
+.dropdown {
+  position: relative;
+}
+
+.dropdown .navLink {
+  cursor: pointer;
+  font-family: inherit;
+  color: #CBD5E1;
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.dropdownArrow {
+  margin-left: 0.2rem;
+  font-size: 0.9em;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 190px;
+  padding: 0.45rem;
+  background: #071B4A;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 8px;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.3);
+  z-index: 1100;
+}
+
+.dropdownItem {
+  display: block;
+  padding: 0.6rem 0.75rem;
+  color: #CBD5E1;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+
+.dropdownItem:hover,
+.dropdownItem.active {
+  color: #FFFFFF;
+  background: rgba(29, 78, 216, 0.35);
+}
+
 /* ====================================================
    3. RIGHT: ACCOUNT & ACTION CONTROLS (ALWAYS VISIBLE)
    ==================================================== */
@@ -215,7 +262,7 @@
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1D4ED8 0%, #0284C7 100%);
+  background: #06113F;
   color: #FFFFFF;
   font-size: 0.72rem;
   font-weight: 800;
@@ -267,7 +314,7 @@
 }
 
 .dashBtn {
-  background: linear-gradient(135deg, #1D4ED8 0%, #0284C7 100%);
+  background: #06113F;
   color: #FFFFFF;
   border: none;
   padding: 0.38rem 0.75rem;
@@ -315,28 +362,29 @@
 }
 
 .loginBtn {
-  color: #FFFFFF !important;
+  color: #101010 !important;
   font-size: 0.8rem;
   font-weight: 600;
   padding: 0.38rem 0.75rem;
   text-decoration: none;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid #FFC107;
+  background: #FFC107;
   transition: all 0.2s ease;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .loginBtn:hover {
+  color: #FFFFFF !important;
   background: rgba(255, 255, 255, 0.14);
   border-color: rgba(255, 255, 255, 0.35);
 }
 
 .applyBtn {
-  background: linear-gradient(135deg, #1D4ED8 0%, #0284C7 100%) !important;
-  color: #FFFFFF !important;
-  border: none;
+  background: #FFC107 !important;
+  color: #101010 !important;
+  border: 1px solid #FFC107;
   padding: 0.4rem 0.95rem;
   font-size: 0.8rem;
   font-weight: 700;
@@ -350,6 +398,8 @@
 
 .applyBtn:hover {
   background: linear-gradient(135deg, #1644B8 0%, #0369A1 100%) !important;
+  color: #FFFFFF !important;
+  border-color: transparent;
   transform: translateY(-1px);
   box-shadow: 0 4px 14px rgba(29, 78, 216, 0.45);
 }
@@ -449,6 +499,43 @@
   background: rgba(29, 78, 216, 0.25) !important;
   border-color: rgba(56, 189, 248, 0.35) !important;
   color: #FFFFFF !important;
+}
+
+.mobileDropdown {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobileNavLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mobileDropdownMenu {
+  display: flex;
+  flex-direction: column;
+  margin: 0.1rem 0 0.35rem 1rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.mobileDropdownItem {
+  padding: 0.55rem 1rem;
+  color: #94A3B8;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.mobileDropdownItem:hover {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .mobileActions {

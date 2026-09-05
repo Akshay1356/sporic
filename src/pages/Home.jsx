@@ -12,13 +12,20 @@ import Contact from '../components/Contact';
 export default function Home() {
   return (
     <main>
-      <Hero />
-      <Stats />
+      <div className="hero-stats-layout">
+        <div className="stats-left">
+          <Stats />
+        </div>
+
+        <div className="hero-right">
+          <Hero />
+        </div>
+      </div>
+      <Domains />
       <About />
       <CorporateTrainingGraph />
       <Marquee />
       <Benefits />
-      <Domains />
       <Certification />
       <IndustryTraining />
       <Contact />

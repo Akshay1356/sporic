@@ -294,7 +294,7 @@
 
 .benefitCard:hover .cardIconWrap,
 .benefitCardActive .cardIconWrap {
-  background: linear-gradient(135deg, #1D4ED8 0%, #0284C7 100%);
+  background: #06113F;
   color: #FFFFFF;
   transform: scale(1.08);
 }

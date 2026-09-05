@@ -1,6 +1,27 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import styles from './Login.module.css';
+import Particles, { ParticlesProvider } from '@tsparticles/react';
+import { loadSlim } from '@tsparticles/slim';
+
+const loginParticlesOptions = {
+  fullScreen: { enable: false },
+  background: { color: 'transparent' },
+  particles: {
+    number: { value: 42, density: { enable: true, area: 900 } },
+    color: { value: ['#60A5FA', '#38BDF8', '#93C5FD'] },
+    links: { enable: true, distance: 145, color: '#60A5FA', opacity: 0.18, width: 1 },
+    move: { enable: true, speed: 0.45, direction: 'none', outModes: { default: 'bounce' } },
+    opacity: { value: { min: 0.18, max: 0.55 } },
+    size: { value: { min: 1, max: 3 } },
+  },
+  interactivity: {
+    detectsOn: 'window',
+    events: { onHover: { enable: true, mode: 'grab' }, resize: true },
+    modes: { grab: { distance: 170, links: { opacity: 0.45 } } },
+  },
+  detectRetina: true,
+};
 import api from '../services/api';
 
 // Standard designation options
@@ -521,6 +542,20 @@ export default function Login() {
 
   return (
     <div className={styles.loginPage}>
+      <ParticlesProvider init={loadSlim}>
+        <Particles
+          id="login-particles"
+          className={styles.particles}
+          options={loginParticlesOptions}
+        />
+      </ParticlesProvider>
+      <div className={styles.ambientBackground} aria-hidden="true">
+        <span className={`${styles.ambientOrb} ${styles.orbOne}`} />
+        <span className={`${styles.ambientOrb} ${styles.orbTwo}`} />
+        <span className={`${styles.ambientOrb} ${styles.orbThree}`} />
+        <span className={styles.ambientGrid} />
+      </div>
+
       {/* Hero Banner */}
       <section className={styles.banner}>
         <div className="grid-bg" style={{ opacity: 0.45 }} />
@@ -550,7 +585,7 @@ export default function Login() {
           <div className={styles.accountSelectorWrapper}>
             <div className={styles.accountSelectorLabel}>CHOOSE ACCOUNT TYPE</div>
             <div className={styles.accountTypeGrid}>
-              {/* Option 1: 🎓 Student & Corporate */}
+              {/* Option 1: Student & Corporate */}
               <button
                 type="button"
                 className={`${styles.accountTypeBtn} ${
@@ -558,7 +593,6 @@ export default function Login() {
                 }`}
                 onClick={() => handleSelectAccountType('student_corporate')}
               >
-                <span className={styles.accountTypeIcon}>🎓</span>
                 <div className={styles.accountTypeContent}>
                   <div className={styles.accountTypeTitle}>Student &amp; Corporate</div>
                   <div className={styles.accountTypeDesc}>
@@ -567,7 +601,7 @@ export default function Login() {
                 </div>
               </button>
 
-              {/* Option 2: 🔐 Admin */}
+              {/* Option 2: Admin */}
               <button
                 type="button"
                 className={`${styles.accountTypeBtn} ${
@@ -575,7 +609,6 @@ export default function Login() {
                 }`}
                 onClick={() => handleSelectAccountType('admin')}
               >
-                <span className={styles.accountTypeIcon}>🔐</span>
                 <div className={styles.accountTypeContent}>
                   <div className={styles.accountTypeTitle}>Admin</div>
                   <div className={styles.accountTypeDesc}>

@@ -10,15 +10,19 @@ const navLinks = [
   { label: 'About', path: '/about' },
   { label: 'Courses', path: '/courses' },
   { label: 'Corporate Training', path: '/corporate-training' },
-  { label: 'Technology', path: '/technology' },
-  { label: 'Management', path: '/management' },
-  { label: 'Personality', path: '/personality' },
   { label: 'Gallery', path: '/gallery' },
   { label: 'Contact', path: '/contact' },
 ];
 
+const courseLinks = [
+  { label: 'Technology', path: '/technology' },
+  { label: 'Management', path: '/management' },
+  { label: 'Personality', path: '/personality' },
+];
+
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [coursesOpen, setCoursesOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const scrollY = useScrollPosition();
   const location = useLocation();
@@ -42,6 +46,7 @@ export default function Navbar() {
   // Close mobile menu on route change
   useEffect(() => {
     setMobileOpen(false);
+    setCoursesOpen(false);
   }, [location.pathname]);
 
   const handleLogout = () => {
@@ -96,16 +101,39 @@ export default function Navbar() {
              ==================================================== */}
           <nav className={styles.desktopNav} aria-label="Primary navigation">
             {navLinks.map((link) => (
-              <NavLink
-                key={link.path}
-                to={link.path}
-                end={link.path === '/'}
-                className={({ isActive }) =>
-                  `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`
-                }
-              >
-                {link.label}
-              </NavLink>
+              link.label === 'Courses' ? (
+                <div className={styles.dropdown} key={link.path}>
+                  <button
+                    type="button"
+                    className={`${styles.navLink} ${location.pathname.startsWith('/courses') || courseLinks.some((item) => location.pathname.startsWith(item.path)) ? styles.navLinkActive : ''}`}
+                    onClick={() => setCoursesOpen((open) => !open)}
+                    aria-expanded={coursesOpen}
+                  >
+                    Courses
+                  </button>
+                  {coursesOpen && (
+                    <div className={styles.dropdownMenu}>
+                      <NavLink to="/courses" className={styles.dropdownItem}>All Courses</NavLink>
+                      {courseLinks.map((item) => (
+                        <NavLink key={item.path} to={item.path} className={styles.dropdownItem}>
+                          {item.label}
+                        </NavLink>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <NavLink
+                  key={link.path}
+                  to={link.path}
+                  end={link.path === '/'}
+                  className={({ isActive }) =>
+                    `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`
+                  }
+                >
+                  {link.label}
+                </NavLink>
+              )
             ))}
           </nav>
 
@@ -193,16 +221,39 @@ export default function Navbar() {
             >
               <nav className={styles.mobileNav} aria-label="Mobile navigation">
                 {navLinks.map((link) => (
-                  <NavLink
-                    key={link.path}
-                    to={link.path}
-                    end={link.path === '/'}
-                    className={({ isActive }) =>
-                      `${styles.mobileNavLink} ${isActive ? styles.mobileNavLinkActive : ''}`
-                    }
-                  >
-                    {link.label}
-                  </NavLink>
+                  link.label === 'Courses' ? (
+                    <div key={link.path} className={styles.mobileDropdown}>
+                      <button
+                        type="button"
+                        className={styles.mobileNavLink}
+                        onClick={() => setCoursesOpen((open) => !open)}
+                        aria-expanded={coursesOpen}
+                      >
+                        Courses <span>{coursesOpen ? '⌃' : '⌄'}</span>
+                      </button>
+                      {coursesOpen && (
+                        <div className={styles.mobileDropdownMenu}>
+                          <NavLink to="/courses" className={styles.mobileDropdownItem}>All Courses</NavLink>
+                          {courseLinks.map((item) => (
+                            <NavLink key={item.path} to={item.path} className={styles.mobileDropdownItem}>
+                              {item.label}
+                            </NavLink>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <NavLink
+                      key={link.path}
+                      to={link.path}
+                      end={link.path === '/'}
+                      className={({ isActive }) =>
+                        `${styles.mobileNavLink} ${isActive ? styles.mobileNavLinkActive : ''}`
+                      }
+                    >
+                      {link.label}
+                    </NavLink>
+                  )
                 ))}
 
                 <div className={styles.mobileActions}>

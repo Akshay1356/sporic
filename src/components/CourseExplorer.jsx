@@ -138,7 +138,7 @@ export default function CourseExplorer({ initialDomain = '' }) {
               cursor: 'pointer',
               transition: 'all 0.2s',
               border: domain === d ? '1px solid #38BDF8' : '1px solid rgba(255, 255, 255, 0.15)',
-              background: domain === d ? 'linear-gradient(135deg, #1D4ED8 0%, #0284C7 100%)' : 'rgba(255, 255, 255, 0.06)',
+              background: domain === d ? '#06113F' : 'rgba(255, 255, 255, 0.06)',
               color: '#FFFFFF',
               boxShadow: domain === d ? '0 4px 12px rgba(2, 132, 199, 0.35)' : 'none',
             }}

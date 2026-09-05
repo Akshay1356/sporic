@@ -357,7 +357,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, #1D4ED8 0%, #0284C7 100%) !important;
+  background: #06113F !important;
   color: #FFFFFF !important;
   border: 1px solid #1D4ED8;
   box-shadow: 0 4px 14px rgba(29, 78, 216, 0.35);
