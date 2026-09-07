@@ -2,7 +2,8 @@
 .statsWrapper {
   position: relative;
   z-index: 10;
-  margin-top: -2.5rem;
+  margin-top: 3rem;
+  margin-bottom: 3rem;
   padding: 0 1.5rem;
 }
 
@@ -74,7 +75,8 @@
 
 @media (max-width: 991px) {
   .statsWrapper {
-    margin-top: 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
     padding: 0 1rem;
   }
   .statsCard {

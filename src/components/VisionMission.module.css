@@ -1,0 +1,514 @@
+/* VisionMission.module.css - Clean Corporate University Vision & Mission */
+
+.section {
+  background: #F8FAFC;
+  padding: 4.5rem 0 3.5rem 0;
+  position: relative;
+  border-top: 1px solid #E2E8F0;
+}
+
+/* Section Header */
+.header {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 3rem;
+}
+
+.eyebrow {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--primary-light, #1D4ED8);
+  display: block;
+  margin-bottom: 0.65rem;
+}
+
+.mainTitle {
+  font-family: var(--font-heading, sans-serif);
+  font-size: clamp(2rem, 3.5vw, 2.75rem);
+  font-weight: 800;
+  color: #101828;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.85rem;
+}
+
+.subtitle {
+  font-size: 1.05rem;
+  color: #64748B;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* Dual Panel Grid Container */
+.panelsContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: 1060px;
+  margin: 0 auto;
+  position: relative;
+  align-items: flex-start;
+}
+
+/* Subtle Connecting Line Between Cards on Desktop */
+.connectingTrack {
+  position: absolute;
+  top: 52px;
+  left: calc(50% - 24px);
+  width: 48px;
+  height: 2px;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.connectingLine {
+  width: 100%;
+  height: 100%;
+  background: #CBD5E1;
+}
+
+.connectingFlow {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, #1D4ED8, transparent);
+  animation: flowPulse 2.8s infinite ease-in-out;
+}
+
+@keyframes flowPulse {
+  0% {
+    left: -100%;
+  }
+  50%, 100% {
+    left: 100%;
+  }
+}
+
+/* Card Wrapper */
+.cardWrapper {
+  width: 100%;
+}
+
+/* Base Panel Card (Light, Clean, Institutional) */
+.panelCard {
+  position: relative;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  cursor: pointer;
+  outline: none;
+  box-shadow: 0 4px 20px rgba(11, 42, 111, 0.04);
+  transition: 
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.3s ease,
+    opacity 0.35s ease;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Top Accent Highlight Line */
+.accentTopBar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  opacity: 0.6;
+  transition: opacity 0.3s ease, height 0.3s ease;
+}
+
+.visionAccentBar {
+  background: linear-gradient(90deg, #F59E0B, #D97706);
+}
+
+.missionAccentBar {
+  background: linear-gradient(90deg, #1D4ED8, #3B82F6);
+}
+
+/* Hover / Active Elevate */
+.panelCard:hover,
+.panelCard.cardActive {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(11, 42, 111, 0.08), 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.visionCard:hover,
+.visionCard.cardActive {
+  border-color: #D97706;
+}
+
+.missionCard:hover,
+.missionCard.cardActive {
+  border-color: #1D4ED8;
+}
+
+.panelCard:hover .accentTopBar,
+.cardActive .accentTopBar {
+  opacity: 1;
+  height: 4.5px;
+}
+
+.cardReceded {
+  opacity: 0.88;
+}
+
+.panelCard:focus-visible {
+  outline: 2px solid #1D4ED8;
+  outline-offset: 3px;
+}
+
+/* Card Header */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+}
+
+/* Clean Icon Box */
+.iconBox {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+}
+
+.visionIconBox {
+  background: #FEF3C7;
+  color: #D97706;
+  border: 1px solid rgba(217, 119, 6, 0.2);
+}
+
+.missionIconBox {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid rgba(29, 78, 216, 0.2);
+}
+
+.panelCard:hover .iconBox,
+.cardActive .iconBox {
+  transform: scale(1.05);
+}
+
+/* Title Area */
+.titleArea {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardHeading {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #101828;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.2rem 0;
+  line-height: 1.2;
+}
+
+.cardSubtitle {
+  font-size: 0.92rem;
+  color: #64748B;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Explore Cue Badge */
+.exploreCue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.8rem;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.visionCue {
+  color: #D97706;
+  background: #FFFBEB;
+  border: 1px solid rgba(217, 119, 6, 0.2);
+}
+
+.missionCue {
+  color: #1D4ED8;
+  background: #EFF6FF;
+  border: 1px solid rgba(29, 78, 216, 0.2);
+}
+
+.panelCard:hover .visionCue,
+.cardActive .visionCue {
+  background: #D97706;
+  color: #FFFFFF;
+  border-color: #D97706;
+}
+
+.panelCard:hover .missionCue,
+.cardActive .missionCue {
+  background: #1D4ED8;
+  color: #FFFFFF;
+  border-color: #1D4ED8;
+}
+
+.cueArrow {
+  font-size: 0.95rem;
+  line-height: 1;
+  transition: transform 0.3s ease;
+}
+
+.panelCard:hover .cueArrow {
+  transform: translateX(2px);
+}
+
+.cardActive .cueArrow {
+  transform: none;
+}
+
+/* CSS Grid Height Reveal Container */
+.revealGrid {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.panelCard:hover .revealGrid,
+.cardActive .revealGrid {
+  grid-template-rows: 1fr;
+}
+
+.revealInner {
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.35s ease 0.08s, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.08s;
+}
+
+.panelCard:hover .revealInner,
+.cardActive .revealInner {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Divider inside card */
+.divider {
+  height: 1px;
+  background: #E2E8F0;
+  margin: 1.25rem 0 1rem 0;
+}
+
+/* Statement Typography */
+.statementText {
+  font-size: 0.98rem;
+  color: #334155;
+  line-height: 1.7;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Mission Bullet List */
+.bulletList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.bulletItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+}
+
+.bulletCheck {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #DBEAFE;
+  color: #1D4ED8;
+  font-size: 0.72rem;
+  font-weight: 800;
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+}
+
+/* Credentials Card inside Vision & Mission area */
+.credentialsCard {
+  background: #FFFFFF;
+  border: 1px solid #E4E7EC;
+  border-radius: 16px;
+  padding: 2.25rem 2.5rem;
+  box-shadow: 0 4px 20px rgba(11, 42, 111, 0.04);
+  max-width: 1060px;
+  margin: 3.5rem auto 0 auto;
+}
+
+.credentialsHeader {
+  margin-bottom: 1.5rem;
+}
+
+.credentialsEyebrow {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary-light, #1D4ED8);
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.credentialsTitle {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #101828;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.credentialsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.85rem 2rem;
+}
+
+.credentialItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+}
+
+.checkIcon {
+  color: var(--primary-light, #1D4ED8);
+  font-weight: 800;
+  font-size: 0.95rem;
+  margin-top: 0.1rem;
+}
+
+.credentialText {
+  font-size: 0.885rem;
+  color: #475467;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+
+
+/* Responsive Styles */
+@media (max-width: 991px) {
+  .section {
+    padding: 3.5rem 0 2.75rem 0;
+  }
+
+  .panelsContainer {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    max-width: 600px;
+  }
+
+  .connectingTrack {
+    display: none;
+  }
+
+  .panelCard {
+    padding: 1.5rem 1.65rem;
+  }
+
+  .credentialsCard {
+    padding: 1.75rem 1.5rem;
+    margin-top: 2.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .section {
+    padding: 3rem 0 2.25rem 0;
+  }
+
+  .header {
+    margin-bottom: 2.25rem;
+  }
+
+  .mainTitle {
+    font-size: 1.85rem;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+  }
+
+  .panelCard {
+    padding: 1.35rem 1.25rem;
+  }
+
+  .cardHeader {
+    gap: 0.85rem;
+  }
+
+  .iconBox {
+    width: 42px;
+    height: 42px;
+  }
+
+  .cardHeading {
+    font-size: 1.2rem;
+  }
+
+  .cardSubtitle {
+    font-size: 0.88rem;
+  }
+
+  .exploreCue {
+    padding: 0.25rem 0.65rem;
+    font-size: 0.72rem;
+  }
+
+  .statementText {
+    font-size: 0.9rem;
+  }
+
+  .credentialsCard {
+    padding: 1.35rem 1rem;
+  }
+
+  .credentialsGrid {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .sectionDivider {
+    margin-top: 2.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .connectingFlow {
+    animation: none;
+  }
+
+  .revealGrid,
+  .revealInner,
+  .panelCard {
+    transition: none;
+  }
+}

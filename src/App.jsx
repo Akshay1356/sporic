@@ -21,13 +21,30 @@ import AdminLogin from './pages/AdminLogin';
 import Contact from './pages/Contact';
 import Dashboard from './pages/Dashboard';
 
-// Scroll to top on route navigation
+// Scroll to top or anchor target on route navigation
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
 
   useEffect(() => {
+    if (hash) {
+      const id = hash.replace('#', '');
+      const scrollTarget = () => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+          return true;
+        }
+        return false;
+      };
+
+      if (!scrollTarget()) {
+        const timer = setTimeout(scrollTarget, 100);
+        return () => clearTimeout(timer);
+      }
+      return;
+    }
     window.scrollTo(0, 0);
-  }, [pathname]);
+  }, [pathname, hash]);
 
   return null;
 }

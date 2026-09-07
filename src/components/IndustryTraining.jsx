@@ -47,15 +47,17 @@ export default function IndustryTraining() {
                   onMouseLeave={() => setActiveStage(null)}
                   onClick={() => setActiveStage(activeStage === 'needs' ? null : 'needs')}
                 >
-                  <div className={styles.nodeIconBox}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
+                  <div className={styles.nodeHeaderRow}>
+                    <span className={styles.nodeStepBadge}>Step 01</span>
+                    <div className={styles.nodeIconBox}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    </div>
                   </div>
                   <div className={styles.nodeContent}>
-                    <span className={styles.nodeStepBadge}>Step 01</span>
                     <h4 className={styles.nodeLabel}>Industry Needs</h4>
-                    <span className={styles.nodeDesc}>Understand evolving corporate project requirements.</span>
+                    <p className={styles.nodeDesc}>Understand evolving corporate project requirements.</p>
                   </div>
                 </div>
 
@@ -65,15 +67,17 @@ export default function IndustryTraining() {
                   onMouseLeave={() => setActiveStage(null)}
                   onClick={() => setActiveStage(activeStage === 'gaps' ? null : 'gaps')}
                 >
-                  <div className={styles.nodeIconBox}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
+                  <div className={styles.nodeHeaderRow}>
+                    <span className={styles.nodeStepBadge}>Step 02</span>
+                    <div className={styles.nodeIconBox}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
                   </div>
                   <div className={styles.nodeContent}>
-                    <span className={styles.nodeStepBadge}>Step 02</span>
                     <h4 className={styles.nodeLabel}>Skill Gap Analysis</h4>
-                    <span className={styles.nodeDesc}>Identify precise technical &amp; behavioral workforce gaps.</span>
+                    <p className={styles.nodeDesc}>Identify precise technical &amp; behavioral workforce gaps.</p>
                   </div>
                 </div>
               </div>
@@ -100,8 +104,8 @@ export default function IndustryTraining() {
                   <svg viewBox="0 0 60 60" className={styles.engineRingSvg}>
                     <circle cx="30" cy="30" r="24" fill="none" className={styles.ringOuter} />
                     <circle cx="30" cy="30" r="16" fill="none" className={styles.ringInner} />
-                    <circle cx="30" cy="30" r="6" fill="#1D4ED8" filter="drop-shadow(0 0 4px #38BDF8)" />
-                    <circle cx="30" cy="30" r="2.5" fill="#FFFFFF" />
+                    <circle cx="30" cy="30" r="5" fill="#1D4ED8" />
+                    <circle cx="30" cy="30" r="2.2" fill="#FFFFFF" />
                   </svg>
                 </div>
               </div>
@@ -114,15 +118,17 @@ export default function IndustryTraining() {
                   onMouseLeave={() => setActiveStage(null)}
                   onClick={() => setActiveStage(activeStage === 'custom' ? null : 'custom')}
                 >
-                  <div className={styles.nodeIconBox}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
-                    </svg>
+                  <div className={styles.nodeHeaderRow}>
+                    <span className={styles.nodeStepBadge}>Step 03</span>
+                    <div className={styles.nodeIconBox}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
+                      </svg>
+                    </div>
                   </div>
                   <div className={styles.nodeContent}>
-                    <span className={styles.nodeStepBadge}>Step 03</span>
                     <h4 className={styles.nodeLabel}>Customized Training</h4>
-                    <span className={styles.nodeDesc}>Build tailored curricula matching shift schedules.</span>
+                    <p className={styles.nodeDesc}>Build tailored curricula matching shift schedules.</p>
                   </div>
                 </div>
 
@@ -132,15 +138,17 @@ export default function IndustryTraining() {
                   onMouseLeave={() => setActiveStage(null)}
                   onClick={() => setActiveStage(activeStage === 'faculty' ? null : 'faculty')}
                 >
-                  <div className={styles.nodeIconBox}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
+                  <div className={styles.nodeHeaderRow}>
+                    <span className={styles.nodeStepBadge}>Step 04</span>
+                    <div className={styles.nodeIconBox}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                    </div>
                   </div>
                   <div className={styles.nodeContent}>
-                    <span className={styles.nodeStepBadge}>Step 04</span>
                     <h4 className={styles.nodeLabel}>Expert Faculty</h4>
-                    <span className={styles.nodeDesc}>Hands-on coaching by certified industry researchers.</span>
+                    <p className={styles.nodeDesc}>Hands-on coaching by certified industry researchers.</p>
                   </div>
                 </div>
               </div>
@@ -152,18 +160,15 @@ export default function IndustryTraining() {
                 onMouseLeave={() => setActiveStage(null)}
                 onClick={() => setActiveStage(activeStage === 'impact' ? null : 'impact')}
               >
-                <div className={styles.impactLeft}>
-                  <div className={styles.impactIconBox}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    </svg>
-                  </div>
-                  <div>
-                    <h4 className={styles.impactTitle}>Business Impact &amp; Measurable ROI</h4>
-                    <p className={styles.impactDesc}>Translate workforce training into accelerated project velocity &amp; innovation.</p>
-                  </div>
+                <div className={styles.impactIconBox}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
                 </div>
-                <span className={styles.impactBadge}>Outcome Guaranteed</span>
+                <div className={styles.impactContent}>
+                  <h4 className={styles.impactTitle}>Business Impact &amp; Measurable ROI</h4>
+                  <p className={styles.impactDesc}>Translate workforce training into accelerated project velocity &amp; innovation.</p>
+                </div>
               </div>
             </div>
           </motion.div>

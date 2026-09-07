@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollPosition } from '../hooks/useScrollPosition';
+import { DOMAINS } from '../data/courses';
 import api from '../services/api';
 import styles from './Navbar.module.css';
 
@@ -10,20 +11,45 @@ const navLinks = [
   { label: 'About', path: '/about' },
   { label: 'Courses', path: '/courses' },
   { label: 'Corporate Training', path: '/corporate-training' },
-  { label: 'Technology', path: '/technology' },
-  { label: 'Management', path: '/management' },
-  { label: 'Personality', path: '/personality' },
   { label: 'Gallery', path: '/gallery' },
   { label: 'Contact', path: '/contact' },
+];
+
+const courseCategories = [
+  { label: 'All Courses', path: '/courses', domain: 'All' },
+  { label: 'Technology', path: `/courses?domain=${encodeURIComponent(DOMAINS.TECHNOLOGY)}`, domain: DOMAINS.TECHNOLOGY },
+  { label: 'Management', path: `/courses?domain=${encodeURIComponent(DOMAINS.MANAGEMENT)}`, domain: DOMAINS.MANAGEMENT },
+  { label: 'Leadership & Personality', path: `/courses?domain=${encodeURIComponent(DOMAINS.LEADERSHIP)}`, domain: DOMAINS.LEADERSHIP },
 ];
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [coursesDropdownOpen, setCoursesDropdownOpen] = useState(false);
+  const [mobileCoursesOpen, setMobileCoursesOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
   const scrollY = useScrollPosition();
   const location = useLocation();
   const navigate = useNavigate();
   const isScrolled = scrollY > 20;
+
+  // Determine currently selected category from URL search params if on /courses
+  const searchParams = new URLSearchParams(location.search);
+  const currentDomainParam = location.pathname.startsWith('/courses')
+    ? (searchParams.get('domain') || 'All')
+    : null;
+
+  // Close desktop dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setCoursesDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Check login state on location change
   useEffect(() => {
@@ -39,10 +65,11 @@ export default function Navbar() {
     }
   }, [location.pathname]);
 
-  // Close mobile menu on route change
+  // Close menus on route change
   useEffect(() => {
     setMobileOpen(false);
-  }, [location.pathname]);
+    setCoursesDropdownOpen(false);
+  }, [location.pathname, location.search]);
 
   const handleLogout = () => {
     api.logout();
@@ -95,18 +122,76 @@ export default function Navbar() {
               CENTER SECTION: BALANCED NAVIGATION LINKS
              ==================================================== */}
           <nav className={styles.desktopNav} aria-label="Primary navigation">
-            {navLinks.map((link) => (
-              <NavLink
-                key={link.path}
-                to={link.path}
-                end={link.path === '/'}
-                className={({ isActive }) =>
-                  `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`
-                }
-              >
-                {link.label}
-              </NavLink>
-            ))}
+            {navLinks.map((link) => {
+              if (link.label === 'Courses') {
+                const isCoursesActive = location.pathname.startsWith('/courses');
+                return (
+                  <div
+                    key={link.path}
+                    className={styles.dropdownWrapper}
+                    ref={dropdownRef}
+                  >
+                    <button
+                      type="button"
+                      className={`${styles.navLink} ${styles.coursesNavBtn} ${isCoursesActive ? styles.navLinkActive : ''}`}
+                      onClick={() => setCoursesDropdownOpen((prev) => !prev)}
+                      aria-expanded={coursesDropdownOpen}
+                      aria-haspopup="true"
+                    >
+                      {link.label}
+                    </button>
+
+                    {/* Compact Desktop Dropdown */}
+                    <AnimatePresence>
+                      {coursesDropdownOpen && (
+                        <motion.div
+                          className={styles.dropdownMenu}
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 6 }}
+                          transition={{ duration: 0.16, ease: 'easeOut' }}
+                          role="menu"
+                          aria-label="Courses Categories"
+                        >
+                          {courseCategories.map((cat) => {
+                            const isSelected = isCoursesActive && currentDomainParam === cat.domain;
+                            return (
+                              <Link
+                                key={cat.label}
+                                to={cat.path}
+                                className={`${styles.dropdownItem} ${isSelected ? styles.dropdownItemActive : ''}`}
+                                role="menuitem"
+                                onClick={() => setCoursesDropdownOpen(false)}
+                              >
+                                <span className={styles.dropdownItemLabel}>{cat.label}</span>
+                                {isSelected && (
+                                  <span className={styles.dropdownItemCheck} aria-hidden="true">
+                                    ✓
+                                  </span>
+                                )}
+                              </Link>
+                            );
+                          })}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              }
+
+              return (
+                <NavLink
+                  key={link.path}
+                  to={link.path}
+                  end={link.path === '/'}
+                  className={({ isActive }) =>
+                    `${styles.navLink} ${isActive ? styles.navLinkActive : ''}`
+                  }
+                >
+                  {link.label}
+                </NavLink>
+              );
+            })}
           </nav>
 
           {/* ====================================================
@@ -192,18 +277,94 @@ export default function Navbar() {
               transition={{ duration: 0.25, ease: 'easeOut' }}
             >
               <nav className={styles.mobileNav} aria-label="Mobile navigation">
-                {navLinks.map((link) => (
-                  <NavLink
-                    key={link.path}
-                    to={link.path}
-                    end={link.path === '/'}
-                    className={({ isActive }) =>
-                      `${styles.mobileNavLink} ${isActive ? styles.mobileNavLinkActive : ''}`
-                    }
-                  >
-                    {link.label}
-                  </NavLink>
-                ))}
+                {navLinks.map((link) => {
+                  if (link.label === 'Courses') {
+                    const isCoursesActive = location.pathname.startsWith('/courses');
+                    return (
+                      <div key={link.path} className={styles.mobileDropdownWrapper}>
+                        <div className={styles.mobileCoursesHeaderRow}>
+                          <NavLink
+                            to={link.path}
+                            className={`${styles.mobileNavLink} ${isCoursesActive ? styles.mobileNavLinkActive : ''}`}
+                            onClick={() => setMobileOpen(false)}
+                            style={{ flexGrow: 1 }}
+                          >
+                            Courses
+                          </NavLink>
+                          <button
+                            type="button"
+                            className={styles.mobileSubmenuToggle}
+                            onClick={() => setMobileCoursesOpen(!mobileCoursesOpen)}
+                            aria-label="Toggle Courses Submenu"
+                            aria-expanded={mobileCoursesOpen}
+                          >
+                            <svg
+                              className={`${styles.caretIcon} ${mobileCoursesOpen ? styles.caretRotated : ''}`}
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              aria-hidden="true"
+                            >
+                              <polyline points="6 9 12 15 18 9" />
+                            </svg>
+                          </button>
+                        </div>
+
+                        {/* Mobile Submenu Items */}
+                        <AnimatePresence>
+                          {mobileCoursesOpen && (
+                            <motion.div
+                              className={styles.mobileSubmenu}
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.2, ease: 'easeOut' }}
+                            >
+                              {courseCategories.map((cat) => {
+                                const isSelected = isCoursesActive && currentDomainParam === cat.domain;
+                                return (
+                                  <Link
+                                    key={cat.label}
+                                    to={cat.path}
+                                    className={`${styles.mobileSubmenuItem} ${isSelected ? styles.mobileSubmenuItemActive : ''}`}
+                                    onClick={() => {
+                                      setMobileOpen(false);
+                                    }}
+                                  >
+                                    <span>{cat.label}</span>
+                                    {isSelected && (
+                                      <span className={styles.dropdownItemCheck} aria-hidden="true">
+                                        ✓
+                                      </span>
+                                    )}
+                                  </Link>
+                                );
+                              })}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <NavLink
+                      key={link.path}
+                      to={link.path}
+                      end={link.path === '/'}
+                      className={({ isActive }) =>
+                        `${styles.mobileNavLink} ${isActive ? styles.mobileNavLinkActive : ''}`
+                      }
+                    >
+                      {link.label}
+                    </NavLink>
+                  );
+                })}
 
                 <div className={styles.mobileActions}>
                   {currentUser ? (

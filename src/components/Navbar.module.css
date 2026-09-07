@@ -169,6 +169,91 @@
   box-shadow: 0 2px 8px rgba(29, 78, 216, 0.25);
 }
 
+/* Dropdown Menu Container for Desktop */
+.dropdownWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.coursesNavBtn {
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+  font-family: inherit;
+}
+
+.caretIcon {
+  display: inline-block;
+  transition: transform 0.2s ease;
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.caretRotated {
+  transform: rotate(180deg);
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 230px;
+  background: #071B4A;
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(3, 11, 31, 0.7), 0 2px 8px rgba(56, 189, 248, 0.1);
+  padding: 0.45rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  z-index: 1050;
+  pointer-events: auto;
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 0.85rem;
+  font-family: var(--font-heading, sans-serif);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #E2E8F0;
+  text-decoration: none;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: all 0.16s ease;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.dropdownItem:hover {
+  background: rgba(29, 78, 216, 0.3);
+  color: #FFFFFF;
+  border-color: rgba(56, 189, 248, 0.25);
+  padding-left: 1rem;
+}
+
+.dropdownItemActive {
+  background: rgba(29, 78, 216, 0.45) !important;
+  color: #FFFFFF !important;
+  font-weight: 700;
+  border-color: rgba(56, 189, 248, 0.45);
+}
+
+.dropdownItemLabel {
+  flex-grow: 1;
+}
+
+.dropdownItemCheck {
+  color: #38BDF8;
+  font-weight: 800;
+  font-size: 0.85rem;
+  margin-left: 0.75rem;
+}
+
 /* ====================================================
    3. RIGHT: ACCOUNT & ACTION CONTROLS (ALWAYS VISIBLE)
    ==================================================== */
@@ -449,6 +534,75 @@
   background: rgba(29, 78, 216, 0.25) !important;
   border-color: rgba(56, 189, 248, 0.35) !important;
   color: #FFFFFF !important;
+}
+
+/* Mobile Courses Submenu Accordion */
+.mobileDropdownWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobileCoursesHeaderRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mobileSubmenuToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #E2E8F0;
+  border-radius: 8px;
+  width: 42px;
+  height: 42px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.mobileSubmenuToggle:hover {
+  background: rgba(29, 78, 216, 0.3);
+  color: #FFFFFF;
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+.mobileSubmenu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-left: 1rem;
+  margin-top: 0.35rem;
+  border-left: 2px solid rgba(56, 189, 248, 0.3);
+  overflow: hidden;
+}
+
+.mobileSubmenuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #CBD5E1;
+  text-decoration: none;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: all 0.18s ease;
+}
+
+.mobileSubmenuItem:hover {
+  background: rgba(29, 78, 216, 0.2);
+  color: #FFFFFF;
+}
+
+.mobileSubmenuItemActive {
+  background: rgba(29, 78, 216, 0.4) !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+  color: #FFFFFF !important;
+  font-weight: 700;
 }
 
 .mobileActions {

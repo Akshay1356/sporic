@@ -1,10 +1,13 @@
 .section {
   padding: 4.25rem 0;
-  background: linear-gradient(180deg, #071B4A 0%, #0A1938 100%);
+  background: #F8FAFC;
+  background-image: 
+    radial-gradient(circle at 15% 40%, rgba(29, 78, 216, 0.04) 0%, transparent 60%),
+    radial-gradient(circle at 85% 60%, rgba(2, 132, 199, 0.04) 0%, transparent 50%);
   position: relative;
   overflow: hidden;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid #E2E8F0;
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .headerWrap {
@@ -15,29 +18,31 @@
 
 .eyebrow {
   display: inline-block;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #38BDF8;
-  background: rgba(56, 189, 248, 0.12);
-  border: 1px solid rgba(56, 189, 248, 0.25);
-  padding: 0.3rem 0.85rem;
+  color: #1D4ED8;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  padding: 0.28rem 0.85rem;
   border-radius: 9999px;
   margin-bottom: 0.75rem;
 }
 
 .title {
+  font-family: var(--font-heading, sans-serif);
   font-size: clamp(1.85rem, 2.5vw, 2.4rem);
   font-weight: 800;
-  color: #FFFFFF;
+  color: #0F172A;
   line-height: 1.25;
   margin: 0 0 1rem;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
   font-size: 1rem;
-  color: #94A3B8;
+  color: #64748B;
   line-height: 1.6;
 }
 
@@ -48,20 +53,22 @@
 }
 
 .programCard {
-  background: linear-gradient(135deg, rgba(15, 34, 82, 0.7) 0%, rgba(7, 27, 74, 0.85) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 16px rgba(11, 42, 111, 0.04);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex;
   flex-direction: column;
 }
 
 .programCard:hover {
-  transform: translateY(-5px);
-  border-color: #38BDF8;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), 0 0 20px rgba(56, 189, 248, 0.15);
+  transform: translateY(-4px);
+  border-color: #93C5FD;
+  box-shadow: 
+    0 12px 30px rgba(11, 42, 111, 0.08),
+    0 0 0 1px #BFDBFE;
 }
 
 .imageWrapper {
@@ -69,7 +76,7 @@
   width: 100%;
   position: relative;
   overflow: hidden;
-  background: #0F172A;
+  background: #F1F5F9;
 }
 
 .programImg {
@@ -80,13 +87,13 @@
 }
 
 .programCard:hover .programImg {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
 .imageOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(7, 27, 74, 0.2) 0%, rgba(7, 27, 74, 0.85) 100%);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.1) 0%, rgba(15, 23, 42, 0.75) 100%);
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -103,23 +110,24 @@
 .clientBadge {
   font-size: 0.75rem;
   font-weight: 700;
-  color: #38BDF8;
+  color: #1D4ED8;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   margin-bottom: 0.4rem;
 }
 
 .cardTitle {
+  font-family: var(--font-heading, sans-serif);
   font-size: 1.15rem;
   font-weight: 700;
-  color: #FFFFFF;
+  color: #0F172A;
   line-height: 1.35;
   margin: 0 0 0.75rem;
 }
 
 .description {
   font-size: 0.88rem;
-  color: #94A3B8;
+  color: #64748B;
   line-height: 1.6;
   margin: 0 0 1.25rem;
 }
@@ -128,7 +136,7 @@
   margin: 0;
   padding-left: 1.2rem;
   font-size: 0.82rem;
-  color: #CBD5E1;
+  color: #475569;
   line-height: 1.5;
 }
 
@@ -140,11 +148,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid #E2E8F0;
   padding-top: 1rem;
   margin-top: auto;
   font-size: 0.8rem;
-  color: #94A3B8;
+  color: #64748B;
 }
 
 @media (max-width: 640px) {

@@ -10,7 +10,6 @@
   grid-template-columns: 1.1fr 0.9fr;
   gap: 3.5rem;
   align-items: center;
-  margin-bottom: 3rem;
 }
 
 .leftCol {
@@ -99,59 +98,6 @@
   transform: scale(1.03);
 }
 
-/* Vision & Mission Layered Cards + Credentials Subgrid */
-.subGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-top: 1rem;
-  align-items: stretch;
-}
-
-/* Credentials Card */
-.credentialsCard {
-  background: #FFFFFF;
-  border: 1px solid #E4E7EC;
-  border-radius: var(--radius-lg, 16px);
-  padding: 2rem;
-  box-shadow: 0 4px 20px rgba(11, 42, 111, 0.04);
-  display: flex;
-  flex-direction: column;
-}
-
-.credentialsTitle {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: #101828;
-  margin-bottom: 1.25rem;
-}
-
-.credentialsGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem 1.5rem;
-}
-
-.credentialItem {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.5rem;
-}
-
-.checkIcon {
-  color: var(--primary-light, #1D4ED8);
-  font-weight: 800;
-  font-size: 0.95rem;
-  margin-top: 0.1rem;
-}
-
-.credentialText {
-  font-size: 0.875rem;
-  color: #475467;
-  font-weight: 500;
-  line-height: 1.4;
-}
-
 @media (max-width: 991px) {
   .aboutSection {
     padding: 3.5rem 0;
@@ -159,11 +105,6 @@
   .aboutGrid {
     grid-template-columns: 1fr;
     gap: 2.5rem;
-    margin-bottom: 2.25rem;
-  }
-  .subGrid {
-    grid-template-columns: 1fr;
-    gap: 2rem;
   }
 }
 
@@ -181,12 +122,5 @@
   .knowMoreBtn {
     width: 100%;
     justify-content: center;
-  }
-  .credentialsCard {
-    padding: 1.5rem 1rem;
-  }
-  .credentialsGrid {
-    grid-template-columns: 1fr;
-    gap: 0.65rem;
   }
 }

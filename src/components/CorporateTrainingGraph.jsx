@@ -147,114 +147,127 @@ export default function CorporateTrainingGraph() {
 
           {/* Chart Viewport & Grid */}
           <div className={styles.chartViewport}>
-            {/* Left Y-Axis: Programmes Scale */}
-            <div className={styles.yAxisLeft} aria-hidden="true">
-              <span className={styles.axisTitle}>Programmes</span>
-              <div className={styles.axisTicks}>
-                <span>40</span>
-                <span>30</span>
-                <span>20</span>
-                <span>10</span>
-                <span>0</span>
-              </div>
-            </div>
-
-            {/* Central Canvas with Background Gridlines */}
-            <div className={styles.chartCanvas}>
-              {/* Horizontal Gridlines */}
-              <div className={styles.gridLines} aria-hidden="true">
-                <div className={styles.gridLine} />
-                <div className={styles.gridLine} />
-                <div className={styles.gridLine} />
-                <div className={styles.gridLine} />
-                <div className={styles.gridLineBase} />
-              </div>
-
-              {/* Bars Group Container */}
-              <div className={styles.barsContainer}>
-                {corporateTrainingData.map((item, idx) => {
-                  const state = animatedData[idx];
-                  return (
-                    <div
-                      key={item.year}
-                      className={styles.yearGroup}
-                      onMouseEnter={() =>
-                        setActiveTooltip({
-                          year: item.year,
-                          programmes: item.programmes,
-                          amountLakhs: item.amountLakhs,
-                          highlight: item.highlight,
-                        })
-                      }
-                      onMouseLeave={() => setActiveTooltip(null)}
-                    >
-                      <div className={styles.barsWrapper}>
-                        {/* Bar 1: Programmes Conducted */}
-                        <div className={styles.barColumn}>
-                          <span className={`${styles.barValue} ${styles.progValue}`}>
-                            {state.prog}
-                          </span>
-                          <div
-                            className={`${styles.bar} ${styles.progBar}`}
-                            style={{ height: `${state.progHeight}%` }}
-                            aria-label={`${item.year} Programmes: ${item.programmes}`}
-                          />
-                        </div>
-
-                        {/* Bar 2: Amount Generated */}
-                        <div className={styles.barColumn}>
-                          <span className={`${styles.barValue} ${styles.amtValue}`}>
-                            ₹{state.amt}L
-                          </span>
-                          <div
-                            className={`${styles.bar} ${styles.amtBar}`}
-                            style={{ height: `${state.amtHeight}%` }}
-                            aria-label={`${item.year} Amount Generated: ₹${item.amountLakhs} Lakhs`}
-                          />
-                        </div>
-                      </div>
-
-                      {/* X-Axis Year Label */}
-                      <div className={styles.yearLabel}>
-                        <span className={styles.yearText}>{item.year}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Hover Tooltip */}
-              {activeTooltip && (
-                <div className={styles.interactiveTooltip}>
-                  <div className={styles.tooltipHeader}>
-                    <span className={styles.tooltipYear}>{activeTooltip.year}</span>
-                    <span className={styles.tooltipTag}>Corporate Training</span>
-                  </div>
-                  <div className={styles.tooltipRows}>
-                    <div className={styles.tooltipRow}>
-                      <span className={styles.tooltipDotProg} />
-                      <span className={styles.tooltipLabel}>Programmes Conducted:</span>
-                      <span className={styles.tooltipVal}>{activeTooltip.programmes}</span>
-                    </div>
-                    <div className={styles.tooltipRow}>
-                      <span className={styles.tooltipDotAmt} />
-                      <span className={styles.tooltipLabel}>Amount Generated:</span>
-                      <span className={styles.tooltipVal}>₹{activeTooltip.amountLakhs} Lakhs</span>
-                    </div>
+            <div className={styles.chartMainArea}>
+              {/* Upper Section: Left Y-Axis, Plotting Canvas, Right Y-Axis */}
+              <div className={styles.chartPlotRow}>
+                {/* Left Y-Axis: Programmes Scale */}
+                <div className={styles.yAxisLeft} aria-hidden="true">
+                  <span className={styles.axisTitle}>Programmes</span>
+                  <div className={styles.axisTicks}>
+                    <span>40</span>
+                    <span>30</span>
+                    <span>20</span>
+                    <span>10</span>
+                    <span>0</span>
                   </div>
                 </div>
-              )}
-            </div>
 
-            {/* Right Y-Axis: Amount (₹ Lakhs) Scale */}
-            <div className={styles.yAxisRight} aria-hidden="true">
-              <span className={styles.axisTitle}>₹ Lakhs</span>
-              <div className={styles.axisTicks}>
-                <span>₹75L</span>
-                <span>₹56L</span>
-                <span>₹38L</span>
-                <span>₹19L</span>
-                <span>₹0</span>
+                {/* Central Canvas with Background Gridlines */}
+                <div className={styles.chartCanvas}>
+                  {/* Horizontal Gridlines */}
+                  <div className={styles.gridLines} aria-hidden="true">
+                    <div className={styles.gridLine} />
+                    <div className={styles.gridLine} />
+                    <div className={styles.gridLine} />
+                    <div className={styles.gridLine} />
+                    <div className={styles.gridLineBase} />
+                  </div>
+
+                  {/* Bars Group Container (Plotting canvas only) */}
+                  <div className={styles.barsContainer}>
+                    {corporateTrainingData.map((item, idx) => {
+                      const state = animatedData[idx];
+                      return (
+                        <div
+                          key={item.year}
+                          className={styles.yearGroup}
+                          onMouseEnter={() =>
+                            setActiveTooltip({
+                              year: item.year,
+                              programmes: item.programmes,
+                              amountLakhs: item.amountLakhs,
+                              highlight: item.highlight,
+                            })
+                          }
+                          onMouseLeave={() => setActiveTooltip(null)}
+                        >
+                          <div className={styles.barsWrapper}>
+                            {/* Bar 1: Programmes Conducted */}
+                            <div className={styles.barColumn}>
+                              <span className={`${styles.barValue} ${styles.progValue}`}>
+                                {state.prog}
+                              </span>
+                              <div
+                                className={`${styles.bar} ${styles.progBar}`}
+                                style={{ height: `${state.progHeight}%` }}
+                                aria-label={`${item.year} Programmes: ${item.programmes}`}
+                              />
+                            </div>
+
+                            {/* Bar 2: Amount Generated */}
+                            <div className={styles.barColumn}>
+                              <span className={`${styles.barValue} ${styles.amtValue}`}>
+                                ₹{state.amt}L
+                              </span>
+                              <div
+                                className={`${styles.bar} ${styles.amtBar}`}
+                                style={{ height: `${state.amtHeight}%` }}
+                                aria-label={`${item.year} Amount Generated: ₹${item.amountLakhs} Lakhs`}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Hover Tooltip */}
+                  {activeTooltip && (
+                    <div className={styles.interactiveTooltip}>
+                      <div className={styles.tooltipHeader}>
+                        <span className={styles.tooltipYear}>{activeTooltip.year}</span>
+                        <span className={styles.tooltipTag}>Corporate Training</span>
+                      </div>
+                      <div className={styles.tooltipRows}>
+                        <div className={styles.tooltipRow}>
+                          <span className={styles.tooltipDotProg} />
+                          <span className={styles.tooltipLabel}>Programmes Conducted:</span>
+                          <span className={styles.tooltipVal}>{activeTooltip.programmes}</span>
+                        </div>
+                        <div className={styles.tooltipRow}>
+                          <span className={styles.tooltipDotAmt} />
+                          <span className={styles.tooltipLabel}>Amount Generated:</span>
+                          <span className={styles.tooltipVal}>₹{activeTooltip.amountLakhs} Lakhs</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right Y-Axis: Amount (₹ Lakhs) Scale */}
+                <div className={styles.yAxisRight} aria-hidden="true">
+                  <span className={styles.axisTitle}>₹ Lakhs</span>
+                  <div className={styles.axisTicks}>
+                    <span>₹75L</span>
+                    <span>₹56L</span>
+                    <span>₹38L</span>
+                    <span>₹19L</span>
+                    <span>₹0</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Lower Section: Dedicated X-Axis Labels Row (Strictly below the baseline, perfectly aligned with columns) */}
+              <div className={styles.xAxisRow} aria-hidden="true">
+                <div className={styles.xAxisSpacerLeft} />
+                <div className={styles.xAxisLabelsContainer}>
+                  {corporateTrainingData.map((item) => (
+                    <div key={item.year} className={styles.xAxisLabelCol}>
+                      <span className={styles.yearText}>{item.year}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className={styles.xAxisSpacerRight} />
               </div>
             </div>
           </div>

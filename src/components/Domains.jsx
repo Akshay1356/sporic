@@ -1,13 +1,14 @@
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
+import { DOMAINS } from '../data/courses';
 import styles from './Domains.module.css';
 
 const domainsData = [
   {
     id: 'technology',
     title: 'Technology',
-    path: '/technology',
+    path: `/courses?domain=${encodeURIComponent(DOMAINS.TECHNOLOGY)}#courses-explorer`,
     description:
       'Cutting-edge technical competencies across Industry 4.0, Electric Vehicles, AI & Machine Learning, Cloud Architecture, Cyber Security, and Advanced Manufacturing.',
     highlights: ['Industry 4.0', 'EV Tech', 'AI & ML', 'Cyber Security', 'Cloud & IoT'],
@@ -40,7 +41,7 @@ const domainsData = [
   {
     id: 'management',
     title: 'Management',
-    path: '/management',
+    path: `/courses?domain=${encodeURIComponent(DOMAINS.MANAGEMENT)}#courses-explorer`,
     description:
       'Executive management, agile operations, digital supply chain, corporate finance, and data-driven business strategy designed for enterprise leaders.',
     highlights: ['Operations', 'Finance', 'Marketing', 'Data Analytics', 'Agile Strategy'],
@@ -69,7 +70,7 @@ const domainsData = [
   {
     id: 'leadership',
     title: 'Leadership & Personality',
-    path: '/personality',
+    path: `/courses?domain=${encodeURIComponent(DOMAINS.LEADERSHIP)}#courses-explorer`,
     description:
       'Strategic leadership, cross-functional communication, organizational resilience, change management, and executive presence for high-impact teams.',
     highlights: ['Executive Presence', 'Resilience', 'Communication', 'Team Dynamics'],

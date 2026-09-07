@@ -4,73 +4,110 @@ import styles from './Hero.module.css';
 const slides = [
   {
     id: 'slide-1',
-    src: '/hero-slides/slide1-corporate-training.png',
-    alt: 'VIT-TEC Corporate Training — Transform Your Career With World-Class Industry Training',
+    src: '/hero-slides/slide5-industry-training.png',
+    alt: 'VIT-TEC Transform Your Career With World-Class Industry Training',
   },
   {
     id: 'slide-2',
-    src: '/hero-slides/slide2-rankings-recognitions.png',
+    src: '/hero-slides/slide3-rankings-recognitions.png',
     alt: 'VIT-TEC Rankings and Recognitions — National & International Accreditations',
   },
   {
     id: 'slide-3',
-    src: '/hero-slides/slide3-industry-partners.png',
-    alt: 'VIT-TEC Industry Partners — Collaborating for a Skilled and Future-Ready Workforce',
+    src: '/hero-slides/slide4-industry-partners.png',
+    alt: 'VIT-TEC Our Industry Partners — Collaborating for a Skilled and Future-Ready Workforce',
   },
   {
     id: 'slide-4',
-    src: '/hero-slides/slide4-our-courses.png',
-    alt: 'VIT-TEC Our Courses — Technology, Management, Personality, and Leadership',
+    src: '/hero-slides/slide2-our-courses.png',
+    alt: 'VIT-TEC Our Courses — Industry-Relevant Learning. Real-World Impact.',
   },
   {
     id: 'slide-5',
-    src: '/hero-slides/slide5-industry-collaborations.png',
-    alt: 'VIT-TEC Industry Collaborations — Building Talent for a Smarter Tomorrow',
+    src: '/hero-slides/slide1-corporate-training.png',
+    alt: 'VIT-TEC Corporate Training — Real Impact. Stronger Tomorrows.',
   },
 ];
 
-const SLIDE_INTERVAL = 5500; // 5.5 seconds display time per slide
+const SLIDE_INTERVAL = 5000; // 5.0 seconds display time per slide
 
 export default function Hero() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const [prevIndex, setPrevIndex] = useState(null);
   const touchStartX = useRef(null);
   const touchEndX = useRef(null);
   const timerRef = useRef(null);
+  const transitionTimerRef = useRef(null);
 
-  const resetTimer = useCallback(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
-    if (!isPaused) {
-      timerRef.current = setInterval(() => {
-        setCurrentIndex((prev) => (prev + 1) % slides.length);
-      }, SLIDE_INTERVAL);
-    }
-  }, [isPaused]);
+  const transitionToSlide = useCallback((nextIndex) => {
+    setCurrentIndex((current) => {
+      if (current === nextIndex) return current;
+      setPrevIndex(current);
 
-  // Handle auto-advance
+      if (transitionTimerRef.current) {
+        clearTimeout(transitionTimerRef.current);
+      }
+      transitionTimerRef.current = setTimeout(() => {
+        setPrevIndex(null);
+      }, 950);
+
+      return nextIndex;
+    });
+  }, []);
+
+  const handleNext = useCallback(() => {
+    setCurrentIndex((current) => {
+      const nextIndex = (current + 1) % slides.length;
+      setPrevIndex(current);
+
+      if (transitionTimerRef.current) {
+        clearTimeout(transitionTimerRef.current);
+      }
+      transitionTimerRef.current = setTimeout(() => {
+        setPrevIndex(null);
+      }, 950);
+
+      return nextIndex;
+    });
+  }, []);
+
+  const handlePrev = useCallback(() => {
+    setCurrentIndex((current) => {
+      const nextIndex = (current - 1 + slides.length) % slides.length;
+      setPrevIndex(current);
+
+      if (transitionTimerRef.current) {
+        clearTimeout(transitionTimerRef.current);
+      }
+      transitionTimerRef.current = setTimeout(() => {
+        setPrevIndex(null);
+      }, 950);
+
+      return nextIndex;
+    });
+  }, []);
+
+  const handleDotClick = useCallback((index) => {
+    transitionToSlide(index);
+  }, [transitionToSlide]);
+
+  // Clean up transition timer on unmount
   useEffect(() => {
-    resetTimer();
+    return () => {
+      if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
+    };
+  }, []);
+
+  // Continuous auto-advance timer: exactly 5000ms, NEVER paused by hover
+  useEffect(() => {
+    timerRef.current = setInterval(() => {
+      handleNext();
+    }, SLIDE_INTERVAL);
+
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [resetTimer]);
-
-  const handleNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % slides.length);
-    resetTimer();
-  }, [resetTimer]);
-
-  const handlePrev = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
-    resetTimer();
-  }, [resetTimer]);
-
-  const handleDotClick = useCallback((index) => {
-    setCurrentIndex(index);
-    resetTimer();
-  }, [resetTimer]);
+  }, [handleNext, currentIndex]);
 
   // Touch gesture handling for mobile
   const handleTouchStart = (e) => {
@@ -111,8 +148,6 @@ export default function Hero() {
       aria-roledescription="carousel"
       tabIndex={0}
       onKeyDown={handleKeyDown}
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -121,10 +156,17 @@ export default function Hero() {
         <div className={styles.slidesContainer}>
           {slides.map((slide, index) => {
             const isActive = index === currentIndex;
+            const isPrev = index === prevIndex;
+            let slideClassName = styles.slide;
+            if (isActive) {
+              slideClassName += ` ${styles.slideActive}`;
+            } else if (isPrev) {
+              slideClassName += ` ${styles.slideOutgoing}`;
+            }
             return (
               <div
                 key={slide.id}
-                className={`${styles.slide} ${isActive ? styles.slideActive : ''}`}
+                className={slideClassName}
                 aria-hidden={!isActive}
                 role="group"
                 aria-roledescription="slide"

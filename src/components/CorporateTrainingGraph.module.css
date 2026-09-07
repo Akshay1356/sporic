@@ -115,12 +115,24 @@
 
 /* Chart Viewport Structure */
 .chartViewport {
-  display: flex;
-  align-items: stretch;
-  height: 380px;
   position: relative;
   margin-bottom: 2.5rem;
   padding-top: 1.5rem;
+  width: 100%;
+}
+
+.chartMainArea {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.chartPlotRow {
+  display: flex;
+  align-items: stretch;
+  height: 330px;
+  position: relative;
+  width: 100%;
 }
 
 .yAxisLeft,
@@ -129,7 +141,6 @@
   flex-direction: column;
   justify-content: space-between;
   width: 70px;
-  padding-bottom: 2.5rem;
   color: #667085;
   font-family: var(--font-heading);
   font-size: 0.75rem;
@@ -179,7 +190,6 @@
 .gridLines {
   position: absolute;
   inset: 0;
-  bottom: 2.5rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -196,7 +206,7 @@
 .gridLineBase {
   width: 100%;
   height: 1px;
-  background: #D0D5DD;
+  background: #CBD5E1;
 }
 
 /* Bars Container */
@@ -208,7 +218,6 @@
   position: relative;
   z-index: 2;
   align-items: flex-end;
-  padding-bottom: 2.5rem;
 }
 
 .yearGroup {
@@ -227,7 +236,7 @@
   justify-content: center;
   gap: 0.75rem;
   width: 100%;
-  height: calc(100% - 1.5rem);
+  height: 100%;
   padding: 0 0.5rem;
 }
 
@@ -286,12 +295,29 @@
   transform-origin: bottom;
 }
 
-.yearLabel {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2.25rem;
+/* Dedicated X-Axis Labels Row below plotting canvas */
+.xAxisRow {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-top: 0.85rem;
+}
+
+.xAxisSpacerLeft,
+.xAxisSpacerRight {
+  width: 70px;
+  flex-shrink: 0;
+}
+
+.xAxisLabelsContainer {
+  flex-grow: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  padding: 0 1.5rem;
+}
+
+.xAxisLabelCol {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -301,16 +327,19 @@
   font-family: var(--font-heading);
   font-size: 0.875rem;
   font-weight: 800;
-  color: #101828;
+  color: #1E293B;
   letter-spacing: 0.02em;
   background: #F8FAFC;
-  padding: 0.25rem 0.65rem;
+  padding: 0.35rem 0.85rem;
   border-radius: 6px;
   border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   transition: all 0.2s ease;
+  display: inline-block;
 }
 
-.yearGroup:hover .yearText {
+.yearGroup:hover ~ .xAxisRow .yearText,
+.xAxisLabelCol:hover .yearText {
   background: #0B2A6F;
   color: #FFFFFF;
   border-color: #0B2A6F;
@@ -450,12 +479,22 @@
     padding: 1.75rem 1.25rem 1.5rem 1.25rem;
   }
 
-  .chartViewport {
-    height: 320px;
+  .chartPlotRow {
+    height: 290px;
   }
 
   .barsContainer {
-    gap: 1rem;
+    gap: 1.25rem;
+  }
+
+  .xAxisLabelsContainer {
+    gap: 1.25rem;
+    padding: 0 1.25rem;
+  }
+
+  .xAxisSpacerLeft,
+  .xAxisSpacerRight {
+    width: 60px;
   }
 
   .barColumn {
@@ -493,14 +532,19 @@
     align-items: center;
   }
 
-  .chartViewport {
-    height: 280px;
+  .chartPlotRow {
+    height: 260px;
   }
 
   .yAxisLeft,
   .yAxisRight {
-    width: 48px;
+    width: 46px;
     font-size: 0.65rem;
+  }
+
+  .xAxisSpacerLeft,
+  .xAxisSpacerRight {
+    width: 46px;
   }
 
   .chartCanvas {
@@ -509,6 +553,11 @@
 
   .barsContainer {
     gap: 0.5rem;
+  }
+
+  .xAxisLabelsContainer {
+    gap: 0.5rem;
+    padding: 0 0.5rem;
   }
 
   .barsWrapper {
@@ -526,7 +575,7 @@
 
   .yearText {
     font-size: 0.72rem;
-    padding: 0.15rem 0.35rem;
+    padding: 0.2rem 0.45rem;
   }
 
   .interactiveTooltip {

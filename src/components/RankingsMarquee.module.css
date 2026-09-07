@@ -89,9 +89,7 @@
   animation: scrollContinuous 58s linear infinite;
 }
 
-.marqueeWrapper:hover .tickerTrack {
-  animation-play-state: paused;
-}
+
 
 /* Ticker Items Content Row */
 .tickerGroup {

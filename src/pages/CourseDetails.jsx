@@ -149,7 +149,7 @@ export default function CourseDetails() {
 
                   <div className={styles.panelInfoItem}>
                     <span className={styles.infoLabel}>Program Fee</span>
-                    <span className={styles.infoVal} style={{ color: '#38BDF8', fontWeight: 800 }}>
+                    <span className={styles.infoVal} style={{ color: '#1D4ED8', fontWeight: 800, fontSize: '1.05rem' }}>
                       ₹{course.price || 4999}
                     </span>
                   </div>

@@ -7,29 +7,58 @@
 
 .banner {
   position: relative;
-  padding: 3.5rem 0 2.75rem 0;
+  padding: 3.25rem 0 3rem 0;
   text-align: center;
   background: #071B4A;
-  background-image: radial-gradient(circle at 50% 0%, rgba(29, 78, 216, 0.3) 0%, transparent 70%);
+  background-image: radial-gradient(circle at 50% 0%, rgba(29, 78, 216, 0.35) 0%, transparent 70%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bannerContent {
+  max-width: 780px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .title {
-  font-family: var(--font-heading);
-  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-family: var(--font-heading, sans-serif);
+  font-size: clamp(1.85rem, 3.2vw, 2.65rem);
   font-weight: 800;
   color: #FFFFFF;
-  margin-bottom: 0.75rem;
+  line-height: 1.2;
+  margin: 0 0 0.75rem;
   letter-spacing: -0.02em;
 }
 
 .subtitle {
-  font-size: 1.05rem;
-  color: rgba(255, 255, 255, 0.85);
-  max-width: 650px;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.82);
+  max-width: 680px;
   margin: 0 auto;
-  line-height: 1.6;
+  line-height: 1.55;
+}
+
+@media (max-width: 768px) {
+  .banner {
+    padding: 2.5rem 0 2.25rem 0;
+  }
+
+  .title {
+    font-size: clamp(1.6rem, 5vw, 2rem);
+  }
+
+  .subtitle {
+    font-size: 0.92rem;
+    line-height: 1.5;
+    padding: 0 0.5rem;
+  }
 }
 
 .gallerySection {

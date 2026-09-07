@@ -63,7 +63,7 @@ export default function PreviousProgramsSection() {
 
                 {prog.outcomes && Array.isArray(prog.outcomes) && prog.outcomes.length > 0 && (
                   <div style={{ marginBottom: '1.25rem' }}>
-                    <div style={{ fontSize: '0.78rem', color: '#38BDF8', fontWeight: '700', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                    <div style={{ fontSize: '0.78rem', color: '#1D4ED8', fontWeight: '700', textTransform: 'uppercase', marginBottom: '0.35rem', letterSpacing: '0.04em' }}>
                       Key Outcomes:
                     </div>
                     <ul className={styles.outcomesList}>

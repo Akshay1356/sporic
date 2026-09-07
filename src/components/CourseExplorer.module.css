@@ -1,6 +1,153 @@
-/* CourseExplorer.module.css - Theme 05 Deep Navy & White */
 .explorer {
   width: 100%;
+  scroll-margin-top: calc(var(--nav-height, 74px) + 24px);
+}
+
+/* Announcement / Urgent Registration Banner */
+.announcementBanner {
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-left: 4px solid #D97706;
+  border-radius: 10px;
+  padding: 0.9rem 1.25rem;
+  margin-bottom: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(180, 83, 9, 0.06);
+}
+
+.announcementLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 260px;
+}
+
+.announcementIcon {
+  font-size: 1.25rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.announcementText {
+  font-size: 0.88rem;
+  color: #1E293B;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.announcementHeadline {
+  font-weight: 700;
+  color: #92400E;
+  margin-right: 0.35rem;
+}
+
+.announcementDeadline {
+  color: #0F172A;
+  font-weight: 600;
+}
+
+.announcementDeadlineTime {
+  color: #B45309;
+  font-weight: 700;
+}
+
+.announcementBtn {
+  background: #D97706;
+  color: #FFFFFF;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 6px rgba(217, 119, 6, 0.25);
+  flex-shrink: 0;
+}
+
+.announcementBtn:hover {
+  background: #B45309;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(217, 119, 6, 0.35);
+}
+
+/* Category Filter Selector */
+.categorySelectorWrapper {
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 4px;
+}
+
+.categorySelector {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+  flex-wrap: nowrap;
+  min-width: max-content;
+}
+
+.categoryBtn {
+  background: #FFFFFF;
+  border: 1.5px solid #E2E8F0;
+  color: #475569;
+  padding: 0.65rem 1.25rem;
+  border-radius: 8px;
+  font-family: var(--font-heading, sans-serif);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+.categoryBtn:hover {
+  border-color: #93C5FD;
+  color: #1D4ED8;
+  background: #F8FAFC;
+  transform: translateY(-1px);
+}
+
+.categoryBtnActive {
+  background: #1D4ED8;
+  border-color: #1D4ED8;
+  color: #FFFFFF;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(29, 78, 216, 0.25);
+}
+
+.categoryBtnActive:hover {
+  background: #1E40AF;
+  border-color: #1E40AF;
+  color: #FFFFFF;
+}
+
+.categoryCountBadge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  line-height: 1;
+  background: #F1F5F9;
+  color: #64748B;
+  border: 1px solid #E2E8F0;
+  transition: all 0.2s ease;
+}
+
+.categoryBtnActive .categoryCountBadge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.35);
 }
 
 .controlsCard {

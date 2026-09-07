@@ -17,8 +17,6 @@ dist-ssr
 build
 
 # Environment files
-.env
-.env.local
 .env.development.local
 .env.test.local
 .env.production.local
@@ -43,3 +41,4 @@ server/uploads/*
 *.sln
 *.sw?
 .freebuff/
+config.bat

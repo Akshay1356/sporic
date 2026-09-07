@@ -15,7 +15,7 @@ export default function Contact() {
         </div>
       </section>
 
-      <ContactSection />
+      <ContactSection hideHeader={true} />
     </div>
   );
 }

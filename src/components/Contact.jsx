@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import styles from './Contact.module.css';
 
-export default function Contact() {
+export default function Contact({ hideHeader = false }) {
   const containerRef = useRef(null);
   const isInView = useInView(containerRef, { once: true, margin: '-80px' });
 
@@ -30,19 +30,21 @@ export default function Contact() {
       <div className="grid-bg" style={{ opacity: 0.4 }} />
 
       <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-        {/* Section Header */}
-        <motion.div
-          className={styles.sectionHeader}
-          initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.6 }}
-        >
-          <span className="section-label">Connect with Us</span>
-          <h2 className="section-title">Contact SpoRIC</h2>
-          <p className="section-subtitle">
-            Get in touch with the Sponsored Research &amp; Industrial Consultancy division for registrations, customized corporate training programs, or enterprise queries.
-          </p>
-        </motion.div>
+        {/* Section Header (rendered on homepage where no top banner exists) */}
+        {!hideHeader && (
+          <motion.div
+            className={styles.sectionHeader}
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            transition={{ duration: 0.6 }}
+          >
+            <span className="section-label">Connect with Us</span>
+            <h2 className="section-title">Contact SpoRIC</h2>
+            <p className="section-subtitle">
+              Get in touch with the Sponsored Research &amp; Industrial Consultancy division for registrations, customized corporate training programs, or enterprise queries.
+            </p>
+          </motion.div>
+        )}
 
         {/* 2-Column Connected Communication Grid */}
         <div className={styles.grid}>

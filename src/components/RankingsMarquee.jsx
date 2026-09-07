@@ -6,6 +6,7 @@ const partnerCompanies = [
   'HCL',
   'Siemens Gamesa',
   'Thales India',
+  'Ford',
   'Hyundai Motor Company, Chennai',
   'Nuclear Power Corporation of India Ltd. (NPCIL), Kalpakkam',
   'Sona Comstar',

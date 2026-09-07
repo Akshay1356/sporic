@@ -102,13 +102,17 @@ export default function Dashboard() {
     modules: 'Module 1: Foundations & Architecture, Module 2: Core Engineering, Module 3: Enterprise Capstone',
   });
 
-  // Gallery CMS modal states (ADMIN ONLY)
+  // Gallery Management modal states (ADMIN ONLY)
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [editingPhoto, setEditingPhoto] = useState(null);
   const [photoTitle, setPhotoTitle] = useState('');
   const [photoDesc, setPhotoDesc] = useState('');
   const [photoCategory, setPhotoCategory] = useState('Corporate Training');
   const [photoImagePreview, setPhotoImagePreview] = useState('');
+  const [photoUrlInput, setPhotoUrlInput] = useState('');
+  const [photoFileName, setPhotoFileName] = useState('');
+  const [photoDimensions, setPhotoDimensions] = useState('');
+  const [isDraggingPhoto, setIsDraggingPhoto] = useState(false);
   const [photoError, setPhotoError] = useState('');
   const [photoSaving, setPhotoSaving] = useState(false);
   const [deletingPhotoItem, setDeletingPhotoItem] = useState(null);
@@ -338,13 +342,17 @@ export default function Dashboard() {
     }
   };
 
-  // --- GALLERY CMS HANDLERS ---
+  // --- GALLERY MANAGEMENT HANDLERS ---
   const handleOpenAddPhoto = () => {
     setEditingPhoto(null);
     setPhotoTitle('');
     setPhotoDesc('');
     setPhotoCategory('Corporate Training');
     setPhotoImagePreview('');
+    setPhotoUrlInput('');
+    setPhotoFileName('');
+    setPhotoDimensions('');
+    setIsDraggingPhoto(false);
     setPhotoError('');
     setShowPhotoModal(true);
   };
@@ -354,15 +362,26 @@ export default function Dashboard() {
     setPhotoTitle(photo.title || '');
     setPhotoDesc(photo.description || '');
     setPhotoCategory(photo.category || 'Corporate Training');
-    setPhotoImagePreview(photo.src || photo.imageUrl || '');
+    const existingSrc = photo.src || photo.imageUrl || '';
+    setPhotoImagePreview(existingSrc);
+    setPhotoUrlInput('');
+    setPhotoFileName(photo.title ? `${photo.title}.jpg` : 'Existing Photo');
+    setPhotoDimensions('');
+    setIsDraggingPhoto(false);
     setPhotoError('');
     setShowPhotoModal(true);
+
+    if (existingSrc) {
+      const img = new Image();
+      img.src = existingSrc;
+      img.onload = () => {
+        setPhotoDimensions(`${img.naturalWidth} × ${img.naturalHeight} px`);
+      };
+    }
   };
 
-  const handleImageFileChange = async (e) => {
-    const file = e.target.files?.[0];
+  const processImageFile = async (file) => {
     if (!file) return;
-
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!validTypes.includes(file.type)) {
       setPhotoError('Unsupported file format. Please upload JPG, PNG, or WEBP images.');
@@ -370,17 +389,81 @@ export default function Dashboard() {
     }
 
     setPhotoError('');
+    const sizeKB = (file.size / 1024).toFixed(1);
+    setPhotoFileName(`${file.name} (${sizeKB} KB)`);
+
     try {
       const compressed = await compressImageFile(file);
       setPhotoImagePreview(compressed);
+
+      const img = new Image();
+      img.src = compressed;
+      img.onload = () => {
+        setPhotoDimensions(`${img.naturalWidth} × ${img.naturalHeight} px`);
+      };
     } catch {
-      setPhotoError('Failed to process image. Try another file.');
+      setPhotoError('Failed to process image file. Please select another image.');
     }
+  };
+
+  const handleImageFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await processImageFile(file);
+    }
+  };
+
+  const handlePhotoDragOver = (e) => {
+    e.preventDefault();
+    setIsDraggingPhoto(true);
+  };
+
+  const handlePhotoDragLeave = (e) => {
+    e.preventDefault();
+    setIsDraggingPhoto(false);
+  };
+
+  const handlePhotoDrop = async (e) => {
+    e.preventDefault();
+    setIsDraggingPhoto(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      await processImageFile(file);
+    }
+  };
+
+  const handleApplyPhotoUrl = () => {
+    const trimmed = photoUrlInput.trim();
+    if (!trimmed) {
+      setPhotoError('Please enter a valid image URL.');
+      return;
+    }
+
+    setPhotoError('');
+    const testImg = new Image();
+    testImg.src = trimmed;
+    testImg.onload = () => {
+      setPhotoImagePreview(trimmed);
+      setPhotoFileName('External Web Asset');
+      setPhotoDimensions(`${testImg.naturalWidth} × ${testImg.naturalHeight} px`);
+      setPhotoUrlInput('');
+    };
+    testImg.onerror = () => {
+      setPhotoError('Could not load image from this URL. Please verify the URL points to a reachable image file.');
+    };
+  };
+
+  const handleRemovePhotoPreview = () => {
+    setPhotoImagePreview('');
+    setPhotoFileName('');
+    setPhotoDimensions('');
+    setPhotoUrlInput('');
+    setPhotoError('');
   };
 
   const handleSavePhotoSubmit = async (e) => {
     e.preventDefault();
-    if (!photoImagePreview) return setPhotoError('Please upload an image.');
+    if (!photoImagePreview) return setPhotoError('Please upload an image or provide a valid image URL.');
     if (!photoDesc.trim()) return setPhotoError('Please enter a description.');
 
     setPhotoSaving(true);
@@ -410,7 +493,7 @@ export default function Dashboard() {
         };
         saveGalleryItem(newRecord);
         await api.addGalleryItem(newRecord).catch(() => null);
-        setActionSuccess('✓ Photo added to Gallery CMS!');
+        setActionSuccess('✓ Photo added to Gallery Management!');
       }
 
       refreshAllData();
@@ -674,17 +757,17 @@ export default function Dashboard() {
     <div className={styles.dashboardContainer}>
       {/* Top Banner */}
       <section className={styles.banner}>
-        <div className="grid-bg" style={{ opacity: 0.5 }} />
+        <div className="grid-bg" style={{ opacity: 0.35 }} />
         <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.35rem' }}>
-                <span className="section-label" style={{ margin: 0 }}>
+          <div className={styles.headerRow}>
+            <div className={styles.headerLeft}>
+              <div className={styles.eyebrowRow}>
+                <span className={styles.eyebrow}>
                   {isAdmin ? 'ADMIN CONTROL CENTRE' : 'STUDENT & PROFESSIONAL PORTAL'}
                 </span>
                 {isAdmin && (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', background: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0', padding: '0.15rem 0.6rem', borderRadius: '9999px', fontSize: '0.72rem', fontWeight: 700 }}>
-                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#059669' }} />
+                  <span className={styles.statusBadge}>
+                    <span className={styles.statusPulseDot} aria-hidden="true" />
                     System Operational
                   </span>
                 )}
@@ -699,36 +782,41 @@ export default function Dashboard() {
               </p>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div className={styles.headerActions}>
               {isAdmin ? (
                 <>
-                  <button className="btn btn-primary" style={{ fontSize: '0.85rem' }} onClick={() => setShowAddModal(true)}>
-                    ➕ Add Course
+                  <button
+                    type="button"
+                    className={styles.btnAddCourse}
+                    onClick={() => setShowAddModal(true)}
+                  >
+                    Add Course
                   </button>
-                  <button className="btn btn-secondary" style={{ fontSize: '0.85rem' }} onClick={() => {
-                    setEditingCorporateTraining(null);
-                    setTrainingStartDate('');
-                    setTrainingEndDate('');
-                    setTrainingSchool('SELECT');
-                    setTrainingTrainers(['']);
-                    setTrainingTitle('');
-                    setTrainingCompany('');
-                    setTrainingDescription('');
-                    setTrainingError('');
-                    setShowCorporateTrainingModal(true);
-                  }}>
-                    🏛️ Add Training
+                  <button
+                    type="button"
+                    className={styles.btnAddTraining}
+                    onClick={handleOpenAddCorporateTraining}
+                  >
+                    Add Training
                   </button>
-                  <Link to="/profile" className="btn btn-ghost" style={{ fontSize: '0.85rem' }}>
-                    👤 Profile
+                  <Link to="/profile" className={styles.btnProfile} title="View Profile">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    <span>Profile</span>
                   </Link>
                 </>
               ) : (
                 <>
-                  <Link to="/profile" className="btn btn-ghost" style={{ fontSize: '0.85rem' }}>
-                    👤 Edit Profile
+                  <Link to="/profile" className={styles.btnProfile} title="Edit Profile">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    <span>Edit Profile</span>
                   </Link>
-                  <Link to="/courses" className="btn btn-primary" style={{ fontSize: '0.85rem' }}>
+                  <Link to="/courses" className={styles.btnAddCourse}>
                     Browse Courses →
                   </Link>
                 </>
@@ -788,7 +876,7 @@ export default function Dashboard() {
                   className={`${styles.tabBtn} ${activeTab === 'gallery' ? styles.tabBtnActive : ''}`}
                   onClick={() => setActiveTab('gallery')}
                 >
-                  🖼️ Gallery CMS ({galleryList.length})
+                  🖼️ Gallery Management ({galleryList.length})
                 </button>
                 <button
                   className={`${styles.tabBtn} ${activeTab === 'users' ? styles.tabBtnActive : ''}`}
@@ -923,7 +1011,7 @@ export default function Dashboard() {
                       <div className={styles.actionCard} onClick={() => setActiveTab('gallery')}>
                         <div className={styles.actionCardIcon}>🖼️</div>
                         <div className={styles.actionCardBody}>
-                          <h4 className={styles.actionCardTitle}>Gallery CMS</h4>
+                          <h4 className={styles.actionCardTitle}>Gallery Management</h4>
                           <p className={styles.actionCardDesc}>Upload, categorize, and organize campus and industrial training photos.</p>
                         </div>
                         <span className={styles.actionArrow}>→</span>
@@ -1105,8 +1193,8 @@ export default function Dashboard() {
                       </p>
                     </div>
                     <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                      <Link to="/corporate-training" target="_blank" className="btn btn-secondary">
-                        View /corporate-training ↗
+                      <Link to="/corporate-training" className="btn btn-secondary">
+                        View Corporate Training
                       </Link>
                       <button className="btn btn-primary" onClick={handleOpenAddCorporateTraining}>
                         ➕ Add Corporate Training
@@ -1312,8 +1400,8 @@ export default function Dashboard() {
                       </p>
                     </div>
                     <div style={{ display: 'flex', gap: '0.75rem' }}>
-                      <Link to="/about#previous-programs" target="_blank" className="btn btn-secondary">
-                        View on /about ↗
+                      <Link to="/about#previous-programs" className="btn btn-secondary">
+                        View Programs on About
                       </Link>
                       <button className="btn btn-primary" onClick={handleOpenAddProgram}>
                         ➕ Add Previous Program
@@ -1379,71 +1467,98 @@ export default function Dashboard() {
                 </GlassCard>
               )}
 
-              {/* TAB 4: Gallery CMS (ADMIN ONLY) */}
+              {/* TAB 4: Gallery Management (ADMIN ONLY) */}
               {activeTab === 'gallery' && (
                 <GlassCard padding="lg">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-                    <div>
-                      <h3 style={{ color: '#111', fontSize: '1.25rem', fontWeight: 700 }}>Gallery CMS</h3>
-                      <p style={{ color: '#667085', fontSize: '0.85rem' }}>
-                        Add, edit, or delete photos that appear on <strong>/gallery</strong>.
-                      </p>
+                  <div className={styles.galleryAdminWrapper}>
+                    {/* Header: Title, Subtitle, and Pure Text Action Buttons */}
+                    <div className={styles.galleryAdminHeader}>
+                      <div>
+                        <h3 className={styles.galleryAdminTitle}>Gallery Management</h3>
+                        <p className={styles.galleryAdminSubtitle}>
+                          Manage the photos and visual stories displayed across the VIT TEC gallery.
+                        </p>
+                      </div>
+                      <div className={styles.galleryAdminActions}>
+                        <Link to="/gallery" className={styles.btnAdminSecondary}>
+                          View Gallery
+                        </Link>
+                        <button
+                          type="button"
+                          className={styles.btnAdminPrimary}
+                          onClick={handleOpenAddPhoto}
+                        >
+                          Add Photo
+                        </button>
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '0.75rem' }}>
-                      <Link to="/gallery" target="_blank" className="btn btn-secondary">
-                        View /gallery ↗
-                      </Link>
-                      <button className="btn btn-primary" onClick={handleOpenAddPhoto}>
-                        ➕ Add New Photo
-                      </button>
-                    </div>
-                  </div>
 
-                  <div className={styles.tableWrapper}>
-                    <table className={styles.dataTable}>
-                      <thead>
-                        <tr>
-                          <th style={{ width: '80px' }}>Thumbnail</th>
-                          <th>Title &amp; Description</th>
-                          <th>Category</th>
-                          <th>Date</th>
-                          <th>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
+                    {/* Gallery Items Cards/List */}
+                    {galleryList.length === 0 ? (
+                      <div className={styles.galleryEmptyState}>
+                        <h4 className={styles.emptyStateTitle}>No gallery photos available</h4>
+                        <p className={styles.emptyStateDesc}>Click &quot;Add Photo&quot; above to upload the first photograph to the gallery.</p>
+                      </div>
+                    ) : (
+                      <div className={styles.galleryItemList}>
                         {galleryList.map((photo) => (
-                          <tr key={photo.id}>
-                            <td>
+                          <div key={photo.id} className={styles.galleryItemCard}>
+                            {/* Prominent Image Thumbnail */}
+                            <div className={styles.galleryItemThumbWrapper}>
                               <img
                                 src={photo.src || photo.imageUrl}
-                                alt={photo.title}
-                                style={{ width: '64px', height: '48px', objectFit: 'cover', borderRadius: '6px' }}
+                                alt={photo.title || 'Gallery item'}
+                                className={styles.galleryItemThumb}
+                                loading="lazy"
                               />
-                            </td>
-                            <td>
-                              <div style={{ fontWeight: 600, color: '#101828' }}>{photo.title}</div>
-                              <div style={{ fontSize: '0.78rem', color: '#667085' }}>{photo.description}</div>
-                            </td>
-                            <td>
-                              <span className="tag tag-blue" style={{ fontSize: '0.72rem' }}>{photo.category}</span>
-                            </td>
-                            <td style={{ fontSize: '0.78rem', color: '#64748B' }}>
-                              {photo.createdAt ? new Date(photo.createdAt).toLocaleDateString() : 'Active'}
-                            </td>
-                            <td>
-                              <div style={{ display: 'flex', gap: '0.4rem' }}>
-                                <button className="btn btn-secondary" style={{ padding: '0.25rem 0.55rem', fontSize: '0.78rem' }} onClick={() => handleOpenEditPhoto(photo)}>
-                                  Edit
-                                </button>
-                                <button className="btn btn-ghost" style={{ padding: '0.25rem 0.55rem', fontSize: '0.78rem', color: '#DC2626' }} onClick={() => setDeletingPhotoItem(photo)}>
-                                  Delete
-                                </button>
+                            </div>
+
+                            {/* Content: Title, Description, Category & Date */}
+                            <div className={styles.galleryItemContent}>
+                              <h4 className={styles.galleryItemTitle} title={photo.title || 'Corporate Training Activity'}>
+                                {photo.title || 'Corporate Training Activity'}
+                              </h4>
+                              <p className={styles.galleryItemDesc}>
+                                {photo.description}
+                              </p>
+                              <div className={styles.galleryItemMeta}>
+                                <span className={styles.galleryCategoryBadge}>
+                                  {photo.category}
+                                </span>
+                                <span className={styles.metaDot}>•</span>
+                                <span className={styles.galleryItemDate}>
+                                  {photo.createdAt
+                                    ? new Date(photo.createdAt).toLocaleDateString(undefined, {
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric',
+                                      })
+                                    : 'Active'}
+                                </span>
                               </div>
-                            </td>
-                          </tr>
+                            </div>
+
+                            {/* Clean Action Controls: Text Only */}
+                            <div className={styles.galleryItemActions}>
+                              <button
+                                type="button"
+                                className={styles.actionBtnEdit}
+                                onClick={() => handleOpenEditPhoto(photo)}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                className={styles.actionBtnDelete}
+                                onClick={() => setDeletingPhotoItem(photo)}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </div>
                         ))}
-                      </tbody>
-                    </table>
+                      </div>
+                    )}
                   </div>
                 </GlassCard>
               )}
@@ -1856,58 +1971,200 @@ export default function Dashboard() {
           MODAL: ADD / EDIT GALLERY PHOTO (ADMIN ONLY)
          ==================================================== */}
       {showPhotoModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(7, 27, 74, 0.8)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div style={{ background: '#0F2252', border: '1px solid #38BDF8', borderRadius: '16px', padding: '2rem', width: '100%', maxWidth: '560px', color: '#FFF' }}>
-            <h3 style={{ margin: '0 0 1rem' }}>{editingPhoto ? 'Edit Gallery Photo' : '➕ Add New Gallery Photo'}</h3>
-            {photoError && <div style={{ background: 'rgba(239, 68, 68, 0.2)', padding: '0.5rem 1rem', borderRadius: '8px', color: '#FCA5A5', marginBottom: '1rem' }}>{photoError}</div>}
+        <div className={styles.modalBackdrop}>
+          <div className={styles.galleryModalCard}>
+            <div className={styles.galleryModalHeader}>
+              <h3 className={styles.galleryModalTitle}>
+                {editingPhoto ? 'Edit Gallery Photo' : 'Add Gallery Photo'}
+              </h3>
+              <p className={styles.galleryModalSubtitle}>
+                Upload a new photo to the VIT TEC gallery.
+              </p>
+            </div>
+
+            {photoError && (
+              <div className={styles.formErrorBanner}>
+                {photoError}
+              </div>
+            )}
+
             <form onSubmit={handleSavePhotoSubmit}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Title (Optional)</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Corporate Management Program"
-                  value={photoTitle}
-                  onChange={(e) => setPhotoTitle(e.target.value)}
-                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                />
-              </div>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Category</label>
-                <select
-                  value={photoCategory}
-                  onChange={(e) => setPhotoCategory(e.target.value)}
-                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                >
-                  {GALLERY_CATEGORIES.filter((c) => c !== 'All').map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Description *</label>
-                <textarea
-                  required
-                  placeholder="Details of the event/training session..."
-                  value={photoDesc}
-                  onChange={(e) => setPhotoDesc(e.target.value)}
-                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF', minHeight: '70px' }}
-                />
-              </div>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Upload Photo</label>
-                <input type="file" accept="image/*" onChange={handleImageFileChange} style={{ color: '#FFF' }} />
-                {photoImagePreview && (
-                  <div style={{ marginTop: '0.5rem' }}>
-                    <img src={photoImagePreview} alt="Preview" style={{ height: '70px', borderRadius: '6px' }} />
+              <div className={styles.galleryModalBody}>
+                {/* Column 1: Image Upload / Preview */}
+                <div className={styles.uploadSection}>
+                  <label className={styles.formLabel}>
+                    Photo Asset <span style={{ color: '#DC2626' }}>*</span>
+                  </label>
+
+                  {photoImagePreview ? (
+                    <div className={styles.imagePreviewCard}>
+                      <div className={styles.imagePreviewContainer}>
+                        <img
+                          src={photoImagePreview}
+                          alt="Preview"
+                          className={styles.imagePreviewImg}
+                        />
+                      </div>
+                      <div className={styles.previewMeta}>
+                        <div className={styles.previewDetails}>
+                          <span className={styles.previewFileName} title={photoFileName || 'Image Asset'}>
+                            {photoFileName || 'Photo Asset'}
+                          </span>
+                          {photoDimensions && (
+                            <span className={styles.previewFileSize}>
+                              Dimensions: {photoDimensions}
+                            </span>
+                          )}
+                        </div>
+                        <div className={styles.previewActions}>
+                          <label
+                            htmlFor="changePhotoFileInput"
+                            className={styles.browseBtn}
+                            style={{ cursor: 'pointer' }}
+                          >
+                            Change
+                          </label>
+                          <input
+                            id="changePhotoFileInput"
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp,image/jpg"
+                            style={{ display: 'none' }}
+                            onChange={handleImageFileChange}
+                          />
+                          <button
+                            type="button"
+                            className="btn btn-ghost"
+                            style={{ padding: '0.4rem 0.65rem', fontSize: '0.8rem', color: '#DC2626' }}
+                            onClick={handleRemovePhotoPreview}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Drag & Drop Area */}
+                      <div
+                        className={`${styles.dropZone} ${isDraggingPhoto ? styles.dropZoneActive : ''}`}
+                        onDragOver={handlePhotoDragOver}
+                        onDragLeave={handlePhotoDragLeave}
+                        onDrop={handlePhotoDrop}
+                        onClick={() => document.getElementById('browsePhotoFileInput')?.click()}
+                      >
+                        <div className={styles.dropZoneIcon}>📁</div>
+                        <div className={styles.dropZoneText}>Drag and drop photo here</div>
+                        <div className={styles.dropZoneHint}>Supports JPG, PNG, WEBP (auto-optimized)</div>
+                        <button
+                          type="button"
+                          className={styles.browseBtn}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            document.getElementById('browsePhotoFileInput')?.click();
+                          }}
+                        >
+                          Browse Files
+                        </button>
+                        <input
+                          id="browsePhotoFileInput"
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp,image/jpg"
+                          style={{ display: 'none' }}
+                          onChange={handleImageFileChange}
+                        />
+                      </div>
+
+                      {/* Or provide Image URL */}
+                      <div className={styles.urlDivider}>or via web url</div>
+                      <div className={styles.urlInputWrapper}>
+                        <input
+                          type="url"
+                          placeholder="https://example.com/photo.jpg"
+                          value={photoUrlInput}
+                          onChange={(e) => setPhotoUrlInput(e.target.value)}
+                          className={styles.urlInput}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleApplyPhotoUrl();
+                            }
+                          }}
+                        />
+                        <button
+                          type="button"
+                          className="btn btn-secondary"
+                          style={{ padding: '0.55rem 0.95rem', fontSize: '0.82rem', whiteSpace: 'nowrap' }}
+                          onClick={handleApplyPhotoUrl}
+                        >
+                          Attach URL
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Column 2: Metadata Fields */}
+                <div className={styles.fieldsSection}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>
+                      Title <span style={{ color: '#64748B', fontWeight: 400 }}>(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Industrial Automation Workshop"
+                      value={photoTitle}
+                      onChange={(e) => setPhotoTitle(e.target.value)}
+                      className={styles.formInput}
+                    />
                   </div>
-                )}
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>
+                      Category <span style={{ color: '#DC2626' }}>*</span>
+                    </label>
+                    <select
+                      value={photoCategory}
+                      onChange={(e) => setPhotoCategory(e.target.value)}
+                      className={styles.formSelect}
+                    >
+                      {GALLERY_CATEGORIES.filter((c) => c !== 'All').map((cat) => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>
+                      Description <span style={{ color: '#DC2626' }}>*</span>
+                    </label>
+                    <textarea
+                      required
+                      placeholder="Enter a brief institutional summary of the training, cohort, or campus engagement..."
+                      value={photoDesc}
+                      onChange={(e) => setPhotoDesc(e.target.value)}
+                      className={styles.formTextarea}
+                    />
+                  </div>
+                </div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-                <button type="button" onClick={() => setShowPhotoModal(false)} className="btn btn-secondary">
+
+              {/* Modal Footer Controls */}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.75rem', paddingTop: '1.25rem', borderTop: '1px solid #F1F5F9' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowPhotoModal(false)}
+                  className="btn btn-secondary"
+                  style={{ padding: '0.6rem 1.25rem', fontSize: '0.88rem' }}
+                >
                   Cancel
                 </button>
-                <button type="submit" className="btn btn-primary" disabled={photoSaving}>
-                  {photoSaving ? 'Saving Photo...' : 'Save to Gallery'}
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={photoSaving}
+                  style={{ padding: '0.6rem 1.4rem', fontSize: '0.88rem', fontWeight: 700 }}
+                >
+                  {photoSaving ? 'Saving Photo...' : (editingPhoto ? 'Save Changes' : 'Save Photo')}
                 </button>
               </div>
             </form>
@@ -1915,15 +2172,36 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Delete Photo Confirmation */}
+      {/* Delete Photo Confirmation Modal */}
       {deletingPhotoItem && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 10001, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: '#0F2252', padding: '1.75rem', borderRadius: '14px', maxWidth: '420px', color: '#FFF' }}>
-            <h4>Delete Gallery Photo?</h4>
-            <p style={{ color: '#CBD5E1', fontSize: '0.85rem' }}>Are you sure you want to permanently delete this photo from the gallery?</p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.25rem' }}>
-              <button onClick={() => setDeletingPhotoItem(null)} className="btn btn-secondary">Cancel</button>
-              <button onClick={handleConfirmDeletePhoto} className="btn btn-primary" style={{ background: '#DC2626' }}>Delete Photo</button>
+        <div className={styles.modalBackdrop}>
+          <div className={styles.deleteConfirmCard}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#FEF2F2', border: '1px solid #FCA5A5', color: '#DC2626', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', flexShrink: 0 }}>
+                ⚠️
+              </div>
+              <h4 className={styles.deleteConfirmTitle} style={{ margin: 0 }}>Delete Gallery Photo?</h4>
+            </div>
+            <p className={styles.deleteConfirmDesc}>
+              Are you sure you want to permanently delete <strong>{deletingPhotoItem.title || 'this photo'}</strong>? It will immediately be removed from both the public gallery and gallery management.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+              <button
+                type="button"
+                onClick={() => setDeletingPhotoItem(null)}
+                className="btn btn-secondary"
+                style={{ padding: '0.55rem 1.15rem', fontSize: '0.85rem' }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeletePhoto}
+                className="btn btn-primary"
+                style={{ background: '#DC2626', borderColor: '#DC2626', padding: '0.55rem 1.15rem', fontSize: '0.85rem', fontWeight: 700 }}
+              >
+                Delete Photo
+              </button>
             </div>
           </div>
         </div>

@@ -91,11 +91,12 @@ export default function Gallery() {
         <div className="grid-bg" style={{ opacity: 0.5 }} />
         <div className="container">
           <motion.div
+            className={styles.bannerContent}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
           >
-            <span className="section-label">Corporate Training & Executive Development</span>
+            <span className="section-label">Corporate Training &amp; Executive Development</span>
             <h1 className={styles.title}>GALLERY</h1>
             <p className={styles.subtitle}>
               Moments, events and activities at SPORIC

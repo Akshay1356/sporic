@@ -24,13 +24,9 @@ export default function CourseExplorer({ initialDomain = '' }) {
 
   // Sync state if URL search parameters change
   useEffect(() => {
-    if (searchParams.get('search') !== null) {
-      setSearch(searchParams.get('search'));
-    }
-    if (searchParams.get('domain') !== null) {
-      setDomain(searchParams.get('domain'));
-    }
-  }, [searchParams]);
+    setSearch(searchParams.get('search') || '');
+    setDomain(searchParams.get('domain') || initialDomain || 'All');
+  }, [searchParams, initialDomain]);
 
   const upcomingDeadlines = useMemo(() => getUpcomingDeadlines().slice(0, 3), []);
 
@@ -83,69 +79,71 @@ export default function CourseExplorer({ initialDomain = '' }) {
     setSearchParams({}, { replace: true });
   };
 
+  // Count courses per domain for badges
+  const domainCounts = useMemo(() => {
+    const all = getAllCourses();
+    return {
+      All: all.length,
+      [DOMAINS.TECHNOLOGY]: all.filter((c) => c.domain === DOMAINS.TECHNOLOGY).length,
+      [DOMAINS.MANAGEMENT]: all.filter((c) => c.domain === DOMAINS.MANAGEMENT).length,
+      [DOMAINS.LEADERSHIP]: all.filter((c) => c.domain === DOMAINS.LEADERSHIP).length,
+    };
+  }, []);
+
   return (
-    <div className={styles.explorer}>
+    <div className={styles.explorer} id="courses-explorer">
       {/* Urgent Deadline Notification Ribbon */}
       {upcomingDeadlines.length > 0 && (
-        <div style={{
-          background: 'linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.05) 100%)',
-          border: '1px solid rgba(245, 158, 11, 0.35)',
-          borderRadius: '12px',
-          padding: '0.75rem 1.25rem',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '0.75rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <span style={{ fontSize: '1.2rem' }}>⏰</span>
-            <span style={{ fontSize: '0.88rem', color: '#FEF3C7', fontWeight: '600' }}>
-              <strong>Upcoming Registration Deadlines:</strong> {upcomingDeadlines.map(u => `${u.title.split(':')[0]} (${u.daysRemaining > 0 ? `closes in ${u.daysRemaining} days` : 'closing soon'})`).join(' • ')}
-            </span>
+        <div className={styles.announcementBanner} role="alert">
+          <div className={styles.announcementLeft}>
+            <span className={styles.announcementIcon} aria-hidden="true">⏰</span>
+            <div className={styles.announcementText}>
+              <span className={styles.announcementHeadline}>Upcoming Registration Deadlines:</span>
+              {upcomingDeadlines.map((u, i) => (
+                <span key={u.id} className={styles.announcementDeadline}>
+                  {i > 0 && ' • '}
+                  {u.title.split(':')[0]} (<span className={styles.announcementDeadlineTime}>{u.daysRemaining > 0 ? `closes in ${u.daysRemaining} days` : 'closing soon'}</span>)
+                </span>
+              ))}
+            </div>
           </div>
           <button 
+            type="button"
             onClick={() => setStatusFilter(COURSE_STATUS.OPEN)} 
-            style={{ 
-              background: '#F59E0B', 
-              color: '#0F172A', 
-              border: 'none', 
-              padding: '0.3rem 0.75rem', 
-              borderRadius: '6px', 
-              fontSize: '0.75rem', 
-              fontWeight: '700', 
-              cursor: 'pointer' 
-            }}
+            className={styles.announcementBtn}
           >
             View Open Courses
           </button>
         </div>
       )}
 
-      {/* Domain Quick Tabs */}
-      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
-        {['All', DOMAINS.TECHNOLOGY, DOMAINS.MANAGEMENT, DOMAINS.LEADERSHIP].map((d) => (
-          <button
-            key={d}
-            type="button"
-            onClick={() => handleDomainSelect(d)}
-            style={{
-              padding: '0.55rem 1.15rem',
-              borderRadius: '9999px',
-              fontSize: '0.85rem',
-              fontWeight: '700',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              border: domain === d ? '1px solid #38BDF8' : '1px solid rgba(255, 255, 255, 0.15)',
-              background: domain === d ? 'linear-gradient(135deg, #1D4ED8 0%, #0284C7 100%)' : 'rgba(255, 255, 255, 0.06)',
-              color: '#FFFFFF',
-              boxShadow: domain === d ? '0 4px 12px rgba(2, 132, 199, 0.35)' : 'none',
-            }}
-          >
-            {d === 'All' ? '🌐 All Programs' : d}
-          </button>
-        ))}
+      {/* Program Category Selector Tabs */}
+      <div className={styles.categorySelectorWrapper}>
+        <div className={styles.categorySelector} role="tablist" aria-label="Course categories">
+          {[
+            { key: 'All', label: 'All Programs' },
+            { key: DOMAINS.TECHNOLOGY, label: 'Technology' },
+            { key: DOMAINS.MANAGEMENT, label: 'Management' },
+            { key: DOMAINS.LEADERSHIP, label: 'Leadership & Personality' },
+          ].map(({ key, label }) => {
+            const isSelected = domain === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                aria-selected={isSelected}
+                onClick={() => handleDomainSelect(key)}
+                className={`${styles.categoryBtn} ${isSelected ? styles.categoryBtnActive : ''}`}
+              >
+                <span>{label}</span>
+                <span className={styles.categoryCountBadge}>
+                  {domainCounts[key] ?? 0}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Controls Form Grid */}
@@ -211,12 +209,12 @@ export default function CourseExplorer({ initialDomain = '' }) {
 
       {/* Results Header */}
       <div className={styles.resultsHeader} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '1.5rem 0 1rem' }}>
-        <span className={styles.countText} style={{ fontSize: '0.95rem', color: '#CBD5E1', fontWeight: '600' }}>
+        <span className={styles.countText} style={{ fontSize: '0.92rem', color: '#1D4ED8', fontWeight: '700' }}>
           Showing <strong>{filtered.length}</strong> available training programs
         </span>
         {search && (
-          <span style={{ fontSize: '0.85rem', color: '#38BDF8' }}>
-            Filtered by keyword: "<strong>{search}</strong>"
+          <span style={{ fontSize: '0.85rem', color: '#475569' }}>
+            Filtered by keyword: <strong style={{ color: '#0F172A' }}>"{search}"</strong>
           </span>
         )}
       </div>
@@ -242,11 +240,13 @@ export default function CourseExplorer({ initialDomain = '' }) {
 
       {/* Empty State */}
       {filtered.length === 0 && (
-        <div className={styles.noResults} style={{ textAlign: 'center', padding: '4rem 1rem', background: 'rgba(255, 255, 255, 0.04)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+        <div className={styles.noResults}>
           <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>🔍</div>
-          <h3 style={{ fontSize: '1.35rem', color: '#FFFFFF', margin: '0 0 0.5rem' }}>No courses found. Try a different search.</h3>
-          <p style={{ color: '#94A3B8', maxWidth: '450px', margin: '0 auto 1.5rem', fontSize: '0.9rem' }}>
-            We couldn't find any courses matching your current search or filter criteria. Try searching for "Python", "AI", "Management", or reset all filters.
+          <h3 style={{ fontSize: '1.25rem', color: '#0F172A', margin: '0 0 0.5rem', fontWeight: 700 }}>
+            No courses found. Try a different search.
+          </h3>
+          <p style={{ color: '#64748B', maxWidth: '450px', margin: '0 auto 1.5rem', fontSize: '0.88rem', lineHeight: 1.5 }}>
+            We couldn't find any courses matching your current search or filter criteria. Try selecting another category or reset all filters.
           </p>
           <button onClick={clearFilters} className="btn btn-primary">
             Show All Courses
