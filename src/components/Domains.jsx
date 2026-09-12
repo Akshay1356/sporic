@@ -8,6 +8,7 @@ const domainsData = [
     id: 'technology',
     title: 'Technology',
     path: '/technology',
+    bgImage: '/gallery/technology-bg.jpg',
     description:
       'Cutting-edge technical competencies across Industry 4.0, Electric Vehicles, AI & Machine Learning, Cloud Architecture, Cyber Security, and Advanced Manufacturing.',
     highlights: ['Industry 4.0', 'EV Tech', 'AI & ML', 'Cyber Security', 'Cloud & IoT'],
@@ -41,6 +42,7 @@ const domainsData = [
     id: 'management',
     title: 'Management',
     path: '/management',
+    bgImage: '/gallery/management-bg.jpg',
     description:
       'Executive management, agile operations, digital supply chain, corporate finance, and data-driven business strategy designed for enterprise leaders.',
     highlights: ['Operations', 'Finance', 'Marketing', 'Data Analytics', 'Agile Strategy'],
@@ -70,6 +72,7 @@ const domainsData = [
     id: 'leadership',
     title: 'Leadership & Personality',
     path: '/personality',
+    bgImage: '/gallery/leadership-bg.jpg',
     description:
       'Strategic leadership, cross-functional communication, organizational resilience, change management, and executive presence for high-impact teams.',
     highlights: ['Executive Presence', 'Resilience', 'Communication', 'Team Dynamics'],
@@ -125,6 +128,7 @@ export default function Domains() {
               <Link
                 to={domain.path}
                 className={styles.domainCard}
+                style={{ '--bg-image': `url(${domain.bgImage})` }}
                 aria-label={`Explore ${domain.title} programs`}
               >
                 {/* Top Glow Accent */}

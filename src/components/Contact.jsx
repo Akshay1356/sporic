@@ -92,7 +92,7 @@ export default function Contact() {
                 <h4 className={styles.addressHeading}>VIT-TEC Address</h4>
               </div>
               <p className={styles.recipient}>Dean, Sponsored Research &amp; Industrial Consultancy (SpoRIC)</p>
-              <p className={styles.addressLine}>AB2-102 SMEC Research Scholar Room</p>
+              <p className={styles.addressLine}>AB3-007</p>
               <p className={styles.addressLine}>VIT, Chennai Campus</p>
               <p className={styles.addressLine}>Vandalur – Kelambakkam Road</p>
               <p className={styles.addressLine}>Chennai - 600 127, Tamil Nadu, INDIA</p>
