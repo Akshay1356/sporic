@@ -75,10 +75,6 @@ export function VisionCard() {
         <div className={styles.topRow}>
           <div className={styles.badgeGroup}>
             <span className={styles.categoryBadge}>Strategic Core</span>
-            <span className={styles.statusIndicator}>
-              <span className={styles.statusDot} />
-              {isHovered ? 'DIRECTION ACTIVE' : 'SYSTEM IDLE'}
-            </span>
           </div>
           <span className={styles.codeTag}>SEC-01 // VISION</span>
         </div>
@@ -184,10 +180,6 @@ export function MissionCard() {
         <div className={styles.topRow}>
           <div className={styles.badgeGroup}>
             <span className={styles.categoryBadge}>Execution Track</span>
-            <span className={styles.statusIndicator}>
-              <span className={styles.statusDot} />
-              {isHovered ? 'PATHWAY ACTIVE' : 'SYSTEM IDLE'}
-            </span>
           </div>
           <span className={styles.codeTag}>SEC-02 // MISSION</span>
         </div>
