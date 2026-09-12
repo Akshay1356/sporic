@@ -2,9 +2,6 @@
 
 .benefitsSection {
   background: #071B4A;
-  background-image: 
-    radial-gradient(circle at 50% 50%, rgba(29, 78, 216, 0.18) 0%, transparent 65%),
-    radial-gradient(circle at 50% 10%, rgba(56, 189, 248, 0.08) 0%, transparent 50%);
   padding: 4.5rem 0;
   position: relative;
   overflow: hidden;
