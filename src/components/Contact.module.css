@@ -2,7 +2,7 @@
 
 .contactSection {
   background: #FFFFFF;
-  background-image: 
+  background-image:
     radial-gradient(circle at 10% 20%, rgba(29, 78, 216, 0.03) 0%, transparent 50%),
     radial-gradient(circle at 90% 80%, rgba(56, 189, 248, 0.04) 0%, transparent 50%);
   position: relative;
@@ -11,7 +11,82 @@
   border-top: 1px solid #E4E7EC;
 }
 
+/* ====================================================
+   AMBIENT TECHNOLOGY BACKGROUND
+   ==================================================== */
+.ambientDecor {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.blobOne {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  left: -160px;
+  top: -140px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(29, 78, 216, 0.09) 0%, transparent 65%);
+  filter: blur(34px);
+}
+
+.blobTwo {
+  position: absolute;
+  width: 540px;
+  height: 540px;
+  right: -190px;
+  bottom: -180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.11) 0%, transparent 65%);
+  filter: blur(40px);
+}
+
+.dotGrid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(11, 42, 111, 0.14) 1px, transparent 1.5px);
+  background-size: 30px 30px;
+  opacity: 0.55;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 32%, black, transparent 74%);
+  mask-image: radial-gradient(ellipse at 50% 32%, black, transparent 74%);
+}
+
+.particlesLayer {
+  position: absolute;
+  inset: 0;
+}
+
+.particle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(29, 78, 216, 0.35);
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.55);
+  opacity: 0;
+  animation: floatParticle 9s ease-in-out infinite;
+}
+
+.p1 { left: 7%; top: 24%; animation-delay: 0s; }
+.p2 { left: 22%; top: 72%; width: 4px; height: 4px; animation-delay: 1.4s; }
+.p3 { left: 67%; top: 15%; width: 4px; height: 4px; background: rgba(56, 189, 248, 0.5); animation-delay: 2.2s; }
+.p4 { left: 86%; top: 60%; animation-delay: 0.7s; }
+.p5 { left: 56%; top: 88%; width: 4px; height: 4px; animation-delay: 3s; }
+.p6 { left: 43%; top: 11%; width: 3px; height: 3px; animation-delay: 1.8s; }
+
+@keyframes floatParticle {
+  0% { transform: translateY(14px); opacity: 0; }
+  22% { opacity: 0.75; }
+  58% { opacity: 0.45; transform: translateY(-12px); }
+  100% { transform: translateY(14px); opacity: 0; }
+}
+
 .sectionHeader {
+  position: relative;
+  z-index: 1;
   text-align: center;
   margin-bottom: 3rem;
   max-width: 720px;
@@ -28,6 +103,44 @@
   z-index: 2;
 }
 
+/* Subtle connection graphic in the gap between the two cards */
+.gridConnector {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.connectorLine {
+  width: 2px;
+  height: 30px;
+  background: linear-gradient(180deg, transparent, rgba(56, 189, 248, 0.5));
+}
+
+.connectorLineDown {
+  background: linear-gradient(0deg, transparent, rgba(56, 189, 248, 0.5));
+}
+
+.connectorNode {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #1D4ED8;
+  box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.12), 0 0 14px rgba(56, 189, 248, 0.8);
+  animation: connectorPulse 3s ease-in-out infinite;
+}
+
+@keyframes connectorPulse {
+  0%, 100% { opacity: 0.65; box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.1), 0 0 10px rgba(56, 189, 248, 0.55); }
+  50% { opacity: 1; box-shadow: 0 0 0 6px rgba(29, 78, 216, 0.16), 0 0 18px rgba(56, 189, 248, 0.9); }
+}
+
 /* ====================================================
    LEFT COLUMN: CONNECT WITH VIT-TEC HUB
    ==================================================== */
@@ -42,6 +155,53 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+/* Refined top highlight hairline */
+.hubCard::before,
+.formCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 24px;
+  right: 24px;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(90deg, transparent, rgba(29, 78, 216, 0.65), rgba(56, 189, 248, 0.5), transparent);
+  opacity: 0.45;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hubCard::after,
+.formCard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  pointer-events: none;
+  background: radial-gradient(120% 90% at 100% 0%, rgba(56, 189, 248, 0.05), transparent 55%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.hubCard:hover,
+.formCard:hover {
+  transform: translateY(-4px);
+  border-color: rgba(29, 78, 216, 0.28);
+  box-shadow: 0 18px 44px rgba(11, 42, 111, 0.09), 0 4px 14px rgba(11, 42, 111, 0.05);
+}
+
+.hubCard:hover::before,
+.formCard:hover::before {
+  opacity: 1;
+}
+
+.hubCard:hover::after,
+.formCard:hover::after {
+  opacity: 1;
 }
 
 /* Subtle background connection network geometry */
@@ -76,6 +236,17 @@
 @keyframes netPulse {
   0% { transform: scale(0.85); opacity: 0.5; }
   100% { transform: scale(1.15); opacity: 1; }
+}
+
+.networkNode {
+  fill: #38BDF8;
+  opacity: 0.85;
+  animation: nodeGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes nodeGlow {
+  0% { opacity: 0.4; }
+  100% { opacity: 0.95; }
 }
 
 .hubHeader {
@@ -216,13 +387,14 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background 0.2s, color 0.2s, transform 0.2s;
+  transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 
 .contactModule:hover .moduleIconBox {
   background: #1D4ED8;
   color: #FFFFFF;
-  transform: scale(1.05);
+  transform: scale(1.06);
+  box-shadow: 0 0 12px rgba(29, 78, 216, 0.35);
 }
 
 .moduleDetails {
@@ -267,6 +439,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 .formHeader {
@@ -327,6 +500,7 @@
   border: 1px solid #CBD5E1;
   border-radius: 10px;
   color: #0F172A;
+  caret-color: #1D4ED8;
   font-family: var(--font-body, sans-serif);
   font-size: 0.88rem;
   transition: all 0.2s ease;
@@ -372,11 +546,12 @@
 
 .submitBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(29, 78, 216, 0.45);
+  box-shadow: 0 10px 26px rgba(29, 78, 216, 0.5);
+  border-color: #38BDF8;
 }
 
 .submitBtn:hover .btnArrow {
-  transform: translateX(4px);
+  transform: translateX(5px);
 }
 
 .btnArrow {
@@ -384,7 +559,8 @@
 }
 
 .submitBtn:active {
-  transform: translateY(0);
+  transform: translateY(1px) scale(0.985);
+  box-shadow: 0 4px 12px rgba(29, 78, 216, 0.35);
 }
 
 .successMsg {
@@ -407,11 +583,28 @@
     grid-template-columns: 1fr;
     gap: 2.25rem;
   }
+
+  .gridConnector {
+    display: none;
+  }
 }
 
 @media (max-width: 640px) {
   .contactSection {
     padding: 3.5rem 0;
+  }
+
+  .ambientDecor {
+    opacity: 0.7;
+  }
+
+  .particlesLayer {
+    display: none;
+  }
+
+  .blobOne,
+  .blobTwo {
+    filter: blur(50px);
   }
 
   .hubCard,
@@ -429,5 +622,23 @@
 
   .formGridTwo {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .networkLine,
+  .networkPulseDot,
+  .networkNode,
+  .particle,
+  .connectorNode {
+    animation: none !important;
+  }
+
+  .hubCard,
+  .formCard,
+  .contactModule,
+  .moduleIconBox,
+  .submitBtn {
+    transition: none !important;
   }
 }
