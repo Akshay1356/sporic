@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
 import { getAllCorporateTrainings, getAcademicYearFromDate } from '../data/corporateTrainingOrganizedData';
 import styles from './CorporateTraining.module.css';
@@ -44,7 +44,16 @@ function formatDateRange(startDate, endDate, fallbackYear) {
 export default function CorporateTraining() {
   const [trainings, setTrainings] = useState(() => getAllCorporateTrainings());
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedYear, setSelectedYear] = useState('All');
+  const [selectedYear, setSelectedYear] = useState(() => {
+    const initialList = getAllCorporateTrainings();
+    const yearSet = new Set();
+    initialList.forEach((item) => {
+      const yr = item.year || getAcademicYearFromDate(item.startDate);
+      if (yr) yearSet.add(yr);
+    });
+    const sorted = Array.from(yearSet).sort((a, b) => b.localeCompare(a));
+    return sorted[0] || 'All';
+  });
   const [selectedSchool, setSelectedSchool] = useState('All');
 
   // Sync latest records on mount and upon any custom/storage events
@@ -81,17 +90,22 @@ export default function CorporateTraining() {
     };
   }, []);
 
-  // Compute available academic years dynamically
-  const yearOptions = useMemo(() => {
+  // Compute available academic years dynamically (most recent first)
+  const yearTabs = useMemo(() => {
     const yearSet = new Set();
     trainings.forEach((item) => {
       const yr = item.year || getAcademicYearFromDate(item.startDate);
       if (yr) yearSet.add(yr);
     });
-    // Sort years descending (e.g. 2025–2026, 2024–2025, ...)
-    const sorted = Array.from(yearSet).sort((a, b) => b.localeCompare(a));
-    return ['All', ...sorted];
+    return Array.from(yearSet).sort((a, b) => b.localeCompare(a));
   }, [trainings]);
+
+  // Keep the active tab valid if the dataset changes
+  useEffect(() => {
+    if (!yearTabs.includes(selectedYear)) {
+      setSelectedYear(yearTabs[0] || 'All');
+    }
+  }, [yearTabs, selectedYear]);
 
   // Extract unique schools dynamically
   const schoolOptions = useMemo(() => {
@@ -216,26 +230,6 @@ export default function CorporateTraining() {
 
             {/* Year & School Dropdowns */}
             <div className={styles.filtersGroup}>
-              {/* Year Filter */}
-              <div className={styles.selectWrapper}>
-                <label className={styles.filterLabel}>Year:</label>
-                <select
-                  value={selectedYear}
-                  onChange={(e) => setSelectedYear(e.target.value)}
-                  className={styles.select}
-                  aria-label="Filter by Academic Year"
-                >
-                  <option value="All">All Years</option>
-                  {yearOptions
-                    .filter((y) => y !== 'All')
-                    .map((yr) => (
-                      <option key={yr} value={yr}>
-                        {yr}
-                      </option>
-                    ))}
-                </select>
-              </div>
-
               {/* School Filter */}
               <div className={styles.selectWrapper}>
                 <label className={styles.filterLabel}>School:</label>
@@ -263,21 +257,50 @@ export default function CorporateTraining() {
             </div>
           </div>
 
-          {/* Year-by-Year Chronological Tables */}
+          {/* Year Tabs - dynamically generated from corporate training data */}
+          {yearTabs.length > 0 && (
+            <div className={styles.yearTabs} role="tablist" aria-label="Select Academic Year">
+              {yearTabs.map((yr) => {
+                const isActive = selectedYear === yr;
+                return (
+                  <button
+                    key={yr}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-controls={`year-panel-${yr}`}
+                    onClick={() => setSelectedYear(yr)}
+                    className={`${styles.yearTab} ${isActive ? styles.yearTabActive : ''}`}
+                  >
+                    {yr}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Chronological Table for the Selected Year */}
           {groupedByYear.length > 0 ? (
             <div className={styles.yearGroupsContainer}>
-              {groupedByYear.map(({ year, records }) => (
-                <div key={year} className={styles.yearBlock}>
-                  {/* Year Group Header */}
-                  <div className={styles.yearHeader}>
-                    <div className={styles.yearTitleWrap}>
-                      <span className={styles.yearBadge}>{year}</span>
-                      <span className={styles.yearCount}>
-                        ({records.length} {records.length === 1 ? 'Program' : 'Programs'})
-                      </span>
+              <AnimatePresence mode="wait" initial={false}>
+                {groupedByYear.map(({ year, records }) => (
+                  <motion.div
+                    key={year}
+                    id={`year-panel-${year}`}
+                    role="tabpanel"
+                    className={styles.yearBlock}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.22, ease: 'easeOut' }}
+                  >
+                    {/* Year Group Header */}
+                    <div className={styles.yearHeader}>
+                      <div className={styles.yearTitleWrap}>
+                        <span className={styles.yearBadge}>{year}</span>
+                      </div>
+                      <div className={styles.yearDivider} />
                     </div>
-                    <div className={styles.yearDivider} />
-                  </div>
 
                   {/* Responsive Table for this Year */}
                   <div
@@ -345,8 +368,9 @@ export default function CorporateTraining() {
                       </tbody>
                     </table>
                   </div>
-                </div>
+                </motion.div>
               ))}
+            </AnimatePresence>
             </div>
           ) : (
             <div className={styles.noResultsCard}>
@@ -361,7 +385,7 @@ export default function CorporateTraining() {
                 type="button"
                 onClick={() => {
                   setSearchQuery('');
-                  setSelectedYear('All');
+                  setSelectedYear(yearTabs[0] || 'All');
                   setSelectedSchool('All');
                 }}
                 className="btn btn-primary"
