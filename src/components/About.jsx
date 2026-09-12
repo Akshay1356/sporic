@@ -1,29 +1,36 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { VisionCard, MissionCard } from './VisionMissionCard';
+import { getAllCourses, COURSE_STATUS } from '../data/courses';
 import styles from './About.module.css';
 
-const credentials = [
-  'A globally-renowned institute (VIT)',
-  'State-of-the-art infrastructure',
-  'Alumnus in many countries',
-  '90+ Courses & 3 Learning Domains',
-  '200+ proven Industry solutions',
-  '500+ trained Corporates',
-  'Globally recognized technical courses',
-  'Well researched learning resources',
-  'Highly Qualified Professionals',
-  'Expertise in Diversified Domains',
-  'Industry Sponsored CoE',
-  'Custom Designed Training',
-  'Basics-to-Advanced Training',
-  'Face-to-Face & Blended mode',
-];
+function getUpcomingCourses() {
+  return getAllCourses()
+    .filter((course) => course.status === COURSE_STATUS.UPCOMING)
+    .sort(
+      (a, b) =>
+        new Date(a.startDate || '2099-01-01') - new Date(b.startDate || '2099-01-01')
+    );
+}
+
+function formatStartDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
 
 export default function About() {
   const containerRef = useRef(null);
   const isInView = useInView(containerRef, { once: true, margin: '-80px' });
+  const [upcomingCourses, setUpcomingCourses] = useState(getUpcomingCourses);
+
+  useEffect(() => {
+    const reload = () => setUpcomingCourses(getUpcomingCourses());
+    window.addEventListener('storage', reload);
+    return () => window.removeEventListener('storage', reload);
+  }, []);
 
   return (
     <section className={styles.aboutSection} id="about" ref={containerRef}>
@@ -68,7 +75,7 @@ export default function About() {
           </motion.div>
         </div>
 
-        {/* Secondary Subgrid: Vision & Mission Interactive Layered Cards + Credentials */}
+        {/* Secondary Subgrid: Vision & Mission Interactive Cards + Upcoming Courses */}
         <div className={styles.subGrid}>
           {/* Left Sub-Column: Interactive Layered Reveal Cards */}
           <motion.div
@@ -80,22 +87,78 @@ export default function About() {
             <MissionCard />
           </motion.div>
 
-          {/* Right Sub-Column: Credentials Card */}
+          {/* Right Sub-Column: Upcoming Courses */}
           <motion.div
-            className={styles.credentialsCard}
+            className={styles.upcomingCard}
             initial={{ opacity: 0, y: 24 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <h3 className={styles.credentialsTitle}>VIT-TEC Credentials &amp; Standards</h3>
-            <div className={styles.credentialsGrid}>
-              {credentials.map((cred, idx) => (
-                <div key={idx} className={styles.credentialItem}>
-                  <span className={styles.checkIcon}>✓</span>
-                  <span className={styles.credentialText}>{cred}</span>
-                </div>
-              ))}
+            <div className={styles.upcomingHeader}>
+              <div>
+                <span className={styles.upcomingEyebrow}>Coming Soon</span>
+                <h3 className={styles.upcomingTitle}>Upcoming Courses</h3>
+              </div>
+              <span className={styles.upcomingCount}>{upcomingCourses.length}</span>
             </div>
+
+            <div className={styles.upcomingList}>
+              {upcomingCourses.length > 0 ? (
+                upcomingCourses.map((course) => (
+                  <Link
+                    key={course.id}
+                    to={`/courses/${course.id}`}
+                    className={styles.upcomingItem}
+                    title={`View details for ${course.title}`}
+                  >
+                    <img
+                      src={course.image}
+                      alt=""
+                      className={styles.upcomingImg}
+                      loading="lazy"
+                    />
+                    <div className={styles.upcomingItemBody}>
+                      <span className={styles.upcomingItemId}>{course.id}</span>
+                      <span className={styles.upcomingItemTitle}>{course.title}</span>
+                      <div className={styles.upcomingItemMeta}>
+                        <span>{course.category}</span>
+                        <span className={styles.upcomingMetaDot}>•</span>
+                        <span>{course.hours} hrs</span>
+                        {course.startDate && (
+                          <>
+                            <span className={styles.upcomingMetaDot}>•</span>
+                            <span>Starts {formatStartDate(course.startDate)}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <span className={styles.upcomingPill}>Upcoming</span>
+                  </Link>
+                ))
+              ) : (
+                <p className={styles.upcomingEmpty}>
+                  No upcoming programs right now. New training batches are announced
+                  regularly — check back soon.
+                </p>
+              )}
+            </div>
+
+            <Link to="/courses" className={styles.upcomingAllLink}>
+              View All Programs
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </Link>
           </motion.div>
         </div>
       </div>
