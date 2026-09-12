@@ -1,12 +1,26 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 import styles from './IndustryTraining.module.css';
 
 export default function IndustryTraining() {
   const containerRef = useRef(null);
   const isInView = useInView(containerRef, { once: true, margin: '-80px' });
+  const reduceMotion = useReducedMotion();
   const [activeStage, setActiveStage] = useState(null);
+
+  const flowReveal = {
+    hidden: { opacity: reduceMotion ? 1 : 0, y: reduceMotion ? 0 : 24 },
+    show: (i) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: reduceMotion ? 0 : 0.5,
+        ease: 'easeOut',
+        delay: reduceMotion ? 0 : i * 0.12,
+      },
+    }),
+  };
 
   return (
     <section className={styles.industrySection} ref={containerRef}>
@@ -35,136 +49,211 @@ export default function IndustryTraining() {
                   </linearGradient>
                 </defs>
                 {/* Central Flowing Spine */}
-                <line x1="50%" y1="10%" x2="50%" y2="90%" className={styles.conduitTrack} />
-                <line x1="50%" y1="10%" x2="50%" y2="90%" className={styles.conduitFlowActive} />
+                <motion.line
+                  x1="50%"
+                  y1="10%"
+                  x2="50%"
+                  y2="90%"
+                  className={styles.conduitTrack}
+                  initial={reduceMotion ? { opacity: 1 } : { opacity: 0, pathLength: 0 }}
+                  animate={
+                    isInView
+                      ? reduceMotion
+                        ? { opacity: 1 }
+                        : { opacity: 1, pathLength: 1 }
+                      : { opacity: reduceMotion ? 1 : 0, pathLength: reduceMotion ? 1 : 0 }
+                  }
+                  transition={
+                    reduceMotion
+                      ? { duration: 0 }
+                      : { duration: 1.1, ease: 'easeOut', delay: 0.15 }
+                  }
+                />
+                <line
+                  x1="50%"
+                  y1="10%"
+                  x2="50%"
+                  y2="90%"
+                  className={styles.conduitFlowActive}
+                />
               </svg>
+
+              {/* STAGE 0: CENTRAL VIT-TEC TRAINING ENGINE */}
+              <motion.div
+                className={styles.flowStageEngine}
+                variants={flowReveal}
+                custom={0}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, amount: 0.2 }}
+              >
+                <div
+                  className={`${styles.engineCard} ${activeStage === 'engine' ? styles.engineCardActive : ''}`}
+                  onMouseEnter={() => setActiveStage('engine')}
+                  onMouseLeave={() => setActiveStage(null)}
+                  onClick={() => setActiveStage(activeStage === 'engine' ? null : 'engine')}
+                >
+                  <div className={styles.engineCoreLeft}>
+                    <div className={styles.engineEmblemWrap}>
+                      <img src="/vit_logo.png" alt="VIT Emblem" className={styles.engineLogoImg} />
+                    </div>
+                    <div className={styles.engineTitles}>
+                      <span className={styles.engineTag}>Transformation Core</span>
+                      <h3 className={styles.engineMainTitle}>VIT-TEC Training Engine</h3>
+                      <span className={styles.engineSubtitle}>Curriculum Design &amp; SpoRIC Governance</span>
+                    </div>
+                  </div>
+
+                  <div className={styles.engineGraphicRight}>
+                    <svg viewBox="0 0 60 60" className={styles.engineRingSvg}>
+                      <circle cx="30" cy="30" r="24" fill="none" className={styles.ringOuter} />
+                      <circle cx="30" cy="30" r="16" fill="none" className={styles.ringInner} />
+                      <circle cx="30" cy="30" r="6" fill="#1D4ED8" filter="drop-shadow(0 0 4px #38BDF8)" />
+                      <circle cx="30" cy="30" r="2.5" fill="#FFFFFF" />
+                    </svg>
+                  </div>
+                </div>
+              </motion.div>
 
               {/* STAGE 1: INPUT NODES (Industry Needs & Skill Gap Analysis) */}
               <div className={styles.nodeRowTwo}>
-                <div
-                  className={`${styles.pipelineNode} ${activeStage === 'needs' ? styles.pipelineNodeActive : ''}`}
-                  onMouseEnter={() => setActiveStage('needs')}
-                  onMouseLeave={() => setActiveStage(null)}
-                  onClick={() => setActiveStage(activeStage === 'needs' ? null : 'needs')}
+                <motion.div
+                  variants={flowReveal}
+                  custom={1}
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={{ once: true, amount: 0.2 }}
                 >
-                  <div className={styles.nodeIconBox}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
+                  <div
+                    className={`${styles.pipelineNode} ${activeStage === 'needs' ? styles.pipelineNodeActive : ''}`}
+                    onMouseEnter={() => setActiveStage('needs')}
+                    onMouseLeave={() => setActiveStage(null)}
+                    onClick={() => setActiveStage(activeStage === 'needs' ? null : 'needs')}
+                  >
+                    <div className={styles.nodeIconBox}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    </div>
+                    <div className={styles.nodeContent}>
+                      <span className={styles.nodeStepBadge}>Step 01</span>
+                      <h4 className={styles.nodeLabel}>Industry Needs</h4>
+                      <span className={styles.nodeDesc}>Understand evolving corporate project requirements.</span>
+                    </div>
                   </div>
-                  <div className={styles.nodeContent}>
-                    <span className={styles.nodeStepBadge}>Step 01</span>
-                    <h4 className={styles.nodeLabel}>Industry Needs</h4>
-                    <span className={styles.nodeDesc}>Understand evolving corporate project requirements.</span>
-                  </div>
-                </div>
+                </motion.div>
 
-                <div
-                  className={`${styles.pipelineNode} ${activeStage === 'gaps' ? styles.pipelineNodeActive : ''}`}
-                  onMouseEnter={() => setActiveStage('gaps')}
-                  onMouseLeave={() => setActiveStage(null)}
-                  onClick={() => setActiveStage(activeStage === 'gaps' ? null : 'gaps')}
+                <motion.div
+                  variants={flowReveal}
+                  custom={2}
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={{ once: true, amount: 0.2 }}
                 >
-                  <div className={styles.nodeIconBox}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
+                  <div
+                    className={`${styles.pipelineNode} ${activeStage === 'gaps' ? styles.pipelineNodeActive : ''}`}
+                    onMouseEnter={() => setActiveStage('gaps')}
+                    onMouseLeave={() => setActiveStage(null)}
+                    onClick={() => setActiveStage(activeStage === 'gaps' ? null : 'gaps')}
+                  >
+                    <div className={styles.nodeIconBox}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                    <div className={styles.nodeContent}>
+                      <span className={styles.nodeStepBadge}>Step 02</span>
+                      <h4 className={styles.nodeLabel}>Skill Gap Analysis</h4>
+                      <span className={styles.nodeDesc}>Identify precise technical &amp; behavioral workforce gaps.</span>
+                    </div>
                   </div>
-                  <div className={styles.nodeContent}>
-                    <span className={styles.nodeStepBadge}>Step 02</span>
-                    <h4 className={styles.nodeLabel}>Skill Gap Analysis</h4>
-                    <span className={styles.nodeDesc}>Identify precise technical &amp; behavioral workforce gaps.</span>
-                  </div>
-                </div>
+                </motion.div>
               </div>
 
-              {/* STAGE 2: CENTRAL VIT-TEC TRAINING ENGINE */}
-              <div
-                className={`${styles.engineCard} ${activeStage === 'engine' ? styles.engineCardActive : ''}`}
-                onMouseEnter={() => setActiveStage('engine')}
-                onMouseLeave={() => setActiveStage(null)}
-                onClick={() => setActiveStage(activeStage === 'engine' ? null : 'engine')}
-              >
-                <div className={styles.engineCoreLeft}>
-                  <div className={styles.engineEmblemWrap}>
-                    <img src="/vit_logo.png" alt="VIT Emblem" className={styles.engineLogoImg} />
-                  </div>
-                  <div className={styles.engineTitles}>
-                    <span className={styles.engineTag}>Transformation Core</span>
-                    <h3 className={styles.engineMainTitle}>VIT-TEC Training Engine</h3>
-                    <span className={styles.engineSubtitle}>Curriculum Design &amp; SpoRIC Governance</span>
-                  </div>
-                </div>
-
-                <div className={styles.engineGraphicRight}>
-                  <svg viewBox="0 0 60 60" className={styles.engineRingSvg}>
-                    <circle cx="30" cy="30" r="24" fill="none" className={styles.ringOuter} />
-                    <circle cx="30" cy="30" r="16" fill="none" className={styles.ringInner} />
-                    <circle cx="30" cy="30" r="6" fill="#1D4ED8" filter="drop-shadow(0 0 4px #38BDF8)" />
-                    <circle cx="30" cy="30" r="2.5" fill="#FFFFFF" />
-                  </svg>
-                </div>
-              </div>
-
-              {/* STAGE 3: EXECUTION NODES (Customized Training & Expert Faculty) */}
+              {/* STAGE 2: EXECUTION NODES (Customized Training & Expert Faculty) */}
               <div className={styles.nodeRowTwo}>
-                <div
-                  className={`${styles.pipelineNode} ${activeStage === 'custom' ? styles.pipelineNodeActive : ''}`}
-                  onMouseEnter={() => setActiveStage('custom')}
-                  onMouseLeave={() => setActiveStage(null)}
-                  onClick={() => setActiveStage(activeStage === 'custom' ? null : 'custom')}
+                <motion.div
+                  variants={flowReveal}
+                  custom={3}
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={{ once: true, amount: 0.2 }}
                 >
-                  <div className={styles.nodeIconBox}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
-                    </svg>
+                  <div
+                    className={`${styles.pipelineNode} ${activeStage === 'custom' ? styles.pipelineNodeActive : ''}`}
+                    onMouseEnter={() => setActiveStage('custom')}
+                    onMouseLeave={() => setActiveStage(null)}
+                    onClick={() => setActiveStage(activeStage === 'custom' ? null : 'custom')}
+                  >
+                    <div className={styles.nodeIconBox}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
+                      </svg>
+                    </div>
+                    <div className={styles.nodeContent}>
+                      <span className={styles.nodeStepBadge}>Step 03</span>
+                      <h4 className={styles.nodeLabel}>Customized Training</h4>
+                      <span className={styles.nodeDesc}>Build tailored curricula matching shift schedules.</span>
+                    </div>
                   </div>
-                  <div className={styles.nodeContent}>
-                    <span className={styles.nodeStepBadge}>Step 03</span>
-                    <h4 className={styles.nodeLabel}>Customized Training</h4>
-                    <span className={styles.nodeDesc}>Build tailored curricula matching shift schedules.</span>
-                  </div>
-                </div>
+                </motion.div>
 
-                <div
-                  className={`${styles.pipelineNode} ${activeStage === 'faculty' ? styles.pipelineNodeActive : ''}`}
-                  onMouseEnter={() => setActiveStage('faculty')}
-                  onMouseLeave={() => setActiveStage(null)}
-                  onClick={() => setActiveStage(activeStage === 'faculty' ? null : 'faculty')}
+                <motion.div
+                  variants={flowReveal}
+                  custom={4}
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={{ once: true, amount: 0.2 }}
                 >
-                  <div className={styles.nodeIconBox}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
+                  <div
+                    className={`${styles.pipelineNode} ${activeStage === 'faculty' ? styles.pipelineNodeActive : ''}`}
+                    onMouseEnter={() => setActiveStage('faculty')}
+                    onMouseLeave={() => setActiveStage(null)}
+                    onClick={() => setActiveStage(activeStage === 'faculty' ? null : 'faculty')}
+                  >
+                    <div className={styles.nodeIconBox}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                    </div>
+                    <div className={styles.nodeContent}>
+                      <span className={styles.nodeStepBadge}>Step 04</span>
+                      <h4 className={styles.nodeLabel}>Expert Faculty</h4>
+                      <span className={styles.nodeDesc}>Hands-on coaching by certified industry researchers.</span>
+                    </div>
                   </div>
-                  <div className={styles.nodeContent}>
-                    <span className={styles.nodeStepBadge}>Step 04</span>
-                    <h4 className={styles.nodeLabel}>Expert Faculty</h4>
-                    <span className={styles.nodeDesc}>Hands-on coaching by certified industry researchers.</span>
-                  </div>
-                </div>
+                </motion.div>
               </div>
 
-              {/* STAGE 4: CULMINATION (Business Impact & ROI) */}
-              <div
-                className={`${styles.impactHighlightNode} ${activeStage === 'impact' ? styles.impactHighlightNodeActive : ''}`}
-                onMouseEnter={() => setActiveStage('impact')}
-                onMouseLeave={() => setActiveStage(null)}
-                onClick={() => setActiveStage(activeStage === 'impact' ? null : 'impact')}
+              {/* STAGE 3: CULMINATION (Business Impact & ROI) */}
+              <motion.div
+                className={styles.flowStageImpact}
+                variants={flowReveal}
+                custom={5}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, amount: 0.2 }}
               >
-                <div className={styles.impactLeft}>
-                  <div className={styles.impactIconBox}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                    </svg>
+                <div
+                  className={`${styles.impactHighlightNode} ${activeStage === 'impact' ? styles.impactHighlightNodeActive : ''}`}
+                  onMouseEnter={() => setActiveStage('impact')}
+                  onMouseLeave={() => setActiveStage(null)}
+                  onClick={() => setActiveStage(activeStage === 'impact' ? null : 'impact')}
+                >
+                  <div className={styles.impactLeft}>
+                    <div className={styles.impactIconBox}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className={styles.impactTitle}>Business Impact &amp; Measurable ROI</h4>
+                      <p className={styles.impactDesc}>Translate workforce training into accelerated project velocity &amp; innovation.</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className={styles.impactTitle}>Business Impact &amp; Measurable ROI</h4>
-                    <p className={styles.impactDesc}>Translate workforce training into accelerated project velocity &amp; innovation.</p>
-                  </div>
+                  <span className={styles.impactBadge}>Outcome Guaranteed</span>
                 </div>
-                <span className={styles.impactBadge}>Outcome Guaranteed</span>
-              </div>
+              </motion.div>
             </div>
           </motion.div>
 
