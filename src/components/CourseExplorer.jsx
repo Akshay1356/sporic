@@ -130,17 +130,17 @@ export default function CourseExplorer({ initialDomain = '' }) {
             key={d}
             type="button"
             onClick={() => handleDomainSelect(d)}
-            style={{
+style={{
               padding: '0.55rem 1.15rem',
               borderRadius: '9999px',
               fontSize: '0.85rem',
               fontWeight: '700',
               cursor: 'pointer',
               transition: 'all 0.2s',
-              border: domain === d ? '1px solid #38BDF8' : '1px solid rgba(255, 255, 255, 0.15)',
-              background: domain === d ? '#06113F' : 'rgba(255, 255, 255, 0.06)',
-              color: '#FFFFFF',
-              boxShadow: domain === d ? '0 4px 12px rgba(2, 132, 199, 0.35)' : 'none',
+              border: domain === d ? '1px solid #0B2A6F' : '1px solid #0B2A6F',
+              background: domain === d ? 'linear-gradient(135deg, #071B4A 0%, #0B2A6F 100%)' : '#FFFFFF',
+              color: domain === d ? '#FFFFFF' : '#0B2A6F',
+              boxShadow: domain === d ? '0 6px 16px rgba(11, 42, 111, 0.28)' : '0 2px 6px rgba(11, 42, 111, 0.12)',
             }}
           >
             {d === 'All' ? '🌐 All Programs' : d}
