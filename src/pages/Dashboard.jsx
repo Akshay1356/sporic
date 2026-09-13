@@ -1856,53 +1856,73 @@ export default function Dashboard() {
           MODAL: ADD / EDIT GALLERY PHOTO (ADMIN ONLY)
          ==================================================== */}
       {showPhotoModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(7, 27, 74, 0.8)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div style={{ background: '#0F2252', border: '1px solid #38BDF8', borderRadius: '16px', padding: '2rem', width: '100%', maxWidth: '560px', color: '#FFF' }}>
-            <h3 style={{ margin: '0 0 1rem' }}>{editingPhoto ? 'Edit Gallery Photo' : '➕ Add New Gallery Photo'}</h3>
-            {photoError && <div style={{ background: 'rgba(239, 68, 68, 0.2)', padding: '0.5rem 1rem', borderRadius: '8px', color: '#FCA5A5', marginBottom: '1rem' }}>{photoError}</div>}
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(7, 27, 74, 0.8)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', overflowY: 'auto' }}>
+          <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', boxShadow: '0 20px 48px rgba(7, 27, 74, 0.25)', padding: '1.75rem', width: '100%', maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto', color: '#0B2A6F' }}>
+            <div style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+              <h3 style={{ margin: 0, color: '#0B2A6F', fontWeight: 700, fontSize: '1.15rem' }}>{editingPhoto ? 'Edit Gallery Photo' : '➕ Add New Gallery Photo'}</h3>
+            </div>
+            {photoError && <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', padding: '0.6rem 1rem', borderRadius: '8px', color: '#B91C1C', fontSize: '0.85rem', marginBottom: '1rem' }}>{photoError}</div>}
             <form onSubmit={handleSavePhotoSubmit}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Title (Optional)</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Corporate Management Program"
-                  value={photoTitle}
-                  onChange={(e) => setPhotoTitle(e.target.value)}
-                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                />
-              </div>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Category</label>
-                <select
-                  value={photoCategory}
-                  onChange={(e) => setPhotoCategory(e.target.value)}
-                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                >
-                  {GALLERY_CATEGORIES.filter((c) => c !== 'All').map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Description *</label>
-                <textarea
-                  required
-                  placeholder="Details of the event/training session..."
-                  value={photoDesc}
-                  onChange={(e) => setPhotoDesc(e.target.value)}
-                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF', minHeight: '70px' }}
-                />
-              </div>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Upload Photo</label>
-                <input type="file" accept="image/*" onChange={handleImageFileChange} style={{ color: '#FFF' }} />
-                {photoImagePreview && (
-                  <div style={{ marginTop: '0.5rem' }}>
-                    <img src={photoImagePreview} alt="Preview" style={{ height: '70px', borderRadius: '6px' }} />
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem', alignItems: 'flex-start' }}>
+                {/* LEFT: Photo Upload / Preview */}
+                <div style={{ flex: '1 1 230px', minWidth: '230px' }}>
+                  <label style={{ display: 'block' }}>
+                    <div style={{ border: '2px dashed #CBD5E1', background: '#F8FAFC', borderRadius: '12px', padding: '1.25rem', minHeight: '200px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', cursor: 'pointer', boxSizing: 'border-box', transition: 'border-color 0.2s ease' }}>
+                      <input type="file" accept="image/*" onChange={handleImageFileChange} aria-label="Upload Photo" style={{ display: 'none' }} />
+                      {photoImagePreview ? (
+                        <>
+                          <img src={photoImagePreview} alt="Preview" style={{ maxHeight: '160px', maxWidth: '100%', borderRadius: '8px', objectFit: 'cover', marginBottom: '0.5rem' }} />
+                          <span style={{ fontSize: '0.78rem', color: '#0B2A6F', fontWeight: 600, display: 'block' }}>Click to replace photo</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3" /></svg>
+                          <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0B2A6F', marginTop: '0.75rem', display: 'block' }}>Upload Photo</span>
+                          <span style={{ fontSize: '0.78rem', color: '#64748B', marginTop: '0.25rem', display: 'block' }}>Click to select an image (JPG / PNG)</span>
+                        </>
+                      )}
+                    </div>
+                  </label>
+                </div>
+
+                {/* RIGHT: Title, Category, Description */}
+                <div style={{ flex: '1 1 270px', minWidth: '260px' }}>
+                  <div style={{ marginBottom: '0.9rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#0B2A6F', marginBottom: '0.35rem' }}>Title (Optional)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Corporate Management Program"
+                      value={photoTitle}
+                      onChange={(e) => setPhotoTitle(e.target.value)}
+                      style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '8px', border: '1px solid #E2E8F0', background: '#FFFFFF', color: '#0F172A', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                    />
                   </div>
-                )}
+                  <div style={{ marginBottom: '0.9rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#0B2A6F', marginBottom: '0.35rem' }}>Category</label>
+                    <select
+                      value={photoCategory}
+                      onChange={(e) => setPhotoCategory(e.target.value)}
+                      style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '8px', border: '1px solid #E2E8F0', background: '#FFFFFF', color: '#0F172A', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                    >
+                      {GALLERY_CATEGORIES.filter((c) => c !== 'All').map((cat) => (
+                        <option key={cat} value={cat}>{cat}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div style={{ marginBottom: '0.9rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#0B2A6F', marginBottom: '0.35rem' }}>Description *</label>
+                    <textarea
+                      required
+                      placeholder="Details of the event/training session..."
+                      value={photoDesc}
+                      onChange={(e) => setPhotoDesc(e.target.value)}
+                      style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '8px', border: '1px solid #E2E8F0', background: '#FFFFFF', color: '#0F172A', fontSize: '0.9rem', minHeight: '80px', resize: 'vertical', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                </div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
                 <button type="button" onClick={() => setShowPhotoModal(false)} className="btn btn-secondary">
                   Cancel
                 </button>
