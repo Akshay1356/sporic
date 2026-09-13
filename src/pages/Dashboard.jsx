@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import GlassCard from '../components/GlassCard';
+import AdminModal from '../components/AdminModal';
+import modalStyles from '../components/AdminModal.module.css';
 import {
   OverviewIcon,
   BookIcon,
@@ -18,7 +20,6 @@ import {
   PhoneIcon,
   AwardIcon,
   CheckIcon,
-  SaveIcon,
   XIcon,
 } from '../components/DashboardIcons';
 import {
@@ -1660,258 +1661,226 @@ export default function Dashboard() {
           MODAL: ADD NEW PREVIOUS PROGRAM (ADMIN ONLY)
          ==================================================== */}
       {showProgramModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(7, 27, 74, 0.8)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div style={{ background: '#0F2252', border: '1px solid #38BDF8', borderRadius: '16px', padding: '2rem', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', color: '#FFF' }}>
-            <h3 style={{ margin: '0 0 1rem', fontSize: '1.3rem' }}>
-              {editingProgram ? 'Edit Landmark Previous Program' : (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
-                  <PlusIcon size={17} />
-                  Add Landmark Previous Program
-                </span>
-              )}
-            </h3>
-
-            {progError && <div style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #EF4444', padding: '0.5rem 1rem', borderRadius: '8px', color: '#FCA5A5', marginBottom: '1rem' }}>{progError}</div>}
-
-            <form onSubmit={handleSaveProgramSubmit}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem', color: '#CBD5E1' }}>Program Title *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Lucas TVS Management Multiplier Program"
-                  value={progTitle}
-                  onChange={(e) => setProgTitle(e.target.value)}
-                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem', color: '#CBD5E1' }}>Client / Corporate Cohort</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Lucas TVS Ltd."
-                    value={progClient}
-                    onChange={(e) => setProgClient(e.target.value)}
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem', color: '#CBD5E1' }}>Category</label>
-                  <select
-                    value={progCategory}
-                    onChange={(e) => setProgCategory(e.target.value)}
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                  >
-                    <option value="Corporate Training">Corporate Training</option>
-                    <option value="Technology">Technology</option>
-                    <option value="Management">Management</option>
-                    <option value="Leadership & Personality">Leadership & Personality</option>
-                    <option value="Events">Events</option>
-                  </select>
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem', color: '#CBD5E1' }}>Date &amp; Month</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. February 2026"
-                    value={progDate}
-                    onChange={(e) => setProgDate(e.target.value)}
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem', color: '#CBD5E1' }}>Participants Summary</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 48 Senior Managers"
-                    value={progCount}
-                    onChange={(e) => setProgCount(e.target.value)}
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                  />
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem', color: '#CBD5E1' }}>Program Description *</label>
-                <textarea
-                  required
-                  placeholder="Details of the executive upskilling session and training conducted..."
-                  value={progDesc}
-                  onChange={(e) => setProgDesc(e.target.value)}
-                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF', minHeight: '80px' }}
-                />
-              </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem', color: '#CBD5E1' }}>Key Outcomes (One per line)</label>
-                <textarea
-                  placeholder="Empowered 48 managers with operational delegation tools&#10;Awarded verified VIT-TEC Completion Credentials"
-                  value={progOutcomes}
-                  onChange={(e) => setProgOutcomes(e.target.value)}
-                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF', minHeight: '60px' }}
-                />
-              </div>
-
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem', color: '#CBD5E1' }}>Upload Photo</label>
-                <input type="file" accept="image/*" onChange={handleProgramImageFileChange} style={{ color: '#FFF' }} />
-                {progImage && (
-                  <div style={{ marginTop: '0.5rem' }}>
-                    <img src={progImage} alt="Preview" style={{ height: '80px', borderRadius: '6px', objectFit: 'cover' }} />
-                  </div>
-                )}
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-                <button type="button" onClick={() => setShowProgramModal(false)} className="btn btn-secondary">
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  {editingProgram ? (
-                    <>
-                      <SaveIcon size={15} />
-                      Save Changes
-                    </>
-                  ) : (
-                    'Publish Program to /about'
-                  )}
-                </button>
-              </div>
-            </form>
+        <AdminModal
+          open={showProgramModal}
+          onClose={() => setShowProgramModal(false)}
+          title="Add Landmark Previous Program"
+          isEdit={!!editingProgram}
+          editTitle="Edit Landmark Previous Program"
+          onSubmit={handleSaveProgramSubmit}
+          error={progError}
+          submitLabel="Publish Program to /about"
+          submitEditLabel="Save Changes"
+        >
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Program Title *</label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Lucas TVS Management Multiplier Program"
+              value={progTitle}
+              onChange={(e) => setProgTitle(e.target.value)}
+              className={modalStyles.input}
+            />
           </div>
-        </div>
+
+          <div className={modalStyles.row2}>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Client / Corporate Cohort</label>
+              <input
+                type="text"
+                placeholder="e.g. Lucas TVS Ltd."
+                value={progClient}
+                onChange={(e) => setProgClient(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Category</label>
+              <select
+                value={progCategory}
+                onChange={(e) => setProgCategory(e.target.value)}
+                className={modalStyles.select}
+              >
+                <option value="Corporate Training">Corporate Training</option>
+                <option value="Technology">Technology</option>
+                <option value="Management">Management</option>
+                <option value="Leadership & Personality">Leadership & Personality</option>
+                <option value="Events">Events</option>
+              </select>
+            </div>
+          </div>
+
+          <div className={modalStyles.row2}>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Date &amp; Month</label>
+              <input
+                type="text"
+                placeholder="e.g. February 2026"
+                value={progDate}
+                onChange={(e) => setProgDate(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Participants Summary</label>
+              <input
+                type="text"
+                placeholder="e.g. 48 Senior Managers"
+                value={progCount}
+                onChange={(e) => setProgCount(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+          </div>
+
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Program Description *</label>
+            <textarea
+              required
+              placeholder="Details of the executive upskilling session and training conducted..."
+              value={progDesc}
+              onChange={(e) => setProgDesc(e.target.value)}
+              className={modalStyles.textarea}
+            />
+          </div>
+
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Key Outcomes (One per line)</label>
+            <textarea
+              placeholder="Empowered 48 managers with operational delegation tools&#10;Awarded verified VIT-TEC Completion Credentials"
+              value={progOutcomes}
+              onChange={(e) => setProgOutcomes(e.target.value)}
+              className={modalStyles.textarea}
+              style={{ minHeight: '60px' }}
+            />
+          </div>
+
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Upload Photo</label>
+            <input type="file" accept="image/*" onChange={handleProgramImageFileChange} className={modalStyles.file} />
+            {progImage && (
+              <div style={{ marginTop: '0.5rem' }}>
+                <img src={progImage} alt="Preview" className={modalStyles.preview} />
+              </div>
+            )}
+          </div>
+        </AdminModal>
       )}
 
       {/* ====================================================
           MODAL: ADD NEW COURSE (ADMIN ONLY)
          ==================================================== */}
       {showAddModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(7, 27, 74, 0.8)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div style={{ background: '#0F2252', border: '1px solid #38BDF8', borderRadius: '16px', padding: '2rem', width: '100%', maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto', color: '#FFF' }}>
-            <h3 style={{ margin: '0 0 1rem', fontSize: '1.3rem' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
-                <PlusIcon size={17} />
-                Add New Training Course
-              </span>
-            </h3>
-            <form onSubmit={handleCreateNewCourse}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem', color: '#CBD5E1' }}>Course Title *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Applied Python Programming for Data Analytics"
-                  value={newCourse.title}
-                  onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })}
-                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem', color: '#CBD5E1' }}>Department</label>
-                  <select
-                    value={newCourse.domain}
-                    onChange={(e) => setNewCourse({ ...newCourse, domain: e.target.value })}
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                  >
-                    <option value={DOMAINS.TECHNOLOGY}>Technology</option>
-                    <option value={DOMAINS.MANAGEMENT}>Management</option>
-                    <option value={DOMAINS.LEADERSHIP}>Leadership & Personality</option>
-                  </select>
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem', color: '#CBD5E1' }}>Category</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Industry 4.0 / Data Science"
-                    value={newCourse.category}
-                    onChange={(e) => setNewCourse({ ...newCourse, category: e.target.value })}
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem', color: '#CBD5E1' }}>Hours</label>
-                  <input
-                    type="number"
-                    value={newCourse.hours}
-                    onChange={(e) => setNewCourse({ ...newCourse, hours: e.target.value })}
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem', color: '#CBD5E1' }}>Price (₹)</label>
-                  <input
-                    type="number"
-                    value={newCourse.price}
-                    onChange={(e) => setNewCourse({ ...newCourse, price: e.target.value })}
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem', color: '#CBD5E1' }}>Status</label>
-                  <select
-                    value={newCourse.status}
-                    onChange={(e) => setNewCourse({ ...newCourse, status: e.target.value })}
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                  >
-                    <option value={COURSE_STATUS.OPEN}>Open for Registration</option>
-                    <option value={COURSE_STATUS.UPCOMING}>Upcoming</option>
-                    <option value={COURSE_STATUS.CLOSED}>Registration Closed</option>
-                  </select>
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem', color: '#CBD5E1' }}>Registration Deadline</label>
-                  <input
-                    type="date"
-                    value={newCourse.registrationDeadline}
-                    onChange={(e) => setNewCourse({ ...newCourse, registrationDeadline: e.target.value })}
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem', color: '#CBD5E1' }}>Trainer / Faculty</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Dr. A. Sundaram"
-                    value={newCourse.trainer}
-                    onChange={(e) => setNewCourse({ ...newCourse, trainer: e.target.value })}
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                  />
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem', color: '#CBD5E1' }}>Short Description</label>
-                <textarea
-                  value={newCourse.shortDescription}
-                  onChange={(e) => setNewCourse({ ...newCourse, shortDescription: e.target.value })}
-                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF', minHeight: '60px' }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-                <button type="button" onClick={() => setShowAddModal(false)} className="btn btn-secondary">
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  Publish Course
-                </button>
-              </div>
-            </form>
+        <AdminModal
+          open={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          title="Add New Training Course"
+          onSubmit={handleCreateNewCourse}
+          submitLabel="Publish Course"
+        >
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Course Title *</label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Applied Python Programming for Data Analytics"
+              value={newCourse.title}
+              onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })}
+              className={modalStyles.input}
+            />
           </div>
-        </div>
+
+          <div className={modalStyles.row2}>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Department</label>
+              <select
+                value={newCourse.domain}
+                onChange={(e) => setNewCourse({ ...newCourse, domain: e.target.value })}
+                className={modalStyles.select}
+              >
+                <option value={DOMAINS.TECHNOLOGY}>Technology</option>
+                <option value={DOMAINS.MANAGEMENT}>Management</option>
+                <option value={DOMAINS.LEADERSHIP}>Leadership & Personality</option>
+              </select>
+            </div>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Category</label>
+              <input
+                type="text"
+                placeholder="e.g. Industry 4.0 / Data Science"
+                value={newCourse.category}
+                onChange={(e) => setNewCourse({ ...newCourse, category: e.target.value })}
+                className={modalStyles.input}
+              />
+            </div>
+          </div>
+
+          <div className={modalStyles.row3}>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Hours</label>
+              <input
+                type="number"
+                value={newCourse.hours}
+                onChange={(e) => setNewCourse({ ...newCourse, hours: e.target.value })}
+                className={modalStyles.input}
+              />
+            </div>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Price (₹)</label>
+              <input
+                type="number"
+                value={newCourse.price}
+                onChange={(e) => setNewCourse({ ...newCourse, price: e.target.value })}
+                className={modalStyles.input}
+              />
+            </div>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Status</label>
+              <select
+                value={newCourse.status}
+                onChange={(e) => setNewCourse({ ...newCourse, status: e.target.value })}
+                className={modalStyles.select}
+              >
+                <option value={COURSE_STATUS.OPEN}>Open for Registration</option>
+                <option value={COURSE_STATUS.UPCOMING}>Upcoming</option>
+                <option value={COURSE_STATUS.CLOSED}>Registration Closed</option>
+              </select>
+            </div>
+          </div>
+
+          <div className={modalStyles.row2}>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Registration Deadline</label>
+              <input
+                type="date"
+                value={newCourse.registrationDeadline}
+                onChange={(e) => setNewCourse({ ...newCourse, registrationDeadline: e.target.value })}
+                className={modalStyles.input}
+              />
+            </div>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Trainer / Faculty</label>
+              <input
+                type="text"
+                placeholder="e.g. Dr. A. Sundaram"
+                value={newCourse.trainer}
+                onChange={(e) => setNewCourse({ ...newCourse, trainer: e.target.value })}
+                className={modalStyles.input}
+              />
+            </div>
+          </div>
+
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Short Description</label>
+            <textarea
+              value={newCourse.shortDescription}
+              onChange={(e) => setNewCourse({ ...newCourse, shortDescription: e.target.value })}
+              className={modalStyles.textarea}
+              style={{ minHeight: '60px' }}
+            />
+          </div>
+        </AdminModal>
       )}
 
       {/* ====================================================
@@ -2070,133 +2039,114 @@ export default function Dashboard() {
           MODAL: ADD / EDIT CORPORATE TRAINING (ADMIN ONLY)
          ==================================================== */}
       {showCorporateTrainingModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(7, 27, 74, 0.8)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div style={{ background: '#0F2252', border: '1px solid #38BDF8', borderRadius: '16px', padding: '2rem', width: '100%', maxWidth: '640px', color: '#FFF', maxHeight: '90vh', overflowY: 'auto' }}>
-            <h3 style={{ margin: '0 0 1rem' }}>{editingCorporateTraining ? 'Edit Corporate Training' : (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
-                  <PlusIcon size={17} />
-                  Add Corporate Training
-                </span>
-              )}</h3>
-            {trainingError && <div style={{ background: 'rgba(239, 68, 68, 0.2)', padding: '0.5rem 1rem', borderRadius: '8px', color: '#FCA5A5', marginBottom: '1rem' }}>{trainingError}</div>}
-            <form onSubmit={handleSaveCorporateTrainingSubmit}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Start Date *</label>
-                  <input
-                    type="date"
-                    required
-                    value={trainingStartDate}
-                    onChange={(e) => setTrainingStartDate(e.target.value)}
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>End Date (Optional)</label>
-                  <input
-                    type="date"
-                    value={trainingEndDate}
-                    onChange={(e) => setTrainingEndDate(e.target.value)}
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem', marginBottom: '1rem' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>School / Center *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. SELECT / SCOPE"
-                    value={trainingSchool}
-                    onChange={(e) => setTrainingSchool(e.target.value)}
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Company / Client Name *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Ford, Chennai / Lucas TVS"
-                    value={trainingCompany}
-                    onChange={(e) => setTrainingCompany(e.target.value)}
-                    style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                  />
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Title of the Corporate Training *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Electric Motors for Electric Vehicles"
-                  value={trainingTitle}
-                  onChange={(e) => setTrainingTitle(e.target.value)}
-                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                />
-              </div>
-
-              {/* Structured Multiple Trainers Input */}
-              <div style={{ marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                  <label style={{ fontSize: '0.82rem' }}>Trainers *</label>
-                  <button
-                    type="button"
-                    onClick={handleAddTrainerField}
-                    style={{ background: 'rgba(56, 189, 248, 0.2)', border: '1px solid #38BDF8', color: '#38BDF8', borderRadius: '4px', padding: '0.2rem 0.55rem', fontSize: '0.75rem', cursor: 'pointer' }}
-                  >
-                    + Add Trainer
-                  </button>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '160px', overflowY: 'auto' }}>
-                  {trainingTrainers.map((tr, index) => (
-                    <div key={index} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                      <input
-                        type="text"
-                        required
-                        placeholder={`Trainer ${index + 1} Name (e.g. Dr. Rajesh Kannan)`}
-                        value={tr}
-                        onChange={(e) => handleTrainerChange(index, e.target.value)}
-                        style={{ flex: 1, padding: '0.55rem', borderRadius: '6px', border: '1px solid #334155', background: '#071B4A', color: '#FFF', fontSize: '0.85rem' }}
-                      />
-                      {trainingTrainers.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveTrainerField(index)}
-                          style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #EF4444', color: '#F87171', borderRadius: '6px', padding: '0.55rem 0.75rem', cursor: 'pointer' }}
-                        >
-                          <XIcon size={15} />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Description / Outcomes (Optional)</label>
-                <textarea
-                  placeholder="Additional details about the corporate training..."
-                  value={trainingDescription}
-                  onChange={(e) => setTrainingDescription(e.target.value)}
-                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF', minHeight: '60px' }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-                <button type="button" onClick={() => setShowCorporateTrainingModal(false)} className="btn btn-secondary">
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary" disabled={trainingSaving}>
-                  {trainingSaving ? 'Saving Record...' : 'Save Corporate Training'}
-                </button>
-              </div>
-            </form>
+        <AdminModal
+          open={showCorporateTrainingModal}
+          onClose={() => setShowCorporateTrainingModal(false)}
+          title="Add Corporate Training"
+          onSubmit={handleSaveCorporateTrainingSubmit}
+          error={trainingError}
+          submitting={trainingSaving}
+          submittingLabel="Saving Record..."
+          submitLabel="Save Corporate Training"
+        >
+          <div className={modalStyles.row2}>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Start Date *</label>
+              <input
+                type="date"
+                required
+                value={trainingStartDate}
+                onChange={(e) => setTrainingStartDate(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>End Date (Optional)</label>
+              <input
+                type="date"
+                value={trainingEndDate}
+                onChange={(e) => setTrainingEndDate(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
           </div>
-        </div>
+
+          <div className={modalStyles.row21}>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>School / Center *</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. SELECT / SCOPE"
+                value={trainingSchool}
+                onChange={(e) => setTrainingSchool(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Company / Client Name *</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Ford, Chennai / Lucas TVS"
+                value={trainingCompany}
+                onChange={(e) => setTrainingCompany(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+          </div>
+
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Title of the Corporate Training *</label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Electric Motors for Electric Vehicles"
+              value={trainingTitle}
+              onChange={(e) => setTrainingTitle(e.target.value)}
+              className={modalStyles.input}
+            />
+          </div>
+
+          <div className={modalStyles.field}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+              <label className={modalStyles.label} style={{ marginBottom: 0 }}>Trainers *</label>
+              <button type="button" onClick={handleAddTrainerField} className={modalStyles.addBtn}>
+                + Add Trainer
+              </button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '160px', overflowY: 'auto' }}>
+              {trainingTrainers.map((tr, index) => (
+                <div key={index} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    required
+                    placeholder={`Trainer ${index + 1} Name (e.g. Dr. Rajesh Kannan)`}
+                    value={tr}
+                    onChange={(e) => handleTrainerChange(index, e.target.value)}
+                    className={modalStyles.input}
+                  />
+                  {trainingTrainers.length > 1 && (
+                    <button type="button" onClick={() => handleRemoveTrainerField(index)} className={modalStyles.removeBtn}>
+                      <XIcon size={15} />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Description / Outcomes (Optional)</label>
+            <textarea
+              placeholder="Additional details about the corporate training..."
+              value={trainingDescription}
+              onChange={(e) => setTrainingDescription(e.target.value)}
+              className={modalStyles.textarea}
+              style={{ minHeight: '60px' }}
+            />
+          </div>
+        </AdminModal>
       )}
 
       {/* Delete Corporate Training Confirmation */}
