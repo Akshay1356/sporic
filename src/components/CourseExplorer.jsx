@@ -21,6 +21,7 @@ export default function CourseExplorer({ initialDomain = '' }) {
   const [domain, setDomain] = useState(paramDomain);
   const [statusFilter, setStatusFilter] = useState('All');
   const [sortBy, setSortBy] = useState('title');
+  const [activeDeadline, setActiveDeadline] = useState(0);
 
   // Sync state if URL search parameters change
   useEffect(() => {
@@ -33,6 +34,16 @@ export default function CourseExplorer({ initialDomain = '' }) {
   }, [searchParams]);
 
   const upcomingDeadlines = useMemo(() => getUpcomingDeadlines().slice(0, 3), []);
+
+  const safeDeadline = upcomingDeadlines.length ? activeDeadline % upcomingDeadlines.length : 0;
+
+  useEffect(() => {
+    if (upcomingDeadlines.length <= 1) return;
+    const intervalId = setInterval(() => {
+      setActiveDeadline((i) => (i + 1) % upcomingDeadlines.length);
+    }, 3500);
+    return () => clearInterval(intervalId);
+  }, [upcomingDeadlines.length]);
 
   const filtered = useMemo(() => {
     let result = searchCourses({
@@ -87,36 +98,61 @@ export default function CourseExplorer({ initialDomain = '' }) {
     <div className={styles.explorer}>
       {/* Urgent Deadline Notification Ribbon */}
       {upcomingDeadlines.length > 0 && (
-        <div style={{
-          background: 'linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.05) 100%)',
-          border: '1px solid rgba(245, 158, 11, 0.35)',
-          borderRadius: '12px',
-          padding: '0.75rem 1.25rem',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '0.75rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <span style={{ fontSize: '1.2rem' }}>⏰</span>
-            <span style={{ fontSize: '0.88rem', color: '#FEF3C7', fontWeight: '600' }}>
-              <strong>Upcoming Registration Deadlines:</strong> {upcomingDeadlines.map(u => `${u.title.split(':')[0]} (${u.daysRemaining > 0 ? `closes in ${u.daysRemaining} days` : 'closing soon'})`).join(' • ')}
-            </span>
+        <div className={styles.deadlineBanner} role="status" aria-live="polite">
+          <span className={styles.deadlineIcon} aria-hidden="true">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.25"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="9" />
+              <polyline points="12 7 12 12 15 14" />
+            </svg>
+          </span>
+
+          <div className={styles.deadlineTextWrap}>
+            <div className={styles.deadlineMetaRow}>
+              <span className={styles.liveDot} aria-hidden="true" />
+              <span className={styles.deadlineLabel}>Upcoming Registration Deadlines:</span>
+            </div>
+            <div className={styles.deadlineRotator}>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={safeDeadline}
+                  className={styles.deadlineItem}
+                  initial={{ opacity: 0, x: 12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -12 }}
+                  transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  {upcomingDeadlines[safeDeadline].title.split(':')[0]} (
+                  {upcomingDeadlines[safeDeadline].daysRemaining > 0
+                    ? `closes in ${upcomingDeadlines[safeDeadline].daysRemaining} days`
+                    : 'closing soon'}
+                  )
+                </motion.span>
+              </AnimatePresence>
+            </div>
           </div>
-          <button 
-            onClick={() => setStatusFilter(COURSE_STATUS.OPEN)} 
-            style={{ 
-              background: '#F59E0B', 
-              color: '#0F172A', 
-              border: 'none', 
-              padding: '0.3rem 0.75rem', 
-              borderRadius: '6px', 
-              fontSize: '0.75rem', 
-              fontWeight: '700', 
-              cursor: 'pointer' 
-            }}
+
+          <div className={styles.deadlineDots} aria-hidden="true">
+            {upcomingDeadlines.map((deadline, i) => (
+              <span
+                key={`${deadline.id || i}-${i}`}
+                className={`${styles.deadlineDot}${i === safeDeadline ? ` ${styles.deadlineDotActive}` : ''}`}
+              />
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setStatusFilter(COURSE_STATUS.OPEN)}
+            className={styles.deadlineButton}
           >
             View Open Courses
           </button>
