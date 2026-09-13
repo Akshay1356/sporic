@@ -231,6 +231,7 @@
   margin: 0.15rem 0 0.3rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -301,6 +302,17 @@
 
 .upcomingAllLink:hover svg {
   transform: translateX(5px);
+}
+
+/* Two-column layout (>= 992px): keep the Upcoming Courses card pinned to its
+   resting height so the Vision/Mission hover reveal — which expands the left
+   column — never stretches the right card or pushes "View All Programs →" down.
+   Resting height = two Vision/Mission cards (225px each) + their 1.5rem gap. */
+@media (min-width: 992px) {
+  .upcomingCard {
+    align-self: start;
+    min-height: 474px;
+  }
 }
 
 @media (max-width: 991px) {
