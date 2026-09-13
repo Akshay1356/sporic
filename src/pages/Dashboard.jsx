@@ -1908,15 +1908,17 @@ export default function Dashboard() {
           MODAL: ADD / EDIT GALLERY PHOTO (ADMIN ONLY)
          ==================================================== */}
       {showPhotoModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(7, 27, 74, 0.8)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div style={{ background: '#0F2252', border: '1px solid #38BDF8', borderRadius: '16px', padding: '2rem', width: '100%', maxWidth: '560px', color: '#FFF' }}>
-            <h3 style={{ margin: '0 0 1rem' }}>{editingPhoto ? 'Edit Gallery Photo' : (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(7, 27, 74, 0.8)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', overflowY: 'auto' }}>
+          <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', boxShadow: '0 20px 48px rgba(7, 27, 74, 0.25)', padding: '1.75rem', width: '100%', maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto', color: '#0B2A6F' }}>
+            <div style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+              <h3 style={{ margin: 0, color: '#0B2A6F', fontWeight: 700, fontSize: '1.15rem' }}>{editingPhoto ? 'Edit Gallery Photo' : (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
                   <PlusIcon size={17} />
                   Add New Gallery Photo
                 </span>
               )}</h3>
-            {photoError && <div style={{ background: 'rgba(239, 68, 68, 0.2)', padding: '0.5rem 1rem', borderRadius: '8px', color: '#FCA5A5', marginBottom: '1rem' }}>{photoError}</div>}
+            </div>
+            {photoError && <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', padding: '0.6rem 1rem', borderRadius: '8px', color: '#B91C1C', fontSize: '0.85rem', marginBottom: '1rem' }}>{photoError}</div>}
             <form onSubmit={handleSavePhotoSubmit}>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem', alignItems: 'flex-start' }}>
                 {/* LEFT: Photo Upload / Preview */}
