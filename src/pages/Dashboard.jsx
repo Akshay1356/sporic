@@ -704,12 +704,7 @@ export default function Dashboard() {
                 <span className="section-label" style={{ margin: 0 }}>
                   {isAdmin ? 'ADMIN CONTROL CENTRE' : 'STUDENT & PROFESSIONAL PORTAL'}
                 </span>
-                {isAdmin && (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', background: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0', padding: '0.15rem 0.6rem', borderRadius: '9999px', fontSize: '0.72rem', fontWeight: 700 }}>
-                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#059669' }} />
-                    System Operational
-                  </span>
-                )}
+                
               </div>
               <h1 className={styles.title}>
                 {isAdmin ? 'VIT-TEC Administration Dashboard' : `Welcome, ${user?.fullName || user?.name || 'Learner'}`}
