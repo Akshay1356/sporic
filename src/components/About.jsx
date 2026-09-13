@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { VisionCard, MissionCard } from './VisionMissionCard';
 import { getAllCourses, COURSE_STATUS } from '../data/courses';
@@ -25,12 +25,28 @@ export default function About() {
   const containerRef = useRef(null);
   const isInView = useInView(containerRef, { once: true, margin: '-80px' });
   const [upcomingCourses, setUpcomingCourses] = useState(getUpcomingCourses);
+  const [visiblePairIndex, setVisiblePairIndex] = useState(0);
 
   useEffect(() => {
     const reload = () => setUpcomingCourses(getUpcomingCourses());
     window.addEventListener('storage', reload);
     return () => window.removeEventListener('storage', reload);
   }, []);
+
+  const PAIR_SIZE = 2;
+  const upcomingPairs = [];
+  for (let i = 0; i < upcomingCourses.length; i += PAIR_SIZE) {
+    upcomingPairs.push(upcomingCourses.slice(i, i + PAIR_SIZE));
+  }
+  const safeIndex = upcomingPairs.length ? visiblePairIndex % upcomingPairs.length : 0;
+
+  useEffect(() => {
+    if (!isInView || upcomingPairs.length <= 1) return;
+    const intervalId = setInterval(() => {
+      setVisiblePairIndex((i) => (i + 1) % upcomingPairs.length);
+    }, 3000);
+    return () => clearInterval(intervalId);
+  }, [isInView, upcomingPairs.length]);
 
   return (
     <section className={styles.aboutSection} id="about" ref={containerRef}>
@@ -104,37 +120,48 @@ export default function About() {
 
             <div className={styles.upcomingList}>
               {upcomingCourses.length > 0 ? (
-                upcomingCourses.map((course) => (
-                  <Link
-                    key={course.id}
-                    to={`/courses/${course.id}`}
-                    className={styles.upcomingItem}
-                    title={`View details for ${course.title}`}
+                <AnimatePresence initial={false}>
+                  <motion.div
+                    key={safeIndex}
+                    className={styles.upcomingPair}
+                    initial={{ opacity: 0, x: 16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -16 }}
+                    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                   >
-                    <img
-                      src={course.image}
-                      alt=""
-                      className={styles.upcomingImg}
-                      loading="lazy"
-                    />
-                    <div className={styles.upcomingItemBody}>
-                      <span className={styles.upcomingItemId}>{course.id}</span>
-                      <span className={styles.upcomingItemTitle}>{course.title}</span>
-                      <div className={styles.upcomingItemMeta}>
-                        <span>{course.category}</span>
-                        <span className={styles.upcomingMetaDot}>•</span>
-                        <span>{course.hours} hrs</span>
-                        {course.startDate && (
-                          <>
+                    {upcomingPairs[safeIndex].map((course) => (
+                      <Link
+                        key={course.id}
+                        to={`/courses/${course.id}`}
+                        className={styles.upcomingItem}
+                        title={`View details for ${course.title}`}
+                      >
+                        <img
+                          src={course.image}
+                          alt=""
+                          className={styles.upcomingImg}
+                          loading="lazy"
+                        />
+                        <div className={styles.upcomingItemBody}>
+                          <span className={styles.upcomingItemId}>{course.id}</span>
+                          <span className={styles.upcomingItemTitle}>{course.title}</span>
+                          <div className={styles.upcomingItemMeta}>
+                            <span>{course.category}</span>
                             <span className={styles.upcomingMetaDot}>•</span>
-                            <span>Starts {formatStartDate(course.startDate)}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    <span className={styles.upcomingPill}>Upcoming</span>
-                  </Link>
-                ))
+                            <span>{course.hours} hrs</span>
+                            {course.startDate && (
+                              <>
+                                <span className={styles.upcomingMetaDot}>•</span>
+                                <span>Starts {formatStartDate(course.startDate)}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                        <span className={styles.upcomingPill}>Upcoming</span>
+                      </Link>
+                    ))}
+                  </motion.div>
+                </AnimatePresence>
               ) : (
                 <p className={styles.upcomingEmpty}>
                   No upcoming programs right now. New training batches are announced
