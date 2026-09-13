@@ -2,6 +2,26 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import GlassCard from '../components/GlassCard';
 import {
+  OverviewIcon,
+  BookIcon,
+  BuildingIcon,
+  MessageIcon,
+  ScrollIcon,
+  ImageIcon,
+  UsersIcon,
+  CreditCardIcon,
+  UserIcon,
+  PlusIcon,
+  GearIcon,
+  ChartIcon,
+  StarIcon,
+  PhoneIcon,
+  AwardIcon,
+  CheckIcon,
+  SaveIcon,
+  XIcon,
+} from '../components/DashboardIcons';
+import {
   getAllCourses,
   saveNewCourse,
   deleteCustomCourse,
@@ -655,7 +675,9 @@ export default function Dashboard() {
     return (
       <div className={styles.dashboardContainer} style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>⚙️</div>
+          <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>
+            <GearIcon size={40} />
+          </div>
           <h2>Loading SpoRIC Portal Dashboard...</h2>
         </div>
       </div>
@@ -703,7 +725,8 @@ export default function Dashboard() {
               {isAdmin ? (
                 <>
                   <button className="btn btn-primary" style={{ fontSize: '0.85rem' }} onClick={() => setShowAddModal(true)}>
-                    ➕ Add Course
+                    <PlusIcon size={15} />
+                    Add Course
                   </button>
                   <button className="btn btn-secondary" style={{ fontSize: '0.85rem' }} onClick={() => {
                     setEditingCorporateTraining(null);
@@ -717,16 +740,19 @@ export default function Dashboard() {
                     setTrainingError('');
                     setShowCorporateTrainingModal(true);
                   }}>
-                    🏛️ Add Training
+                    <BuildingIcon size={15} />
+                    Add Training
                   </button>
                   <Link to="/profile" className="btn btn-ghost" style={{ fontSize: '0.85rem' }}>
-                    👤 Profile
+                    <UserIcon size={15} />
+                    Profile
                   </Link>
                 </>
               ) : (
                 <>
                   <Link to="/profile" className="btn btn-ghost" style={{ fontSize: '0.85rem' }}>
-                    👤 Edit Profile
+                    <UserIcon size={15} />
+                    Edit Profile
                   </Link>
                   <Link to="/courses" className="btn btn-primary" style={{ fontSize: '0.85rem' }}>
                     Browse Courses →
@@ -758,43 +784,50 @@ export default function Dashboard() {
                   className={`${styles.tabBtn} ${activeTab === 'overview' ? styles.tabBtnActive : ''}`}
                   onClick={() => setActiveTab('overview')}
                 >
-                  📊 Overview
+                  <OverviewIcon size={16} />
+                  Overview
                 </button>
                 <button
                   className={`${styles.tabBtn} ${activeTab === 'courses' ? styles.tabBtnActive : ''}`}
                   onClick={() => setActiveTab('courses')}
                 >
-                  📚 Courses ({coursesList.length})
+                  <BookIcon size={16} />
+                  Courses ({coursesList.length})
                 </button>
                 <button
                   className={`${styles.tabBtn} ${activeTab === 'corporate-training' ? styles.tabBtnActive : ''}`}
                   onClick={() => setActiveTab('corporate-training')}
                 >
-                  🏛️ Corporate Training ({corporateTrainingsList.length})
+                  <BuildingIcon size={16} />
+                  Corporate Training ({corporateTrainingsList.length})
                 </button>
                 <button
                   className={`${styles.tabBtn} ${activeTab === 'enquiries' ? styles.tabBtnActive : ''}`}
                   onClick={() => setActiveTab('enquiries')}
                 >
-                  💬 Enquiries ({enquiriesList.length})
+                  <MessageIcon size={16} />
+                  Enquiries ({enquiriesList.length})
                 </button>
                 <button
                   className={`${styles.tabBtn} ${activeTab === 'programs' ? styles.tabBtnActive : ''}`}
                   onClick={() => setActiveTab('programs')}
                 >
-                  📜 Previous Programs ({programsList.length})
+                  <ScrollIcon size={16} />
+                  Previous Programs ({programsList.length})
                 </button>
                 <button
                   className={`${styles.tabBtn} ${activeTab === 'gallery' ? styles.tabBtnActive : ''}`}
                   onClick={() => setActiveTab('gallery')}
                 >
-                  🖼️ Gallery CMS ({galleryList.length})
+                  <ImageIcon size={16} />
+                  Gallery CMS ({galleryList.length})
                 </button>
                 <button
                   className={`${styles.tabBtn} ${activeTab === 'users' ? styles.tabBtnActive : ''}`}
                   onClick={() => setActiveTab('users')}
                 >
-                  👥 Users ({usersList.length})
+                  <UsersIcon size={16} />
+                  Users ({usersList.length})
                 </button>
               </div>
 
@@ -806,7 +839,7 @@ export default function Dashboard() {
                     <div className={styles.statBox}>
                       <div className={styles.statBoxTop}>
                         <div className={styles.statIconBadge} style={{ background: '#ECFDF5', color: '#059669', borderColor: '#A7F3D0' }}>
-                          💳
+                          <CreditCardIcon size={20} />
                         </div>
                         <span className={styles.statStatusBadge} style={{ background: '#ECFDF5', color: '#047857' }}>
                           ● Razorpay Live
@@ -820,7 +853,7 @@ export default function Dashboard() {
                     <div className={styles.statBox}>
                       <div className={styles.statBoxTop}>
                         <div className={styles.statIconBadge} style={{ background: '#EFF6FF', color: '#2563EB', borderColor: '#BFDBFE' }}>
-                          📚
+                          <BookIcon size={20} />
                         </div>
                         <span className={styles.statStatusBadge} style={{ background: '#EFF6FF', color: '#1D4ED8' }}>
                           3 Domains
@@ -834,7 +867,7 @@ export default function Dashboard() {
                     <div className={styles.statBox}>
                       <div className={styles.statBoxTop}>
                         <div className={styles.statIconBadge} style={{ background: '#FFFBEB', color: '#D97706', borderColor: '#FDE68A' }}>
-                          📬
+                          <MessageIcon size={20} />
                         </div>
                         <span className={styles.statStatusBadge} style={{ background: '#FFFBEB', color: '#B45309' }}>
                           {enquiriesList.filter(e => e.status === 'NEW').length} New
@@ -848,7 +881,7 @@ export default function Dashboard() {
                     <div className={styles.statBox}>
                       <div className={styles.statBoxTop}>
                         <div className={styles.statIconBadge} style={{ background: '#F5F3FF', color: '#7C3AED', borderColor: '#DDD6FE' }}>
-                          📜
+                          <ScrollIcon size={20} />
                         </div>
                         <span className={styles.statStatusBadge} style={{ background: '#F5F3FF', color: '#6D28D9' }}>
                           Audited
@@ -862,7 +895,7 @@ export default function Dashboard() {
                     <div className={styles.statBox}>
                       <div className={styles.statBoxTop}>
                         <div className={styles.statIconBadge} style={{ background: '#F0F9FF', color: '#0284C7', borderColor: '#BAE6FD' }}>
-                          🏛️
+                          <BuildingIcon size={20} />
                         </div>
                         <span className={styles.statStatusBadge} style={{ background: '#F0F9FF', color: '#0369A1' }}>
                           4 Academic Years
@@ -885,7 +918,7 @@ export default function Dashboard() {
 
                     <div className={styles.quickActionsGrid}>
                       <div className={styles.actionCard} onClick={() => setActiveTab('courses')}>
-                        <div className={styles.actionCardIcon}>📚</div>
+                        <div className={styles.actionCardIcon}><BookIcon size={22} /></div>
                         <div className={styles.actionCardBody}>
                           <h4 className={styles.actionCardTitle}>Manage Courses</h4>
                           <p className={styles.actionCardDesc}>Create, edit curriculum, set pricing, and toggle registration status.</p>
@@ -894,7 +927,7 @@ export default function Dashboard() {
                       </div>
 
                       <div className={styles.actionCard} onClick={() => setActiveTab('corporate-training')}>
-                        <div className={styles.actionCardIcon}>🏛️</div>
+                        <div className={styles.actionCardIcon}><BuildingIcon size={22} /></div>
                         <div className={styles.actionCardBody}>
                           <h4 className={styles.actionCardTitle}>Corporate Trainings</h4>
                           <p className={styles.actionCardDesc}>Manage 31+ corporate training records, trainer rosters, and academic years.</p>
@@ -903,7 +936,7 @@ export default function Dashboard() {
                       </div>
 
                       <div className={styles.actionCard} onClick={() => setActiveTab('enquiries')}>
-                        <div className={styles.actionCardIcon}>💬</div>
+                        <div className={styles.actionCardIcon}><MessageIcon size={22} /></div>
                         <div className={styles.actionCardBody}>
                           <h4 className={styles.actionCardTitle}>Course Enquiries</h4>
                           <p className={styles.actionCardDesc}>Review and respond to executive delegate enquiries and cohort questions.</p>
@@ -912,7 +945,7 @@ export default function Dashboard() {
                       </div>
 
                       <div className={styles.actionCard} onClick={() => setActiveTab('programs')}>
-                        <div className={styles.actionCardIcon}>📜</div>
+                        <div className={styles.actionCardIcon}><ScrollIcon size={22} /></div>
                         <div className={styles.actionCardBody}>
                           <h4 className={styles.actionCardTitle}>Previous Programs</h4>
                           <p className={styles.actionCardDesc}>Manage historical executive training cohorts, participants, and outcomes.</p>
@@ -921,7 +954,7 @@ export default function Dashboard() {
                       </div>
 
                       <div className={styles.actionCard} onClick={() => setActiveTab('gallery')}>
-                        <div className={styles.actionCardIcon}>🖼️</div>
+                        <div className={styles.actionCardIcon}><ImageIcon size={22} /></div>
                         <div className={styles.actionCardBody}>
                           <h4 className={styles.actionCardTitle}>Gallery CMS</h4>
                           <p className={styles.actionCardDesc}>Upload, categorize, and organize campus and industrial training photos.</p>
@@ -930,7 +963,7 @@ export default function Dashboard() {
                       </div>
 
                       <div className={styles.actionCard} onClick={() => setActiveTab('users')}>
-                        <div className={styles.actionCardIcon}>👥</div>
+                        <div className={styles.actionCardIcon}><UsersIcon size={22} /></div>
                         <div className={styles.actionCardBody}>
                           <h4 className={styles.actionCardTitle}>User Governance</h4>
                           <p className={styles.actionCardDesc}>Inspect registered student and corporate profiles, designations, and roles.</p>
@@ -951,7 +984,7 @@ export default function Dashboard() {
                       <div className={styles.distributionList}>
                         <div className={styles.distItem}>
                           <div className={styles.distMeta}>
-                            <span className={styles.distName}>⚙️ Technology</span>
+                            <span className={styles.distName}><GearIcon size={16} /> Technology</span>
                             <span className={styles.distCount}>{techCoursesCount} Courses ({Math.round((techCoursesCount / totalCoursesCount) * 100)}%)</span>
                           </div>
                           <div className={styles.progressBarBg}>
@@ -961,7 +994,7 @@ export default function Dashboard() {
 
                         <div className={styles.distItem}>
                           <div className={styles.distMeta}>
-                            <span className={styles.distName}>📊 Management</span>
+                            <span className={styles.distName}><ChartIcon size={16} /> Management</span>
                             <span className={styles.distCount}>{mgmtCoursesCount} Courses ({Math.round((mgmtCoursesCount / totalCoursesCount) * 100)}%)</span>
                           </div>
                           <div className={styles.progressBarBg}>
@@ -971,7 +1004,7 @@ export default function Dashboard() {
 
                         <div className={styles.distItem}>
                           <div className={styles.distMeta}>
-                            <span className={styles.distName}>🌟 Leadership &amp; Personality</span>
+                            <span className={styles.distName}><StarIcon size={16} /> Leadership &amp; Personality</span>
                             <span className={styles.distCount}>{leadCoursesCount} Courses ({Math.round((leadCoursesCount / totalCoursesCount) * 100)}%)</span>
                           </div>
                           <div className={styles.progressBarBg}>
@@ -1021,7 +1054,8 @@ export default function Dashboard() {
                       </p>
                     </div>
                     <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
-                      ➕ Add New Course
+                      <PlusIcon size={15} />
+                      Add New Course
                     </button>
                   </div>
 
@@ -1109,7 +1143,8 @@ export default function Dashboard() {
                         View /corporate-training ↗
                       </Link>
                       <button className="btn btn-primary" onClick={handleOpenAddCorporateTraining}>
-                        ➕ Add Corporate Training
+<PlusIcon size={15} />
+                        Add Corporate Training
                       </button>
                     </div>
                   </div>
@@ -1257,7 +1292,7 @@ export default function Dashboard() {
                               <td>
                                 <div style={{ fontWeight: 700, color: '#0F172A' }}>{enq.name}</div>
                                 <div style={{ fontSize: '0.78rem', color: '#1D4ED8' }}>{enq.email}</div>
-                                <div style={{ fontSize: '0.78rem', color: '#64748B' }}>📞 {enq.phone} • {enq.designation}</div>
+                                <div style={{ fontSize: '0.78rem', color: '#64748B' }}><PhoneIcon size={13} /> {enq.phone} • {enq.designation}</div>
                               </td>
                               <td>
                                 <div style={{ fontWeight: 600, fontSize: '0.85rem' }}>{enq.courseTitle}</div>
@@ -1316,7 +1351,8 @@ export default function Dashboard() {
                         View on /about ↗
                       </Link>
                       <button className="btn btn-primary" onClick={handleOpenAddProgram}>
-                        ➕ Add Previous Program
+                        <PlusIcon size={15} />
+                        Add Previous Program
                       </button>
                     </div>
                   </div>
@@ -1344,7 +1380,7 @@ export default function Dashboard() {
                             </td>
                             <td>
                               <div style={{ fontWeight: 700, color: '#0F172A' }}>{prog.title}</div>
-                              <div style={{ fontSize: '0.78rem', color: '#1D4ED8' }}>🏢 {prog.clientOrCohort}</div>
+                              <div style={{ fontSize: '0.78rem', color: '#1D4ED8' }}><BuildingIcon size={14} /> {prog.clientOrCohort}</div>
                             </td>
                             <td>
                               <div style={{ fontWeight: 600 }}>{prog.category}</div>
@@ -1394,7 +1430,8 @@ export default function Dashboard() {
                         View /gallery ↗
                       </Link>
                       <button className="btn btn-primary" onClick={handleOpenAddPhoto}>
-                        ➕ Add New Photo
+                        <PlusIcon size={15} />
+                        Add New Photo
                       </button>
                     </div>
                   </div>
@@ -1489,19 +1526,22 @@ export default function Dashboard() {
                   className={`${styles.tabBtn} ${activeTab === 'my-courses' || activeTab === 'courses' ? styles.tabBtnActive : ''}`}
                   onClick={() => setActiveTab('my-courses')}
                 >
-                  📚 Enrolled Programs
+                  <BookIcon size={16} />
+                  Enrolled Programs
                 </button>
                 <button
                   className={`${styles.tabBtn} ${activeTab === 'saved-courses' ? styles.tabBtnActive : ''}`}
                   onClick={() => setActiveTab('saved-courses')}
                 >
-                  ⭐ Saved Courses ({savedCourses.length})
+                  <StarIcon size={16} />
+                  Saved Courses ({savedCourses.length})
                 </button>
                 <button
                   className={`${styles.tabBtn} ${activeTab === 'my-queries' ? styles.tabBtnActive : ''}`}
                   onClick={() => setActiveTab('my-queries')}
                 >
-                  💬 My Course Queries ({userEnquiries.length})
+                  <MessageIcon size={16} />
+                  My Course Queries ({userEnquiries.length})
                 </button>
               </div>
 
@@ -1522,10 +1562,10 @@ export default function Dashboard() {
                         <h4 style={{ margin: '0.5rem 0 0.25rem', fontSize: '1.05rem', color: '#0F172A' }}>{c.title}</h4>
                         <p style={{ fontSize: '0.82rem', color: '#64748B', margin: '0 0 1rem' }}>{c.shortDescription}</p>
                         <div style={{ fontSize: '0.8rem', color: '#0F172A', fontWeight: 600, marginBottom: '0.75rem' }}>
-                          👨‍🏫 Trainer: {c.trainer || 'SpoRIC Faculty'}
+                          <AwardIcon size={15} /> Trainer: {c.trainer || 'SpoRIC Faculty'}
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 700 }}>✓ Enrolled &amp; Active</span>
+                          <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 700 }}><CheckIcon size={13} /> Enrolled &amp; Active</span>
                           <Link to={`/courses/${c.id}`} className="btn btn-secondary" style={{ fontSize: '0.78rem', padding: '0.3rem 0.75rem' }}>
                             View Syllabus
                           </Link>
@@ -1618,7 +1658,12 @@ export default function Dashboard() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(7, 27, 74, 0.8)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
           <div style={{ background: '#0F2252', border: '1px solid #38BDF8', borderRadius: '16px', padding: '2rem', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto', color: '#FFF' }}>
             <h3 style={{ margin: '0 0 1rem', fontSize: '1.3rem' }}>
-              {editingProgram ? 'Edit Landmark Previous Program' : '➕ Add Landmark Previous Program'}
+              {editingProgram ? 'Edit Landmark Previous Program' : (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
+                  <PlusIcon size={17} />
+                  Add Landmark Previous Program
+                </span>
+              )}
             </h3>
 
             {progError && <div style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #EF4444', padding: '0.5rem 1rem', borderRadius: '8px', color: '#FCA5A5', marginBottom: '1rem' }}>{progError}</div>}
@@ -1722,7 +1767,14 @@ export default function Dashboard() {
                   Cancel
                 </button>
                 <button type="submit" className="btn btn-primary">
-                  {editingProgram ? '💾 Save Changes' : 'Publish Program to /about'}
+                  {editingProgram ? (
+                    <>
+                      <SaveIcon size={15} />
+                      Save Changes
+                    </>
+                  ) : (
+                    'Publish Program to /about'
+                  )}
                 </button>
               </div>
             </form>
@@ -1736,7 +1788,12 @@ export default function Dashboard() {
       {showAddModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(7, 27, 74, 0.8)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
           <div style={{ background: '#0F2252', border: '1px solid #38BDF8', borderRadius: '16px', padding: '2rem', width: '100%', maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto', color: '#FFF' }}>
-            <h3 style={{ margin: '0 0 1rem', fontSize: '1.3rem' }}>➕ Add New Training Course</h3>
+            <h3 style={{ margin: '0 0 1rem', fontSize: '1.3rem' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
+                <PlusIcon size={17} />
+                Add New Training Course
+              </span>
+            </h3>
             <form onSubmit={handleCreateNewCourse}>
               <div style={{ marginBottom: '1rem' }}>
                 <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem', color: '#CBD5E1' }}>Course Title *</label>
@@ -1858,7 +1915,12 @@ export default function Dashboard() {
       {showPhotoModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(7, 27, 74, 0.8)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
           <div style={{ background: '#0F2252', border: '1px solid #38BDF8', borderRadius: '16px', padding: '2rem', width: '100%', maxWidth: '560px', color: '#FFF' }}>
-            <h3 style={{ margin: '0 0 1rem' }}>{editingPhoto ? 'Edit Gallery Photo' : '➕ Add New Gallery Photo'}</h3>
+            <h3 style={{ margin: '0 0 1rem' }}>{editingPhoto ? 'Edit Gallery Photo' : (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
+                  <PlusIcon size={17} />
+                  Add New Gallery Photo
+                </span>
+              )}</h3>
             {photoError && <div style={{ background: 'rgba(239, 68, 68, 0.2)', padding: '0.5rem 1rem', borderRadius: '8px', color: '#FCA5A5', marginBottom: '1rem' }}>{photoError}</div>}
             <form onSubmit={handleSavePhotoSubmit}>
               <div style={{ marginBottom: '1rem' }}>
@@ -1985,7 +2047,12 @@ export default function Dashboard() {
       {showCorporateTrainingModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(7, 27, 74, 0.8)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
           <div style={{ background: '#0F2252', border: '1px solid #38BDF8', borderRadius: '16px', padding: '2rem', width: '100%', maxWidth: '640px', color: '#FFF', maxHeight: '90vh', overflowY: 'auto' }}>
-            <h3 style={{ margin: '0 0 1rem' }}>{editingCorporateTraining ? 'Edit Corporate Training' : '➕ Add Corporate Training'}</h3>
+            <h3 style={{ margin: '0 0 1rem' }}>{editingCorporateTraining ? 'Edit Corporate Training' : (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
+                  <PlusIcon size={17} />
+                  Add Corporate Training
+                </span>
+              )}</h3>
             {trainingError && <div style={{ background: 'rgba(239, 68, 68, 0.2)', padding: '0.5rem 1rem', borderRadius: '8px', color: '#FCA5A5', marginBottom: '1rem' }}>{trainingError}</div>}
             <form onSubmit={handleSaveCorporateTrainingSubmit}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
@@ -2076,7 +2143,7 @@ export default function Dashboard() {
                           onClick={() => handleRemoveTrainerField(index)}
                           style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #EF4444', color: '#F87171', borderRadius: '6px', padding: '0.55rem 0.75rem', cursor: 'pointer' }}
                         >
-                          ✕
+                          <XIcon size={15} />
                         </button>
                       )}
                     </div>
