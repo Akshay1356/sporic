@@ -738,10 +738,20 @@ export default function Dashboard() {
                     <BuildingIcon size={15} />
                     Add Training
                   </button>
-                  <Link to="/profile" className="btn btn-ghost" style={{ fontSize: '0.85rem' }}>
-                    <UserIcon size={15} />
-                    Profile
-                  </Link>
+                  <Link
+  to="/profile"
+  className="btn"
+  style={{
+    fontSize: '0.85rem',
+    background: '#0B2A6F',
+    color: '#FFFFFF',
+    border: '1px solid #1D4ED8',
+  }}
+>
+  <UserIcon size={15} />
+  Profile
+</Link>
+                  
                 </>
               ) : (
                 <>
