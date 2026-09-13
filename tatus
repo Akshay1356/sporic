@@ -1,0 +1,69 @@
+[1mdiff --git a/src/components/CorporateTrainingGraph.jsx b/src/components/CorporateTrainingGraph.jsx[m
+[1mindex 1138164..e1b8264 100644[m
+[1m--- a/src/components/CorporateTrainingGraph.jsx[m
+[1m+++ b/src/components/CorporateTrainingGraph.jsx[m
+[36m@@ -213,14 +213,28 @@[m [mexport default function CorporateTrainingGraph() {[m
+                           />[m
+                         </div>[m
+                       </div>[m
+[31m-[m
+[31m-                      {/* X-Axis Year Label */}[m
+[31m-                      <div className={styles.yearLabel}>[m
+[31m-                        <span className={styles.yearText}>{item.year}</span>[m
+[31m-                      </div>[m
+                     </div>[m
+                   );[m
+                 })}[m
+[32m+[m
+[32m+[m[32m                {/* X-Axis Year Labels (below plotting area) */}[m
+[32m+[m[32m                {corporateTrainingData.map((item) => ([m
+[32m+[m[32m                  <div[m
+[32m+[m[32m                    key={`${item.year}-label`}[m
+[32m+[m[32m                    className={styles.yearLabel}[m
+[32m+[m[32m                    onMouseEnter={() =>[m
+[32m+[m[32m                      setActiveTooltip({[m
+[32m+[m[32m                        year: item.year,[m
+[32m+[m[32m                        programmes: item.programmes,[m
+[32m+[m[32m                        amountLakhs: item.amountLakhs,[m
+[32m+[m[32m                        highlight: item.highlight,[m
+[32m+[m[32m                      })[m
+[32m+[m[32m                    }[m
+[32m+[m[32m                    onMouseLeave={() => setActiveTooltip(null)}[m
+[32m+[m[32m                  >[m
+[32m+[m[32m                    <span className={styles.yearText}>{item.year}</span>[m
+[32m+[m[32m                  </div>[m
+[32m+[m[32m                ))}[m
+               </div>[m
+ [m
+               {/* Hover Tooltip */}[m
+[1mdiff --git a/src/components/CorporateTrainingGraph.module.css b/src/components/CorporateTrainingGraph.module.css[m
+[1mindex bae13d0..7708711 100644[m
+[1m--- a/src/components/CorporateTrainingGraph.module.css[m
+[1m+++ b/src/components/CorporateTrainingGraph.module.css[m
+[36m@@ -203,12 +203,13 @@[m
+ .barsContainer {[m
+   display: grid;[m
+   grid-template-columns: repeat(4, 1fr);[m
+[31m-  gap: 2rem;[m
+[32m+[m[32m  grid-template-rows: 1fr auto;[m
+[32m+[m[32m  column-gap: 2rem;[m
+[32m+[m[32m  row-gap: 0.25rem;[m
+   height: 100%;[m
+   position: relative;[m
+   z-index: 2;[m
+   align-items: flex-end;[m
+[31m-  padding-bottom: 2.5rem;[m
+ }[m
+ [m
+ .yearGroup {[m
+[36m@@ -287,10 +288,6 @@[m
+ }[m
+ [m
+ .yearLabel {[m
+[31m-  position: absolute;[m
+[31m-  bottom: 0;[m
+[31m-  left: 0;[m
+[31m-  right: 0;[m
+   height: 2.25rem;[m
+   display: flex;[m
+   align-items: center;[m

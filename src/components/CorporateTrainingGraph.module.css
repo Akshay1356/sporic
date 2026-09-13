@@ -203,12 +203,13 @@
 .barsContainer {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 2rem;
+  grid-template-rows: 1fr auto;
+  column-gap: 2rem;
+  row-gap: 0.25rem;
   height: 100%;
   position: relative;
   z-index: 2;
   align-items: flex-end;
-  padding-bottom: 2.5rem;
 }
 
 .yearGroup {
@@ -287,10 +288,6 @@
 }
 
 .yearLabel {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
   height: 2.25rem;
   display: flex;
   align-items: center;

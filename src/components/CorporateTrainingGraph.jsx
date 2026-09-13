@@ -213,14 +213,28 @@ export default function CorporateTrainingGraph() {
                           />
                         </div>
                       </div>
-
-                      {/* X-Axis Year Label */}
-                      <div className={styles.yearLabel}>
-                        <span className={styles.yearText}>{item.year}</span>
-                      </div>
                     </div>
                   );
                 })}
+
+                {/* X-Axis Year Labels (below plotting area) */}
+                {corporateTrainingData.map((item) => (
+                  <div
+                    key={`${item.year}-label`}
+                    className={styles.yearLabel}
+                    onMouseEnter={() =>
+                      setActiveTooltip({
+                        year: item.year,
+                        programmes: item.programmes,
+                        amountLakhs: item.amountLakhs,
+                        highlight: item.highlight,
+                      })
+                    }
+                    onMouseLeave={() => setActiveTooltip(null)}
+                  >
+                    <span className={styles.yearText}>{item.year}</span>
+                  </div>
+                ))}
               </div>
 
               {/* Hover Tooltip */}

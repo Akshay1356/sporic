@@ -76,7 +76,6 @@ export function VisionCard() {
           <div className={styles.badgeGroup}>
             <span className={styles.categoryBadge}>Strategic Core</span>
           </div>
-          <span className={styles.codeTag}>SEC-01 // VISION</span>
         </div>
 
         {/* Title */}
@@ -181,7 +180,6 @@ export function MissionCard() {
           <div className={styles.badgeGroup}>
             <span className={styles.categoryBadge}>Execution Track</span>
           </div>
-          <span className={styles.codeTag}>SEC-02 // MISSION</span>
         </div>
 
         {/* Title */}
