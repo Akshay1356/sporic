@@ -180,6 +180,21 @@ export default function Gallery() {
                         {photo.category}
                       </span>
                     </div>
+                    {photo.companyName ? (
+                      <div className={styles.companyMeta}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M6 22V4a2 2 0 012-2h8a2 2 0 012 2v18z"/>
+                          <path d="M6 12H4a2 2 0 00-2 2v6a2 2 0 002 2h2"/>
+                          <path d="M18 9h2a2 2 0 012 2v9a2 2 0 01-2 2h-2"/>
+                          <path d="M10 6h4"/>
+                          <path d="M10 10h4"/>
+                          <path d="M10 14h4"/>
+                          <path d="M10 18h4"/>
+                        </svg>
+                        <span className={styles.companyLabel}>Conducted for</span>
+                        <span className={styles.companyName}>{photo.companyName}</span>
+                      </div>
+                    ) : null}
                     <h3 className={styles.photoTitle}>{photo.title || 'Corporate Training Activity'}</h3>
                     <p className={styles.photoDesc}>{photo.description}</p>
                   </div>
@@ -255,6 +270,11 @@ export default function Gallery() {
                       {filteredPhotos[lightboxIndex].category}
                     </span>
                   </div>
+                  {filteredPhotos[lightboxIndex].companyName ? (
+                    <div className={styles.captionCompany}>
+                      Conducted for {filteredPhotos[lightboxIndex].companyName}
+                    </div>
+                  ) : null}
                   <h4 className={styles.captionTitle}>
                     {filteredPhotos[lightboxIndex].title || 'Corporate Training Activity'}
                   </h4>

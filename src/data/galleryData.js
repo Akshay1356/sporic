@@ -27,6 +27,7 @@ export const initialGalleryPhotos = [
     title: 'Corporate Management Excellence & Multiplier Masterclass',
     category: 'Corporate Training',
     description: 'Interactive corporate management excellence training on managerial multiplication and leadership productivity.',
+    companyName: 'TVS Motors',
     createdAt: '2026-02-10T10:00:00.000Z',
   },
   {
@@ -59,6 +60,7 @@ export const initialGalleryPhotos = [
     title: 'Corporate Training Certificate Distribution Ceremony',
     category: 'Events',
     description: 'Participants awarded official VIT-TEC certificates of completion at Dr. A.P.J. Abdul Kalam Block.',
+    companyName: 'TCS',
     createdAt: '2026-03-20T10:00:00.000Z',
   },
   {
@@ -67,6 +69,7 @@ export const initialGalleryPhotos = [
     title: 'Professional Development & Cross-Functional Synergy',
     category: 'Workshops',
     description: 'Interactive corporate training program with industry trainees around the executive conference boardroom.',
+    companyName: 'HCL Technologies',
     createdAt: '2026-04-05T10:00:00.000Z',
   },
   {
@@ -75,6 +78,7 @@ export const initialGalleryPhotos = [
     title: 'Executive Development & Industry Keynote Session',
     category: 'Corporate Training',
     description: 'Senior university leadership and industry delegates in an executive development session at SpoRIC.',
+    companyName: 'Ford India',
     createdAt: '2026-04-18T10:00:00.000Z',
   },
   {

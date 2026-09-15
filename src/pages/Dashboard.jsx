@@ -129,6 +129,7 @@ export default function Dashboard() {
   const [photoTitle, setPhotoTitle] = useState('');
   const [photoDesc, setPhotoDesc] = useState('');
   const [photoCategory, setPhotoCategory] = useState('Corporate Training');
+  const [photoCompany, setPhotoCompany] = useState('');
   const [photoImagePreview, setPhotoImagePreview] = useState('');
   const [photoError, setPhotoError] = useState('');
   const [photoSaving, setPhotoSaving] = useState(false);
@@ -365,6 +366,7 @@ export default function Dashboard() {
     setPhotoTitle('');
     setPhotoDesc('');
     setPhotoCategory('Corporate Training');
+    setPhotoCompany('');
     setPhotoImagePreview('');
     setPhotoError('');
     setShowPhotoModal(true);
@@ -375,6 +377,7 @@ export default function Dashboard() {
     setPhotoTitle(photo.title || '');
     setPhotoDesc(photo.description || '');
     setPhotoCategory(photo.category || 'Corporate Training');
+    setPhotoCompany(photo.companyName || photo.company || '');
     setPhotoImagePreview(photo.src || photo.imageUrl || '');
     setPhotoError('');
     setShowPhotoModal(true);
@@ -413,6 +416,7 @@ export default function Dashboard() {
           title: photoTitle.trim() || 'Corporate Training Activity',
           description: photoDesc.trim(),
           category: photoCategory,
+          companyName: photoCompany.trim(),
           src: photoImagePreview,
           imageUrl: photoImagePreview,
         });
@@ -424,6 +428,7 @@ export default function Dashboard() {
           title: photoTitle.trim() || 'Corporate Training Activity',
           description: photoDesc.trim(),
           category: photoCategory,
+          companyName: photoCompany.trim(),
           src: photoImagePreview,
           imageUrl: photoImagePreview,
           createdAt: new Date().toISOString(),
@@ -1934,11 +1939,19 @@ export default function Dashboard() {
                     />
                   </div>
                   <div style={{ marginBottom: '0.9rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#0B2A6F', marginBottom: '0.35rem' }}>Company / Organization (Conducted for) - Optional</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Ford India, TCS"
+                      value={photoCompany}
+                      onChange={(e) => setPhotoCompany(e.target.value)}
+                      style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '8px', border: '1px solid #E2E8F0', background: '#FFFFFF', color: '#0F172A', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: '0.9rem' }}>
                     <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#0B2A6F', marginBottom: '0.35rem' }}>Category</label>
                     <select
-                      value={photoCategory}
-                      onChange={(e) => setPhotoCategory(e.target.value)}
-                      style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '8px', border: '1px solid #E2E8F0', background: '#FFFFFF', color: '#0F172A', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                      value={photoCategory}                      style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '8px', border: '1px solid #E2E8F0', background: '#FFFFFF', color: '#0F172A', fontSize: '0.9rem', boxSizing: 'border-box' }}
                     >
                       {GALLERY_CATEGORIES.filter((c) => c !== 'All').map((cat) => (
                         <option key={cat} value={cat}>{cat}</option>
