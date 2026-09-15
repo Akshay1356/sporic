@@ -4,27 +4,27 @@ import styles from './Hero.module.css';
 const slides = [
   {
     id: 'slide-1',
-    src: '/hero-slides/slide1-corporate-training.png',
+    src: '/hero-slides/slide1-corporate-training.jpeg',
     alt: 'VIT-TEC Corporate Training — Transform Your Career With World-Class Industry Training',
   },
   {
     id: 'slide-2',
-    src: '/hero-slides/slide2-rankings-recognitions.png',
+    src: '/hero-slides/slide2-rankings-recognitions.jfif',
     alt: 'VIT-TEC Rankings and Recognitions — National & International Accreditations',
   },
   {
     id: 'slide-3',
-    src: '/hero-slides/slide3-industry-partners.png',
+    src: '/hero-slides/slide3-industry-partners.jfif',
     alt: 'VIT-TEC Industry Partners — Collaborating for a Skilled and Future-Ready Workforce',
   },
   {
     id: 'slide-4',
-    src: '/hero-slides/slide4-our-courses.png',
+    src: '/hero-slides/slide4-our-courses.jfif',
     alt: 'VIT-TEC Our Courses — Technology, Management, Personality, and Leadership',
   },
   {
     id: 'slide-5',
-    src: '/hero-slides/slide5-industry-collaborations.png',
+    src: '/hero-slides/slide5-industry-collaborations.jfif',
     alt: 'VIT-TEC Industry Collaborations — Building Talent for a Smarter Tomorrow',
   },
 ];
