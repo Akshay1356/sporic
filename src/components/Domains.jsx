@@ -1,7 +1,8 @@
-import { useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { useRef, useState, useEffect, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, useInView } from 'framer-motion';
 import styles from './Domains.module.css';
+import { searchCourses } from '../data/courses';
 
 const domainsData = [
   {
@@ -102,6 +103,64 @@ const domainsData = [
 export default function Domains() {
   const containerRef = useRef(null);
   const isInView = useInView(containerRef, { once: true, margin: '-60px' });
+  const navigate = useNavigate();
+
+  // —— Dynamic Course Search ——
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const searchRef = useRef(null);
+  const searchInputRef = useRef(null);
+
+  // Live results from the real course catalog (case-insensitive, client-side)
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim();
+    if (!q) return [];
+    return searchCourses({ query: q }).slice(0, 6);
+  }, [searchQuery]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const closeSearch = () => {
+    setIsDropdownOpen(false);
+    setActiveIndex(-1);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    closeSearch();
+    searchInputRef.current?.focus();
+  };
+
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      closeSearch();
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (searchResults.length === 0) return;
+      setIsDropdownOpen(true);
+      setActiveIndex((i) => Math.min(i + 1, searchResults.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex((i) => Math.max(i - 1, -1));
+    } else if (e.key === 'Enter') {
+      if (searchResults.length === 0) return;
+      const target = searchResults[activeIndex >= 0 ? activeIndex : 0];
+      if (target) {
+        navigate(`/courses/${target.id}`);
+        closeSearch();
+      }
+    }
+  };
 
   return (
     <section className={styles.domainsSection} id="learning-domains" ref={containerRef}>
@@ -113,6 +172,81 @@ export default function Domains() {
           <p className={styles.subtitle}>
             Industry-curated programs structured across three foundational pillars of organizational and technical excellence.
           </p>
+        </div>
+
+        {/* Dynamic Course Search */}
+        <div className={styles.searchSection} ref={searchRef}>
+          <div className={styles.searchBar}>
+            <svg
+              className={styles.searchIcon}
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
+              ref={searchInputRef}
+              type="text"
+              className={styles.searchInput}
+              placeholder="Search courses by title, category, skill..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setActiveIndex(-1);
+                setIsDropdownOpen(true);
+              }}
+              onFocus={() => {
+                if (searchQuery.trim()) setIsDropdownOpen(true);
+              }}
+              onKeyDown={handleSearchKeyDown}
+              aria-label="Search corporate training courses"
+              aria-expanded={isDropdownOpen && searchQuery.trim() ? 'true' : 'false'}
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                className={styles.clearBtn}
+                onClick={handleClearSearch}
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          {isDropdownOpen && searchQuery.trim() && (
+            <div className={styles.searchResults}>
+              {searchResults.length > 0 ? (
+                <>
+                  <div className={styles.resultsHeader}>Search results</div>
+                  {searchResults.map((course, idx) => (
+                    <Link
+                      key={course.id}
+                      to={`/courses/${course.id}`}
+                      className={`${styles.resultItem} ${idx === activeIndex ? styles.resultItemActive : ''}`}
+                      onMouseEnter={() => setActiveIndex(idx)}
+                      onClick={closeSearch}
+                    >
+                      <span className={styles.resultTitle}>{course.title}</span>
+                      <span className={styles.resultMeta}>
+                        <span className={styles.resultDomain}>{course.domain}</span>
+                        <span className={styles.resultCategory}>{course.category}</span>
+                      </span>
+                    </Link>
+                  ))}
+                </>
+              ) : (
+                <div className={styles.noResults}>No courses found for your search.</div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* 3 Equal Morphism Category Cards */}
