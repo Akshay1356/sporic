@@ -1,46 +1,36 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import styles from './Hero.module.css';
-
-const slides = [
-  {
-    id: 'slide-1',
-    src: '/hero-slides/slide1-corporate-training.jpeg',
-    alt: 'VIT-TEC Corporate Training — Transform Your Career With World-Class Industry Training',
-  },
-  {
-    id: 'slide-2',
-    src: '/hero-slides/slide2-rankings-recognitions.jfif',
-    alt: 'VIT-TEC Rankings and Recognitions — National & International Accreditations',
-  },
-  {
-    id: 'slide-3',
-    src: '/hero-slides/slide3-industry-partners.jfif',
-    alt: 'VIT-TEC Industry Partners — Collaborating for a Skilled and Future-Ready Workforce',
-  },
-  {
-    id: 'slide-4',
-    src: '/hero-slides/slide4-our-courses.jfif',
-    alt: 'VIT-TEC Our Courses — Technology, Management, Personality, and Leadership',
-  },
-  {
-    id: 'slide-5',
-    src: '/hero-slides/slide5-industry-collaborations.jfif',
-    alt: 'VIT-TEC Industry Collaborations — Building Talent for a Smarter Tomorrow',
-  },
-];
-
+import { getActiveBanners } from '../data/bannersData';
 
 export default function Hero() {
+  const [slides, setSlides] = useState(() => getActiveBanners());
   const [currentIndex, setCurrentIndex] = useState(0);
   const touchStartX = useRef(null);
   const touchEndX = useRef(null);
-  const handleNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % slides.length);
+
+  // Load active banners dynamically and refresh on cross-tab storage changes
+  useEffect(() => {
+    const refreshBanners = () => {
+      const active = getActiveBanners();
+      setSlides(active);
+      setCurrentIndex((prev) => {
+        if (active.length === 0) return 0;
+        if (prev >= active.length) return active.length - 1;
+        return prev;
+      });
+    };
+    refreshBanners();
+    window.addEventListener('storage', refreshBanners);
+    return () => window.removeEventListener('storage', refreshBanners);
   }, []);
 
+  const handleNext = useCallback(() => {
+    setCurrentIndex((prev) => (slides.length === 0 ? prev : (prev + 1) % slides.length));
+  }, [slides.length]);
+
   const handlePrev = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
-  }, []);
+    setCurrentIndex((prev) => (slides.length === 0 ? prev : (prev - 1 + slides.length) % slides.length));
+  }, [slides.length]);
 
   const handleDotClick = useCallback((index) => {
     setCurrentIndex(index);
@@ -77,6 +67,9 @@ export default function Hero() {
       handleNext();
     }
   };
+
+  // Graceful empty state: hide the carousel if no active banners exist
+  if (slides.length === 0) return null;
 
   return (
     <section

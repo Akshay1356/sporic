@@ -64,6 +64,13 @@ export const ImageIcon = makeIcon(
   </>
 );
 
+export const BannerIcon = makeIcon(
+  <>
+    <path d="M4 21h4m2-18v18M5 5.5v9l7 4V1.5z" />
+    <path d="M12 3c2 .5 3.5.5 5 0 1 2.5 1 5 0 7.5-1.5-.5-3-.5-5 0" />
+  </>
+);
+
 export const UsersIcon = makeIcon(
   <>
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />

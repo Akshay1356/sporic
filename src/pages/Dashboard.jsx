@@ -10,6 +10,7 @@ import {
   MessageIcon,
   ScrollIcon,
   ImageIcon,
+  BannerIcon,
   UsersIcon,
   CreditCardIcon,
   UserIcon,
@@ -41,6 +42,14 @@ import {
   GALLERY_CATEGORIES,
 } from '../data/galleryData';
 import {
+  getAllBanners,
+  saveBanner,
+  updateBanner,
+  deleteBanner,
+  toggleBannerActive,
+  moveBanner,
+} from '../data/bannersData';
+import {
   getAllPreviousPrograms,
   savePreviousProgram,
   updatePreviousProgram,
@@ -68,6 +77,7 @@ export default function Dashboard() {
   const [analytics, setAnalytics] = useState(null);
   const [coursesList, setCoursesList] = useState([]);
   const [galleryList, setGalleryList] = useState([]);
+  const [bannersList, setBannersList] = useState([]);
   const [programsList, setProgramsList] = useState([]);
   const [corporateTrainingsList, setCorporateTrainingsList] = useState([]);
   const [enquiriesList, setEnquiriesList] = useState([]);
@@ -135,6 +145,19 @@ export default function Dashboard() {
   const [photoSaving, setPhotoSaving] = useState(false);
   const [deletingPhotoItem, setDeletingPhotoItem] = useState(null);
 
+  // Banner CMS modal states (ADMIN ONLY)
+  const [showBannerModal, setShowBannerModal] = useState(false);
+  const [editingBanner, setEditingBanner] = useState(null);
+  const [bannerTitle, setBannerTitle] = useState('');
+  const [bannerAlt, setBannerAlt] = useState('');
+  const [bannerDesc, setBannerDesc] = useState('');
+  const [bannerImagePreview, setBannerImagePreview] = useState('');
+  const [bannerActive, setBannerActive] = useState(true);
+  const [bannerOrder, setBannerOrder] = useState(0);
+  const [bannerError, setBannerError] = useState('');
+  const [bannerSaving, setBannerSaving] = useState(false);
+  const [deletingBannerItem, setDeletingBannerItem] = useState(null);
+
   // Previous Programs modal states (ADMIN ONLY)
   const [showProgramModal, setShowProgramModal] = useState(false);
   const [editingProgram, setEditingProgram] = useState(null);
@@ -190,6 +213,9 @@ export default function Dashboard() {
 
     const allG = getAllGalleryItems();
     setGalleryList(allG);
+
+    const allB = getAllBanners();
+    setBannersList(allB);
 
     const allP = getAllPreviousPrograms();
     setProgramsList(allP);
@@ -460,6 +486,122 @@ export default function Dashboard() {
       setTimeout(() => setActionSuccess(''), 4000);
     } catch (err) {
       alert(`Failed to delete: ${err.message}`);
+    }
+  };
+
+  // --- BANNER CMS HANDLERS (ADMIN ONLY) ---
+  const handleOpenAddBanner = () => {
+    const all = getAllBanners();
+    const nextOrder = all.length > 0 ? Math.max(...all.map((b) => b.order || 0)) + 1 : 1;
+    setEditingBanner(null);
+    setBannerTitle('');
+    setBannerAlt('');
+    setBannerDesc('');
+    setBannerImagePreview('');
+    setBannerActive(true);
+    setBannerOrder(nextOrder);
+    setBannerError('');
+    setShowBannerModal(true);
+  };
+
+  const handleOpenEditBanner = (banner) => {
+    setEditingBanner(banner);
+    setBannerTitle(banner.title || '');
+    setBannerAlt(banner.alt || '');
+    setBannerDesc(banner.description || '');
+    setBannerImagePreview(banner.src || banner.imageUrl || '');
+    setBannerActive(banner.isActive !== false);
+    setBannerOrder(banner.order ?? 1);
+    setBannerError('');
+    setShowBannerModal(true);
+  };
+
+  const handleBannerFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      setBannerError('Unsupported file format. Please upload JPG, PNG, or WEBP images.');
+      return;
+    }
+
+    setBannerError('');
+    try {
+      const compressed = await compressImageFile(file);
+      setBannerImagePreview(compressed);
+    } catch {
+      setBannerError('Failed to process image. Try another file.');
+    }
+  };
+
+  const handleSaveBannerSubmit = async (e) => {
+    e.preventDefault();
+    if (!bannerImagePreview) return setBannerError('Please upload a banner image.');
+    if (!bannerTitle.trim()) return setBannerError('Please enter a banner title.');
+
+    setBannerSaving(true);
+    setBannerError('');
+
+    try {
+      const record = {
+        title: bannerTitle.trim(),
+        alt: bannerAlt.trim() || bannerTitle.trim(),
+        description: bannerDesc.trim(),
+        src: bannerImagePreview,
+        imageUrl: bannerImagePreview,
+        isActive: bannerActive,
+        order: parseInt(bannerOrder, 10) || 1,
+      };
+
+      if (editingBanner) {
+        updateBanner(editingBanner.id, record);
+        setActionSuccess('Banner updated successfully.');
+      } else {
+        saveBanner({ ...record, createdAt: new Date().toISOString() });
+        setActionSuccess('✓ Banner added to the homepage Hero!');
+      }
+
+      refreshAllData();
+      setShowBannerModal(false);
+      setTimeout(() => setActionSuccess(''), 5000);
+    } catch (err) {
+      setBannerError(err.message || 'Failed to save banner.');
+    } finally {
+      setBannerSaving(false);
+    }
+  };
+
+  const handleConfirmDeleteBanner = () => {
+    if (!deletingBannerItem) return;
+    try {
+      deleteBanner(deletingBannerItem.id);
+      refreshAllData();
+      setActionSuccess('Banner removed from homepage Hero.');
+      setDeletingBannerItem(null);
+      setTimeout(() => setActionSuccess(''), 4000);
+    } catch (err) {
+      alert(`Failed to delete banner: ${err.message}`);
+    }
+  };
+
+  const handleToggleBannerActive = (banner) => {
+    try {
+      toggleBannerActive(banner.id);
+      refreshAllData();
+      setActionSuccess(banner.isActive !== false ? 'Banner deactivated.' : 'Banner activated.');
+      setTimeout(() => setActionSuccess(''), 4000);
+    } catch (err) {
+      alert(`Failed to update banner status: ${err.message}`);
+    }
+  };
+
+  const handleMoveBanner = (banner, direction) => {
+    try {
+      moveBanner(banner.id, direction);
+      refreshAllData();
+    } catch (err) {
+      alert(`Failed to reorder banner: ${err.message}`);
     }
   };
 
@@ -832,6 +974,13 @@ export default function Dashboard() {
                 >
                   <ImageIcon size={16} />
                   Gallery CMS ({galleryList.length})
+                </button>
+                <button
+                  className={`${styles.tabBtn} ${activeTab === 'banners' ? styles.tabBtnActive : ''}`}
+                  onClick={() => setActiveTab('banners')}
+                >
+                  <BannerIcon size={16} />
+                  Banners ({bannersList.length})
                 </button>
                 <button
                   className={`${styles.tabBtn} ${activeTab === 'users' ? styles.tabBtnActive : ''}`}
@@ -1496,6 +1645,107 @@ export default function Dashboard() {
                 </GlassCard>
               )}
 
+              {/* BANNERS MANAGEMENT */}
+              {activeTab === 'banners' && (
+                <GlassCard padding="lg">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                    <div>
+                      <h3 style={{ color: '#111', fontSize: '1.25rem', fontWeight: 700 }}>Banners</h3>
+                      <p style={{ color: '#667085', fontSize: '0.85rem' }}>
+                        Manage the slides shown in the homepage Hero. Only <strong>active</strong> banners appear, ordered by their display order.
+                      </p>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                      <Link to="/" target="_blank" className="btn btn-secondary">
+                        View Homepage ↗
+                      </Link>
+                      <button className="btn btn-primary" onClick={handleOpenAddBanner}>
+                        <PlusIcon size={15} />
+                        Add Banner
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className={styles.tableWrapper}>
+                    <table className={styles.dataTable}>
+                      <thead>
+                        <tr>
+                          <th style={{ width: '80px' }}>Preview</th>
+                          <th>Title</th>
+                          <th>Description</th>
+                          <th>Status</th>
+                          <th style={{ width: '90px' }}>Order</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {bannersList.map((banner) => (
+                          <tr key={banner.id}>
+                            <td>
+                              <img
+                                src={banner.src || banner.imageUrl}
+                                alt={banner.alt || banner.title}
+                                style={{ width: '96px', height: '48px', objectFit: 'cover', borderRadius: '6px' }}
+                              />
+                            </td>
+                            <td>
+                              <div style={{ fontWeight: 600, color: '#101828' }}>{banner.title || 'Untitled Banner'}</div>
+                              <div style={{ fontSize: '0.72rem', color: '#98A2B3' }}>{banner.isCustom ? 'Custom' : 'Default'}</div>
+                            </td>
+                            <td style={{ fontSize: '0.8rem', color: '#667085' }}>{banner.description || '—'}</td>
+                            <td>
+                              <span className={`${styles.statusPill} ${banner.isActive !== false ? styles.statusSuccess : styles.statusPending}`}>
+                                {banner.isActive !== false ? 'Active' : 'Inactive'}
+                              </span>
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#0B2A6F', minWidth: '16px' }}>{banner.order}</span>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                  <button
+                                    type="button"
+                                    aria-label="Move banner up"
+                                    onClick={() => handleMoveBanner(banner, 'up')}
+                                    style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#475569', padding: '0', lineHeight: 0.7 }}
+                                  >
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15" /></svg>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    aria-label="Move banner down"
+                                    onClick={() => handleMoveBanner(banner, 'down')}
+                                    style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#475569', padding: '0', lineHeight: 0.7 }}
+                                  >
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9" /></svg>
+                                  </button>
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                                <button className="btn btn-secondary" style={{ padding: '0.25rem 0.55rem', fontSize: '0.78rem' }} onClick={() => handleOpenEditBanner(banner)}>
+                                  Edit
+                                </button>
+                                <button
+                                  className="btn btn-ghost"
+                                  style={{ padding: '0.25rem 0.55rem', fontSize: '0.78rem', color: banner.isActive !== false ? '#B45309' : '#059669' }}
+                                  onClick={() => handleToggleBannerActive(banner)}
+                                >
+                                  {banner.isActive !== false ? 'Deactivate' : 'Activate'}
+                                </button>
+                                <button className="btn btn-ghost" style={{ padding: '0.25rem 0.55rem', fontSize: '0.78rem', color: '#DC2626' }} onClick={() => setDeletingBannerItem(banner)}>
+                                  Delete
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </GlassCard>
+              )}
+
               {/* TAB 5: Users Management */}
               {activeTab === 'users' && (
                 <GlassCard padding="lg">
@@ -2007,6 +2257,127 @@ export default function Dashboard() {
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.25rem' }}>
               <button onClick={() => setDeletingProgram(null)} className="btn btn-secondary">Cancel</button>
               <button onClick={handleConfirmDeleteProgram} className="btn btn-primary" style={{ background: '#DC2626' }}>Delete Program</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ====================================================
+          MODAL: ADD / EDIT BANNER (ADMIN ONLY)
+         ==================================================== */}
+      {showBannerModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(7, 27, 74, 0.8)', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', overflowY: 'auto' }}>
+          <div style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: '16px', boxShadow: '0 20px 48px rgba(7, 27, 74, 0.25)', padding: '1.75rem', width: '100%', maxWidth: '640px', maxHeight: '90vh', overflowY: 'auto', color: '#0B2A6F' }}>
+            <div style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: '0.75rem', marginBottom: '1.25rem' }}>
+              <h3 style={{ margin: 0, color: '#0B2A6F', fontWeight: 700, fontSize: '1.15rem' }}>{editingBanner ? 'Edit Banner' : (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
+                  <PlusIcon size={17} />
+                  Add Banner
+                </span>
+              )}</h3>
+            </div>
+            {bannerError && <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', padding: '0.6rem 1rem', borderRadius: '8px', color: '#B91C1C', fontSize: '0.85rem', marginBottom: '1rem' }}>{bannerError}</div>}
+            <form onSubmit={handleSaveBannerSubmit}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem', alignItems: 'flex-start' }}>
+                {/* LEFT: Banner Image Upload / Preview */}
+                <div style={{ flex: '1 1 230px', minWidth: '230px' }}>
+                  <label style={{ display: 'block' }}>
+                    <div style={{ border: '2px dashed #CBD5E1', background: '#F8FAFC', borderRadius: '12px', padding: '1.25rem', minHeight: '200px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', cursor: 'pointer', boxSizing: 'border-box', transition: 'border-color 0.2s ease' }}>
+                      <input type="file" accept="image/*" onChange={handleBannerFileChange} aria-label="Upload Banner Image" style={{ display: 'none' }} />
+                      {bannerImagePreview ? (
+                        <>
+                          <img src={bannerImagePreview} alt="Preview" style={{ maxHeight: '160px', maxWidth: '100%', borderRadius: '8px', objectFit: 'cover', marginBottom: '0.5rem' }} />
+                          <span style={{ fontSize: '0.78rem', color: '#0B2A6F', fontWeight: 600, display: 'block' }}>Click to replace image</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3" /></svg>
+                          <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0B2A6F', marginTop: '0.75rem', display: 'block' }}>Upload Banner Image</span>
+                          <span style={{ fontSize: '0.78rem', color: '#64748B', marginTop: '0.25rem', display: 'block' }}>Click to select an image (JPG / PNG)</span>
+                        </>
+                      )}
+                    </div>
+                  </label>
+                </div>
+
+                {/* RIGHT: Title, Alt Text, Description, Active, Order */}
+                <div style={{ flex: '1 1 270px', minWidth: '260px' }}>
+                  <div style={{ marginBottom: '0.9rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#0B2A6F', marginBottom: '0.35rem' }}>Banner Title *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Corporate Training"
+                      value={bannerTitle}
+                      onChange={(e) => setBannerTitle(e.target.value)}
+                      style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '8px', border: '1px solid #E2E8F0', background: '#FFFFFF', color: '#0F172A', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: '0.9rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#0B2A6F', marginBottom: '0.35rem' }}>Alt Text (accessibility)</label>
+                    <input
+                      type="text"
+                      placeholder="Description of the banner image for screen readers"
+                      value={bannerAlt}
+                      onChange={(e) => setBannerAlt(e.target.value)}
+                      style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '8px', border: '1px solid #E2E8F0', background: '#FFFFFF', color: '#0F172A', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: '0.9rem' }}>
+                    <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#0B2A6F', marginBottom: '0.35rem' }}>Description (optional)</label>
+                    <textarea
+                      placeholder="Brief description of this slide (not displayed on current hero design)"
+                      value={bannerDesc}
+                      onChange={(e) => setBannerDesc(e.target.value)}
+                      style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '8px', border: '1px solid #E2E8F0', background: '#FFFFFF', color: '#0F172A', fontSize: '0.9rem', minHeight: '60px', resize: 'vertical', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.9rem', alignItems: 'center' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.82rem', fontWeight: 600, color: '#0B2A6F', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={bannerActive}
+                        onChange={(e) => setBannerActive(e.target.checked)}
+                        style={{ width: '16px', height: '16px', accentColor: '#059669' }}
+                      />
+                      Active
+                    </label>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#0B2A6F', marginBottom: '0.2rem' }}>Order</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={bannerOrder}
+                        onChange={(e) => setBannerOrder(parseInt(e.target.value, 10) || 1)}
+                        style={{ width: '80px', padding: '0.5rem 0.6rem', borderRadius: '8px', border: '1px solid #E2E8F0', background: '#FFFFFF', color: '#0F172A', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.5rem' }}>
+                <button type="button" onClick={() => setShowBannerModal(false)} className="btn btn-secondary">
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={bannerSaving}>
+                  {bannerSaving ? 'Saving Banner...' : 'Save Banner'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Banner Confirmation */}
+      {deletingBannerItem && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 10001, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: '#0F2252', padding: '1.75rem', borderRadius: '14px', maxWidth: '420px', color: '#FFF' }}>
+            <h4>Delete Banner?</h4>
+            <p style={{ color: '#CBD5E1', fontSize: '0.85rem' }}>Are you sure you want to permanently delete <strong>{deletingBannerItem.title || 'this banner'}</strong> from the homepage Hero?</p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.25rem' }}>
+              <button onClick={() => setDeletingBannerItem(null)} className="btn btn-secondary">Cancel</button>
+              <button onClick={handleConfirmDeleteBanner} className="btn btn-primary" style={{ background: '#DC2626' }}>Delete Banner</button>
             </div>
           </div>
         </div>
