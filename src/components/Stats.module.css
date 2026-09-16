@@ -1,4 +1,4 @@
-/* Stats.module.css - Theme 05 Statistics Strip */
+/* Stats.module.css - VIT-TEC Theme Statistics Strip & Side Panel */
 .statsWrapper {
   position: relative;
   z-index: 10;
@@ -12,10 +12,10 @@
 }
 
 .statsCard {
-  background: #FFFFFF;
-  border-radius: var(--radius-lg);
-  border: 1px solid #E4E7EC;
-  box-shadow: 0 12px 32px rgba(11, 42, 111, 0.08);
+  background: linear-gradient(135deg, #071B4A 0%, #0B2A6F 100%);
+  border-radius: var(--radius-lg, 14px);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 12px 32px rgba(7, 27, 74, 0.18), inset 0 1px 1px rgba(255, 255, 255, 0.1);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   padding: 1.75rem 2rem;
@@ -27,16 +27,16 @@
 
 @keyframes statsInitialGlow {
   0% {
-    border-color: #BFDBFE;
-    box-shadow: 0 0 0 rgba(56, 189, 248, 0), 0 12px 32px rgba(11, 42, 111, 0.08);
+    border-color: rgba(56, 189, 248, 0.2);
+    box-shadow: 0 0 0 rgba(56, 189, 248, 0), 0 12px 32px rgba(7, 27, 74, 0.18);
   }
   28% {
     border-color: #38BDF8;
-    box-shadow: 0 0 24px rgba(56, 189, 248, 0.75), 0 12px 32px rgba(11, 42, 111, 0.12);
+    box-shadow: 0 0 24px rgba(56, 189, 248, 0.4), 0 12px 32px rgba(7, 27, 74, 0.25);
   }
   100% {
-    border-color: #E4E7EC;
-    box-shadow: 0 12px 32px rgba(11, 42, 111, 0.08);
+    border-color: rgba(56, 189, 248, 0.25);
+    box-shadow: 0 12px 32px rgba(7, 27, 74, 0.18);
   }
 }
 
@@ -69,7 +69,7 @@
 }
 
 .statItem:hover {
-  background: #F8FAFC;
+  background: rgba(255, 255, 255, 0.08);
   transform: translateX(4px);
 }
 
@@ -80,26 +80,27 @@
   top: 15%;
   height: 70%;
   width: 1px;
-  background-color: #E4E7EC;
+  background-color: rgba(56, 189, 248, 0.15);
 }
 
 .iconWrapper {
   width: 52px;
   height: 52px;
   border-radius: 12px;
-  background: #EFF6FF;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #1D4ED8;
+  color: #38BDF8;
   flex-shrink: 0;
   transition: transform 220ms ease, background 220ms ease, box-shadow 220ms ease;
 }
 
 .statItem:hover .iconWrapper {
   transform: scale(1.08) rotate(-4deg);
-  background: #DBEAFE;
-  box-shadow: 0 5px 14px rgba(29, 78, 216, 0.16);
+  background: rgba(56, 189, 248, 0.25);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.35);
 }
 
 .statContent {
@@ -108,17 +109,18 @@
 }
 
 .statNumber {
-  font-family: var(--font-heading);
+  font-family: var(--font-heading, sans-serif);
   font-size: 2rem;
   font-weight: 800;
-  color: #101828;
+  color: #FFFFFF;
   line-height: 1.1;
+  letter-spacing: -0.01em;
 }
 
 .statLabel {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #667085;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #E2E8F0;
   margin-top: 0.25rem;
 }
 
@@ -191,7 +193,9 @@
   }
 }
 
-/* Homepage side-panel layout. The parent class is global; these are CSS-module classes. */
+/* ====================================================
+   HOMEPAGE LEFT SIDEBAR LAYOUT
+   ==================================================== */
 :global(.stats-left) .statsWrapper {
   width: 100%;
   height: 100%;
@@ -210,34 +214,66 @@
   justify-content: space-evenly;
   gap: 0;
   padding: 1.25rem 0.85rem;
+  background: linear-gradient(180deg, #071B4A 0%, #0A2566 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 12px 32px rgba(7, 27, 74, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.1);
 }
 
 :global(.stats-left) .statItem {
-  padding: 1.5rem 0.6rem;
+  padding: 1.25rem 0.6rem;
   gap: 1rem;
+  border-radius: 10px;
+}
+
+:global(.stats-left) .statItem:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+:global(.stats-left) .statItem:not(:last-child)::after {
+  display: none;
 }
 
 :global(.stats-left) .iconWrapper {
-  width: 62px;
-  height: 62px;
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38BDF8;
 }
 
 :global(.stats-left) .iconWrapper svg {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
+}
+
+:global(.stats-left) .statItem:hover .iconWrapper {
+  background: rgba(56, 189, 248, 0.28);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
 }
 
 :global(.stats-left) .statNumber {
-  font-size: 2.2rem;
+  font-size: 1.95rem;
+  font-weight: 800;
+  color: #FFFFFF;
 }
 
 :global(.stats-left) .statLabel {
-  font-size: 0.95rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #E2E8F0;
+  line-height: 1.35;
 }
 
 @media (max-width: 768px) {
   :global(.stats-left) .statsCard {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+    padding: 1rem;
+    gap: 0.75rem;
+  }
+
+  :global(.stats-left) .statItem {
+    padding: 0.5rem;
   }
 }
