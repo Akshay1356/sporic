@@ -19,6 +19,7 @@ export const initialGalleryPhotos = [
     title: 'Corporate Strategy & Leadership Mindset Workshop',
     category: 'Leadership & Personality',
     description: 'Executive leadership, strategic thinking, and team development workshop conducted for corporate management cohorts.',
+    companyName: 'Lucas TVS',
     createdAt: '2026-01-15T10:00:00.000Z',
   },
   {
@@ -36,6 +37,7 @@ export const initialGalleryPhotos = [
     title: 'Strategic Planning & Industrial Operations Program',
     category: 'Management',
     description: 'Specialized industrial training on strategic planning, financial forecasting, and decision modeling for industry professionals.',
+    companyName: 'Brakes India',
     createdAt: '2026-02-18T10:00:00.000Z',
   },
   {
@@ -44,6 +46,7 @@ export const initialGalleryPhotos = [
     title: 'Corporate Executive Leadership & Development Series',
     category: 'Leadership & Personality',
     description: 'High-impact keynote lecture and corporate capacity building session delivered to industry managers and engineering professionals.',
+    companyName: 'Ashok Leyland',
     createdAt: '2026-03-01T10:00:00.000Z',
   },
   {
@@ -52,6 +55,7 @@ export const initialGalleryPhotos = [
     title: 'Technical Skill & Computer Lab Training',
     category: 'Technology',
     description: 'Hands-on practical computational training and workforce development session conducted at VIT-TEC computing facilities.',
+    companyName: 'Cognizant',
     createdAt: '2026-03-12T10:00:00.000Z',
   },
   {
@@ -87,6 +91,7 @@ export const initialGalleryPhotos = [
     title: 'Faculty Coordinators & Industry Delegate Cohort',
     category: 'Events',
     description: 'Commemorative cohort gathering of corporate trainees and faculty coordinators in the campus courtyard.',
+    companyName: 'Wipro Infrastructure',
     createdAt: '2026-05-02T10:00:00.000Z',
   },
 ];

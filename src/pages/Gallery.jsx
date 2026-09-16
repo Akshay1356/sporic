@@ -175,14 +175,9 @@ export default function Gallery() {
 
                   {/* Card Caption Info */}
                   <div className={styles.cardDetails}>
-                    <div className={styles.cardMetaRow}>
-                      <span className={styles.categoryBadge}>
-                        {photo.category}
-                      </span>
-                    </div>
                     {photo.companyName ? (
                       <div className={styles.companyMeta}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M6 22V4a2 2 0 012-2h8a2 2 0 012 2v18z"/>
                           <path d="M6 12H4a2 2 0 00-2 2v6a2 2 0 002 2h2"/>
                           <path d="M18 9h2a2 2 0 012 2v9a2 2 0 01-2 2h-2"/>
@@ -196,7 +191,6 @@ export default function Gallery() {
                       </div>
                     ) : null}
                     <h3 className={styles.photoTitle}>{photo.title || 'Corporate Training Activity'}</h3>
-                    <p className={styles.photoDesc}>{photo.description}</p>
                   </div>
                 </motion.div>
               ))}

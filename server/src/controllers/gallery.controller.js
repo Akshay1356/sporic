@@ -9,6 +9,7 @@ const staticPhotos = [
     title: 'Corporate Strategy & Leadership Mindset Workshop',
     category: 'Executive Development',
     description: 'Executive leadership, strategic thinking, and team development workshop conducted for corporate management cohorts.',
+    companyName: 'Lucas TVS',
   },
   {
     id: 'managers-multiplier-masterclass',
@@ -16,6 +17,7 @@ const staticPhotos = [
     title: 'Corporate Management Excellence & Multiplier Masterclass',
     category: 'Corporate Training',
     description: 'Interactive corporate management excellence training on managerial multiplication and leadership productivity.',
+    companyName: 'TVS Motors',
   },
   {
     id: 'strategic-planning-operations-program',
@@ -23,6 +25,7 @@ const staticPhotos = [
     title: 'Strategic Planning & Industrial Operations Program',
     category: 'Corporate Training',
     description: 'Specialized industrial training on strategic planning, financial forecasting, and decision modeling for industry professionals.',
+    companyName: 'Brakes India',
   },
   {
     id: 'executive-leadership-series',
@@ -30,6 +33,7 @@ const staticPhotos = [
     title: 'Corporate Executive Leadership & Development Series',
     category: 'Executive Development',
     description: 'High-impact keynote lecture and corporate capacity building session delivered to industry managers and engineering professionals.',
+    companyName: 'Ashok Leyland',
   },
   {
     id: 'lab-training-session',
@@ -37,6 +41,7 @@ const staticPhotos = [
     title: 'Technical Skill & Computer Lab Training',
     category: 'Technical Workshops',
     description: 'Hands-on practical computational training and workforce development session conducted at VIT-TEC computing facilities.',
+    companyName: 'Cognizant',
   },
   {
     id: 'certificate-award-ceremony',
@@ -44,6 +49,7 @@ const staticPhotos = [
     title: 'Corporate Training Certificate Distribution Ceremony',
     category: 'Certification Ceremonies',
     description: 'Participants awarded official VIT-TEC certificates of completion at Dr. A.P.J. Abdul Kalam Block.',
+    companyName: 'TCS',
   },
   {
     id: 'professional-development-workshop',
@@ -51,6 +57,7 @@ const staticPhotos = [
     title: 'Professional Development & Cross-Functional Synergy',
     category: 'Corporate Training',
     description: 'Interactive corporate training program with industry trainees around the executive conference boardroom.',
+    companyName: 'HCL Technologies',
   },
   {
     id: 'executive-conference-meeting',
@@ -58,6 +65,7 @@ const staticPhotos = [
     title: 'Executive Development & Industry Keynote Session',
     category: 'Executive Development',
     description: 'Senior university leadership and industry delegates in an executive development session at SpoRIC.',
+    companyName: 'Ford India',
   },
   {
     id: 'campus-delegates-group',
@@ -65,6 +73,7 @@ const staticPhotos = [
     title: 'Faculty Coordinators & Industry Delegate Cohort',
     category: 'Corporate Training',
     description: 'Commemorative cohort gathering of corporate trainees and faculty coordinators in the campus courtyard.',
+    companyName: 'Wipro Infrastructure',
   },
 ];
 
