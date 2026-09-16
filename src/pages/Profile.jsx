@@ -132,136 +132,136 @@ export default function Profile() {
             transition={{ duration: 0.4, ease: 'easeOut' }}
           >
             {/* Header with Avatar */}
-            <div className={styles.avatarHeader}>
-              <div className={styles.avatarCircle}>
-                {(fullName || email || 'U')[0].toUpperCase()}
-              </div>
-              <div className={styles.avatarInfo}>
-                <h2>{fullName || 'Your Name'}</h2>
-                <p>
-                  {email} • <span className="tag tag-cyan" style={{ fontSize: '0.7rem' }}>{user.role || 'STUDENT'}</span>
-                </p>
-              </div>
-            </div>
-
-            {error && <div className={styles.errorBanner}>{error}</div>}
-            {success && <div className={styles.successBanner}>{success}</div>}
-
-            <form onSubmit={handleSaveProfile}>
-              <div className={styles.formGrid}>
-                <div className={styles.inputGroup}>
-                  <label className={styles.label}>Full Name *</label>
-                  <input
-                    type="text"
-                    required
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="e.g. Arun Kumar"
-                    className={styles.input}
-                  />
+              <div className={styles.avatarHeader}>
+                <div className={styles.avatarCircle}>
+                  {(fullName || email || 'U')[0].toUpperCase()}
                 </div>
-
-                <div className={styles.inputGroup}>
-                  <label className={styles.label}>Email Address (Read-Only)</label>
-                  <input
-                    type="email"
-                    disabled
-                    value={email}
-                    className={styles.input}
-                  />
+                <div className={styles.avatarInfo}>
+                  <h2>{fullName || 'Your Name'}</h2>
+                  <p>
+                    {email} <span className={styles.roleBadge}>{user.role || 'STUDENT'}</span>
+                  </p>
                 </div>
               </div>
 
-              <div className={styles.formGrid}>
-                <div className={styles.inputGroup}>
-                  <label className={styles.label}>Phone Number *</label>
-                  <input
-                    type="tel"
-                    required
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+91 98765 43210"
-                    className={styles.input}
-                  />
+              {error && <div className={styles.errorBanner}>{error}</div>}
+              {success && <div className={styles.successBanner}>{success}</div>}
+
+              <form onSubmit={handleSaveProfile}>
+                <div className={styles.formGrid}>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label}>Full Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="e.g. Dr. Dean SpoRIC"
+                      className={styles.input}
+                    />
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label}>Email Address (Read-Only)</label>
+                    <input
+                      type="email"
+                      disabled
+                      value={email}
+                      className={styles.input}
+                    />
+                  </div>
                 </div>
 
-                <div className={styles.inputGroup}>
-                  <label className={styles.label}>Designation / Professional Role *</label>
-                  <select
-                    value={designation}
-                    onChange={(e) => setDesignation(e.target.value)}
-                    className={styles.select}
-                  >
-                    <option value="Corporate Executive">Corporate Executive</option>
-                    <option value="Senior Manager / Director">Senior Manager / Director</option>
-                    <option value="Software Engineer / IT Specialist">Software Engineer / IT Specialist</option>
-                    <option value="Industrial / Manufacturing Engineer">Industrial / Manufacturing Engineer</option>
-                    <option value="Student / Researcher">Student / Researcher</option>
-                    <option value="Faculty / Academician">Faculty / Academician</option>
-                    <option value="Independent Consultant">Independent Consultant</option>
-                    <option value="Other">Other (Specify below)</option>
-                  </select>
-                </div>
-              </div>
+                <div className={styles.formGrid}>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label}>Phone Number *</label>
+                    <input
+                      type="tel"
+                      required
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+91 98765 43210"
+                      className={styles.input}
+                    />
+                  </div>
 
-              {designation === 'Other' && (
-                <div className={styles.inputGroup}>
-                  <label className={styles.label}>Specify Your Designation *</label>
-                  <input
-                    type="text"
-                    required
-                    value={customDesignation}
-                    onChange={(e) => setCustomDesignation(e.target.value)}
-                    placeholder="e.g. Operations Specialist"
-                    className={styles.input}
-                  />
-                </div>
-              )}
-
-              <div className={styles.formGrid}>
-                <div className={styles.inputGroup}>
-                  <label className={styles.label}>Company / University Name</label>
-                  <input
-                    type="text"
-                    value={organization}
-                    onChange={(e) => setOrganization(e.target.value)}
-                    placeholder="e.g. Lucas TVS / L&T / VIT Chennai"
-                    className={styles.input}
-                  />
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label}>Designation / Professional Role *</label>
+                    <select
+                      value={designation}
+                      onChange={(e) => setDesignation(e.target.value)}
+                      className={styles.select}
+                    >
+                      <option value="Corporate Executive">Corporate Executive</option>
+                      <option value="Senior Manager / Director">Senior Manager / Director</option>
+                      <option value="Software Engineer / IT Specialist">Software Engineer / IT Specialist</option>
+                      <option value="Industrial / Manufacturing Engineer">Industrial / Manufacturing Engineer</option>
+                      <option value="Student / Researcher">Student / Researcher</option>
+                      <option value="Faculty / Academician">Faculty / Academician</option>
+                      <option value="Independent Consultant">Independent Consultant</option>
+                      <option value="Other">Other (Specify below)</option>
+                    </select>
+                  </div>
                 </div>
 
-                <div className={styles.inputGroup}>
-                  <label className={styles.label}>Industry / Domain Sector</label>
-                  <select
-                    value={industrySector}
-                    onChange={(e) => setIndustrySector(e.target.value)}
-                    className={styles.select}
-                  >
-                    <option value="Automotive & Manufacturing">Automotive & Manufacturing</option>
-                    <option value="Information Technology & Software">Information Technology & Software</option>
-                    <option value="Renewable Energy & Power">Renewable Energy & Power</option>
-                    <option value="Banking & Financial Services">Banking & Financial Services</option>
-                    <option value="Higher Education & Research">Higher Education & Research</option>
-                    <option value="Consulting & Corporate Strategy">Consulting & Corporate Strategy</option>
-                  </select>
-                </div>
-              </div>
+                {designation === 'Other' && (
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label}>Specify Your Designation *</label>
+                    <input
+                      type="text"
+                      required
+                      value={customDesignation}
+                      onChange={(e) => setCustomDesignation(e.target.value)}
+                      placeholder="e.g. Operations Specialist"
+                      className={styles.input}
+                    />
+                  </div>
+                )}
 
-              <div className={styles.btnRow}>
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
-                  <Link to="/courses" className="btn btn-ghost" style={{ fontSize: '0.85rem' }}>
-                    ← Browse Courses
-                  </Link>
-                  <Link to="/dashboard" className="btn btn-ghost" style={{ fontSize: '0.85rem' }}>
-                    Go to Dashboard →
-                  </Link>
+                <div className={styles.formGrid}>
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label}>Company / University Name</label>
+                    <input
+                      type="text"
+                      value={organization}
+                      onChange={(e) => setOrganization(e.target.value)}
+                      placeholder="e.g. Lucas TVS / L&T / VIT Chennai"
+                      className={styles.input}
+                    />
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label className={styles.label}>Industry / Domain Sector</label>
+                    <select
+                      value={industrySector}
+                      onChange={(e) => setIndustrySector(e.target.value)}
+                      className={styles.select}
+                    >
+                      <option value="Automotive & Manufacturing">Automotive & Manufacturing</option>
+                      <option value="Information Technology & Software">Information Technology & Software</option>
+                      <option value="Renewable Energy & Power">Renewable Energy & Power</option>
+                      <option value="Banking & Financial Services">Banking & Financial Services</option>
+                      <option value="Higher Education & Research">Higher Education & Research</option>
+                      <option value="Consulting & Corporate Strategy">Consulting & Corporate Strategy</option>
+                    </select>
+                  </div>
                 </div>
 
-                <button type="submit" className={styles.saveBtn} disabled={loading}>
-                  {loading ? 'Saving Profile...' : '💾 Save Changes'}
-                </button>
-              </div>
-            </form>
+                <div className={styles.btnRow}>
+                  <div className={styles.navLinksGroup}>
+                    <Link to="/courses" className={styles.navLinkBtn}>
+                      ← Browse Courses
+                    </Link>
+                    <Link to="/dashboard" className={styles.navLinkBtn}>
+                      Go to Dashboard →
+                    </Link>
+                  </div>
+
+                  <button type="submit" className={styles.saveBtn} disabled={loading}>
+                    {loading ? 'Saving Profile...' : '💾 Save Changes'}
+                  </button>
+                </div>
+              </form>
           </motion.div>
         </div>
       </section>
