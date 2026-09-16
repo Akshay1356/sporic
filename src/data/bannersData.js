@@ -4,7 +4,7 @@
 const BANNERS_KEY = 'sporic_banners';
 const DELETED_BANNERS_KEY = 'sporic_deleted_banner_ids';
 
-// Seed banners from the VIT-TEC homepage hero video + 3 official slides
+// Seed banners: Video Intro + 4 Official VIT-TEC Homepage Posters
 export const initialBanners = [
   {
     id: 'banner-intro-video',
@@ -18,9 +18,9 @@ export const initialBanners = [
     createdAt: '2026-01-01T00:00:00.000Z',
   },
   {
-    id: 'banner-corporate-training',
+    id: 'banner-corporate-training-v2',
     type: 'image',
-    src: '/hero-slides/banner-corporate-training.jpg',
+    src: '/hero-slides/banner-corporate-training.png',
     alt: 'VIT-TEC Corporate Training — Skills for a Stronger Tomorrow',
     title: 'Corporate Training',
     description: 'Skills for a Stronger Tomorrow — Industry Ready People',
@@ -29,32 +29,46 @@ export const initialBanners = [
     createdAt: '2026-01-01T00:00:00.000Z',
   },
   {
-    id: 'banner-rankings-recognition',
+    id: 'banner-programmes-offered',
     type: 'image',
-    src: '/hero-slides/banner-rankings-recognition.jpg',
-    alt: 'VIT-TEC Rankings and Recognition — National & International Accreditations',
-    title: 'Rankings and Recognition',
-    description: 'National & International Accreditations, NIRF, QS, and Global Standards',
+    src: '/hero-slides/banner-programmes-offered.png',
+    alt: 'Programmes Offered — VIT Corporate Capability Development Programme (VIT-CCDP)',
+    title: 'Programmes Offered',
+    description: 'Technology, Management, Personality, and Leadership Programmes',
     isActive: true,
     order: 2,
     createdAt: '2026-01-01T00:00:00.000Z',
   },
   {
-    id: 'banner-our-courses',
+    id: 'banner-rankings-recognition-v2',
     type: 'image',
-    src: '/hero-slides/banner-our-courses.jpg',
-    alt: 'VIT-TEC Our Courses — Skills for a Stronger Tomorrow',
-    title: 'Our Courses',
-    description: 'Skills for a Stronger Tomorrow — Technology, Management, Personality, and Leadership',
+    src: '/hero-slides/banner-rankings-recognition.png',
+    alt: 'VIT-TEC Rankings and Recognition — National & International Accreditations',
+    title: 'Rankings and Recognition',
+    description: 'National Rankings NIRF 2025, International Rankings & QS Accreditations',
     isActive: true,
     order: 3,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'banner-industry-partners',
+    type: 'image',
+    src: '/hero-slides/banner-industry-partners.png',
+    alt: 'Our Industry Partners — Collaborating for a Skilled and Future-Ready Workforce',
+    title: 'Our Industry Partners',
+    description: 'Collaborating with premier industry leaders for future-ready corporate learning',
+    isActive: true,
+    order: 4,
     createdAt: '2026-01-01T00:00:00.000Z',
   },
 ];
 
 // --- DYNAMIC CMS HELPER FUNCTIONS ---
 
-const LEGACY_SLIDE_IDS = new Set(['slide-1', 'slide-2', 'slide-3', 'slide-4', 'slide-5']);
+const LEGACY_SLIDE_IDS = new Set([
+  'slide-1', 'slide-2', 'slide-3', 'slide-4', 'slide-5',
+  'banner-corporate-training', 'banner-rankings-recognition', 'banner-our-courses'
+]);
 
 export function getAllBanners() {
   if (typeof window === 'undefined') return initialBanners;
