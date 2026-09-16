@@ -36,7 +36,7 @@ export default function Hero() {
     setCurrentIndex(index);
   }, []);
 
-
+  //Comment Manas
   // Touch gesture handling for mobile
   const handleTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX;
