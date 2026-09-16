@@ -2,6 +2,11 @@ import { useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import styles from './Benefits.module.css';
 
+/* Symmetrical ecosystem geometry (px), derived from the fixed grid in
+   Benefits.module.css:
+   columns: [cardW 270, gap 38, hubW 340, gap 38, cardW 270] = 956
+   rows:    [cardH 146, gap 36, hubH 360, gap 36, cardH 146] = 724
+   Hub centre therefore sits exactly at (478, 362) = (50%, 50%). */
 const benefitsData = [
   {
     id: 'curriculum',
@@ -14,8 +19,13 @@ const benefitsData = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
       </svg>
     ),
-    // SVG line coordinate percentages for desktop connector
-    lineCoords: { x1: '50%', y1: '40%', x2: '28%', y2: '18%' },
+    geo: {
+      d: 'M 135 146 L 135 164 L 478 164 L 478 182',
+      portX: 135,
+      portY: 146,
+      hubX: 478,
+      hubY: 182,
+    },
   },
   {
     id: 'faculty',
@@ -28,7 +38,13 @@ const benefitsData = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
       </svg>
     ),
-    lineCoords: { x1: '37%', y1: '50%', x2: '28%', y2: '50%' },
+    geo: {
+      d: 'M 270 362 L 308 362',
+      portX: 270,
+      portY: 362,
+      hubX: 308,
+      hubY: 362,
+    },
   },
   {
     id: 'research',
@@ -41,7 +57,13 @@ const benefitsData = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
       </svg>
     ),
-    lineCoords: { x1: '50%', y1: '40%', x2: '72%', y2: '18%' },
+    geo: {
+      d: 'M 821 146 L 821 164 L 478 164 L 478 182',
+      portX: 821,
+      portY: 146,
+      hubX: 478,
+      hubY: 182,
+    },
   },
   {
     id: 'placement',
@@ -54,7 +76,13 @@ const benefitsData = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
       </svg>
     ),
-    lineCoords: { x1: '63%', y1: '50%', x2: '72%', y2: '50%' },
+    geo: {
+      d: 'M 686 362 L 648 362',
+      portX: 686,
+      portY: 362,
+      hubX: 648,
+      hubY: 362,
+    },
   },
   {
     id: 'hands-on',
@@ -67,7 +95,13 @@ const benefitsData = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
       </svg>
     ),
-    lineCoords: { x1: '50%', y1: '65%', x2: '50%', y2: '82%' },
+    geo: {
+      d: 'M 478 578 L 478 542',
+      portX: 478,
+      portY: 578,
+      hubX: 478,
+      hubY: 542,
+    },
   },
 ];
 
@@ -96,83 +130,130 @@ export default function Benefits() {
           </p>
         </motion.div>
 
+        {/* Ecosystem assembly heading */}
+        <motion.div
+          className={styles.ecosystemIntro}
+          initial={{ opacity: 0, y: 16 }}
+          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+          transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <span className={styles.introLabel}>Innovation &amp; Skill Ecosystem</span>
+          <p className={styles.introText}>
+            Where academic excellence connects with industry, research and real-world skills.
+          </p>
+        </motion.div>
+
         {/* VIT-TEC Ecosystem Interactive Layout */}
         <div className={styles.ecosystemWrapper}>
-          {/* Desktop SVG Dynamic Connector Lines */}
-          <svg className={styles.connectorSvg} aria-hidden="true">
+          {/* Desktop SVG Connector Layer - viewBox matches the grid coordinate frame 1:1 */}
+          <svg className={styles.connectorSvg} viewBox="0 0 956 724" aria-hidden="true">
+            <defs>
+              {benefitsData.map((item) => {
+                const { hubX, hubY, portX, portY } = item.geo;
+                return (
+                  <linearGradient
+                    key={`gc-${item.id}`}
+                    id={`gc-${item.id}`}
+                    gradientUnits="userSpaceOnUse"
+                    x1={hubX}
+                    y1={hubY}
+                    x2={portX}
+                    y2={portY}
+                  >
+                    <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.7" />
+                    <stop offset="55%" stopColor="#38BDF8" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="#38BDF8" stopOpacity="0.12" />
+                  </linearGradient>
+                );
+              })}
+            </defs>
+
+            {/* Occasional soft pulse originating from the hub centre */}
+            <circle className={styles.connectorHalo} cx="478" cy="362" r="16" />
+
             {benefitsData.map((item) => {
               const isActive = hoveredCard === item.id;
-              const { x1, y1, x2, y2 } = item.lineCoords;
+              const { portX, portY } = item.geo;
               return (
-                <g key={item.id}>
-                  <line
-                    x1={x1}
-                    y1={y1}
-                    x2={x2}
-                    y2={y2}
-                    className={`${styles.connectorLine} ${isActive ? styles.connectorLineActive : ''}`}
+                <g key={item.id} className={isActive ? styles.connectorGroupActive : ''}>
+                  <path
+                    id={`conn-${item.id}`}
+                    d={item.geo.d}
+                    stroke={`url(#gc-${item.id})`}
+                    className={styles.connectorBase}
                   />
+                  <path d={item.geo.d} className={styles.connectorFlow} />
+                  <circle className={styles.junctionDot} cx={portX} cy={portY} r="2.4" />
+                  <circle className={styles.travelNode} r="2" cx="0" cy="0">
+                    <animateMotion dur="11s" repeatCount="indefinite">
+                      <mpath href={`#conn-${item.id}`} />
+                    </animateMotion>
+                  </circle>
                   {isActive && (
-                    <circle
-                      cx={x2}
-                      cy={y2}
-                      r="4"
-                      className={styles.pulseDot}
-                    />
+                    <circle className={styles.pulseDot} cx={portX} cy={portY} r="4" />
                   )}
                 </g>
               );
             })}
           </svg>
 
-          {/* Grid of Central Core + 5 Benefit Cards */}
+          {/* Symmetrical grid: hub at exact centre, nodes mirrored around it */}
           <div className={styles.ecosystemGrid}>
-            {/* CENTRAL VIT-TEC CORE HUB */}
+            {/* CENTRAL VIT-TEC INNOVATION HUB */}
             <motion.div
               className={`${styles.centralCore} ${hoveredCard ? styles.centralCoreHighlighted : ''}`}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0 }}
+              animate={isInView ? { opacity: 1 } : { opacity: 0 }}
               transition={{ duration: 0.6, delay: 0.15, ease: 'easeOut' }}
             >
+              <div className={styles.coreSweep} />
+              <div className={styles.coreRingOuter} />
               <div className={styles.corePulseRing} />
-              
-              <div className={styles.coreLogoWrap}>
-                <img
-                  src="/vit_logo.png"
-                  alt="VIT Emblem"
-                  className={styles.coreLogoImg}
-                />
-              </div>
 
-              <span className={styles.coreBadge}>Innovation &amp; Skill Hub</span>
-              <h3 className={styles.coreTitle}>VIT-TEC</h3>
-              <p className={styles.coreSubtitle}>Technology Enhancement Centre</p>
+              <div className={styles.corePanel}>
+                <div className={styles.coreLogoWrap}>
+                  <img
+                    src="/vit_logo.png"
+                    alt="VIT Emblem"
+                    className={styles.coreLogoImg}
+                  />
+                </div>
 
-              <div className={styles.coreMeta}>
-                Sponsored Research &amp; Industrial Consultancy
+                <span className={styles.coreBadge}>Innovation &amp; Skill Hub</span>
+                <h3 className={styles.coreTitle}>VIT-TEC</h3>
+                <p className={styles.coreSubtitle}>Technology Enhancement Centre</p>
+
+                <div className={styles.coreMeta}>
+                  Sponsored Research &amp; Industrial Consultancy
+                </div>
               </div>
             </motion.div>
 
-            {/* FIVE SURROUNDING BENEFIT CARDS */}
-            {benefitsData.map((item, idx) => (
-              <motion.div
-                key={item.id}
-                className={`${styles.benefitCard} ${item.posClass} ${hoveredCard === item.id ? styles.benefitCardActive : ''}`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                transition={{ duration: 0.5, delay: 0.25 + idx * 0.08, ease: 'easeOut' }}
-                onMouseEnter={() => setHoveredCard(item.id)}
-                onMouseLeave={() => setHoveredCard(null)}
-              >
-                <div className={styles.cardIconWrap}>
-                  {item.icon}
-                </div>
-                <div className={styles.cardContent}>
-                  <h4 className={styles.cardTitle}>{item.title}</h4>
-                  <p className={styles.cardDesc}>{item.description}</p>
-                </div>
-              </motion.div>
-            ))}
+            {/* FIVE SURROUNDING CAPABILITY NODES */}
+            {benefitsData.map((item, idx) => {
+              const isActive = hoveredCard === item.id;
+              return (
+                <motion.div
+                  key={item.id}
+                  className={`${styles.benefitCard} ${item.posClass} ${isActive ? styles.benefitCardActive : ''}`}
+                  initial={{ opacity: 0 }}
+                  animate={isInView ? { opacity: 1 } : { opacity: 0 }}
+                  transition={{ duration: 0.5, delay: 0.25 + idx * 0.08, ease: 'easeOut' }}
+                  onMouseEnter={() => setHoveredCard(item.id)}
+                  onMouseLeave={() => setHoveredCard(null)}
+                >
+                  <span className={styles.cardIndex} aria-hidden>{item.number}</span>
+                  <span className={styles.nodeIndicator} aria-hidden />
+                  <div className={styles.cardIconWrap}>
+                    {item.icon}
+                  </div>
+                  <div className={styles.cardContent}>
+                    <h4 className={styles.cardTitle}>{item.title}</h4>
+                    <p className={styles.cardDesc}>{item.description}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </div>
