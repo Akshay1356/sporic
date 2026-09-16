@@ -4,66 +4,50 @@
 const BANNERS_KEY = 'sporic_banners';
 const DELETED_BANNERS_KEY = 'sporic_deleted_banner_ids';
 
-// Seed banners from the existing hardcoded homepage hero slides (order 1-5)
+// Seed banners from the 3 official VIT-TEC homepage hero slides (order 1-3)
 export const initialBanners = [
   {
-    id: 'slide-1',
-    src: '/hero-slides/slide1-corporate-training.jpeg',
-    alt: 'VIT-TEC Corporate Training — Transform Your Career With World-Class Industry Training',
+    id: 'banner-corporate-training',
+    src: '/hero-slides/banner-corporate-training.jpg',
+    alt: 'VIT-TEC Corporate Training — Skills for a Stronger Tomorrow',
     title: 'Corporate Training',
-    description: 'Transform Your Career With World-Class Industry Training',
+    description: 'Skills for a Stronger Tomorrow — Industry Ready People',
     isActive: true,
     order: 1,
     createdAt: '2026-01-01T00:00:00.000Z',
   },
   {
-    id: 'slide-2',
-    src: '/hero-slides/slide2-rankings-recognitions.jfif',
-    alt: 'VIT-TEC Rankings and Recognitions — National & International Accreditations',
-    title: 'Rankings and Recognitions',
-    description: 'National & International Accreditations',
+    id: 'banner-rankings-recognition',
+    src: '/hero-slides/banner-rankings-recognition.jpg',
+    alt: 'VIT-TEC Rankings and Recognition — National & International Accreditations',
+    title: 'Rankings and Recognition',
+    description: 'National & International Accreditations, NIRF, QS, and Global Standards',
     isActive: true,
     order: 2,
     createdAt: '2026-01-01T00:00:00.000Z',
   },
   {
-    id: 'slide-3',
-    src: '/hero-slides/slide3-industry-partners.jfif',
-    alt: 'VIT-TEC Industry Partners — Collaborating for a Skilled and Future-Ready Workforce',
-    title: 'Industry Partners',
-    description: 'Collaborating for a Skilled and Future-Ready Workforce',
+    id: 'banner-our-courses',
+    src: '/hero-slides/banner-our-courses.jpg',
+    alt: 'VIT-TEC Our Courses — Skills for a Stronger Tomorrow',
+    title: 'Our Courses',
+    description: 'Skills for a Stronger Tomorrow — Technology, Management, Personality, and Leadership',
     isActive: true,
     order: 3,
-    createdAt: '2026-01-01T00:00:00.000Z',
-  },
-  {
-    id: 'slide-4',
-    src: '/hero-slides/slide4-our-courses.jfif',
-    alt: 'VIT-TEC Our Courses — Technology, Management, Personality, and Leadership',
-    title: 'Our Courses',
-    description: 'Technology, Management, Personality, and Leadership',
-    isActive: true,
-    order: 4,
-    createdAt: '2026-01-01T00:00:00.000Z',
-  },
-  {
-    id: 'slide-5',
-    src: '/hero-slides/slide5-industry-collaborations.jfif',
-    alt: 'VIT-TEC Industry Collaborations — Building Talent for a Smarter Tomorrow',
-    title: 'Industry Collaborations',
-    description: 'Building Talent for a Smarter Tomorrow',
-    isActive: true,
-    order: 5,
     createdAt: '2026-01-01T00:00:00.000Z',
   },
 ];
 
 // --- DYNAMIC CMS HELPER FUNCTIONS ---
 
+const LEGACY_SLIDE_IDS = new Set(['slide-1', 'slide-2', 'slide-3', 'slide-4', 'slide-5']);
+
 export function getAllBanners() {
   if (typeof window === 'undefined') return initialBanners;
   try {
-    const customItems = JSON.parse(localStorage.getItem(BANNERS_KEY) || '[]');
+    const rawCustom = JSON.parse(localStorage.getItem(BANNERS_KEY) || '[]');
+    // Filter out legacy 5 slides from local storage if previously cached
+    const customItems = rawCustom.filter((c) => !LEGACY_SLIDE_IDS.has(c.id));
     const deletedIds = new Set(JSON.parse(localStorage.getItem(DELETED_BANNERS_KEY) || '[]'));
 
     const activeInitial = initialBanners.filter((b) => !deletedIds.has(b.id));
