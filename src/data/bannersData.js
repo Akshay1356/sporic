@@ -4,10 +4,22 @@
 const BANNERS_KEY = 'sporic_banners';
 const DELETED_BANNERS_KEY = 'sporic_deleted_banner_ids';
 
-// Seed banners from the 3 official VIT-TEC homepage hero slides (order 1-3)
+// Seed banners from the VIT-TEC homepage hero video + 3 official slides
 export const initialBanners = [
   {
+    id: 'banner-intro-video',
+    type: 'video',
+    src: '/hero-video.mp4',
+    alt: 'VIT-TEC Overview Video',
+    title: 'VIT-TEC Overview Video',
+    description: 'Welcome to VIT Technology Enhancement Centre (VIT-TEC)',
+    isActive: true,
+    order: 0,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
     id: 'banner-corporate-training',
+    type: 'image',
     src: '/hero-slides/banner-corporate-training.jpg',
     alt: 'VIT-TEC Corporate Training — Skills for a Stronger Tomorrow',
     title: 'Corporate Training',
@@ -18,6 +30,7 @@ export const initialBanners = [
   },
   {
     id: 'banner-rankings-recognition',
+    type: 'image',
     src: '/hero-slides/banner-rankings-recognition.jpg',
     alt: 'VIT-TEC Rankings and Recognition — National & International Accreditations',
     title: 'Rankings and Recognition',
@@ -28,6 +41,7 @@ export const initialBanners = [
   },
   {
     id: 'banner-our-courses',
+    type: 'image',
     src: '/hero-slides/banner-our-courses.jpg',
     alt: 'VIT-TEC Our Courses — Skills for a Stronger Tomorrow',
     title: 'Our Courses',

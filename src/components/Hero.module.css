@@ -56,6 +56,44 @@
   -webkit-user-drag: none;
 }
 
+.slideVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+  background-color: #051336;
+}
+
+.soundToggle {
+  position: absolute;
+  bottom: 22px;
+  right: 24px;
+  background: rgba(5, 19, 54, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #FFFFFF;
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  z-index: 15;
+  transition: all 250ms ease;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.soundToggle:hover {
+  background: rgba(7, 27, 74, 0.95);
+  border-color: #38BDF8;
+  color: #38BDF8;
+  transform: scale(1.05);
+}
+
 /* Subtle Navigation Arrows */
 .arrowButton {
   position: absolute;

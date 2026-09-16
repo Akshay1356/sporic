@@ -2,11 +2,18 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import styles from './Hero.module.css';
 import { getActiveBanners } from '../data/bannersData';
 
+const IMAGE_SLIDE_DURATION = 5500; // 5.5s per poster slide
+
 export default function Hero() {
   const [slides, setSlides] = useState(() => getActiveBanners());
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+
+  const videoRefs = useRef({});
   const touchStartX = useRef(null);
   const touchEndX = useRef(null);
+  const timerRef = useRef(null);
 
   // Load active banners dynamically and refresh on cross-tab storage changes
   useEffect(() => {
@@ -36,7 +43,68 @@ export default function Hero() {
     setCurrentIndex(index);
   }, []);
 
-  //Comment Manas
+  // Determine if current slide is a video
+  const currentSlide = slides[currentIndex];
+  const isCurrentVideo = Boolean(
+    currentSlide &&
+    (currentSlide.type === 'video' ||
+      currentSlide.src?.toLowerCase().endsWith('.mp4') ||
+      currentSlide.src?.toLowerCase().endsWith('.webm'))
+  );
+
+  // Play video on active slide & reset on inactive
+  useEffect(() => {
+    Object.entries(videoRefs.current).forEach(([idxStr, vidEl]) => {
+      if (!vidEl) return;
+      const idx = Number(idxStr);
+      if (idx === currentIndex) {
+        vidEl.currentTime = 0;
+        const playPromise = vidEl.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            // Browser autoplay policy fallback
+          });
+        }
+      } else {
+        vidEl.pause();
+      }
+    });
+  }, [currentIndex]);
+
+  // Slideshow timer for image slides
+  useEffect(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+
+    if (slides.length <= 1) return;
+
+    // If current slide is NOT video and not hovered, auto-advance after IMAGE_SLIDE_DURATION
+    if (!isCurrentVideo && !isHovered) {
+      timerRef.current = setTimeout(() => {
+        handleNext();
+      }, IMAGE_SLIDE_DURATION);
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, [currentIndex, isCurrentVideo, isHovered, slides.length, handleNext]);
+
+  // Handle Video completion -> immediately transition to next slide
+  const handleVideoEnded = () => {
+    handleNext();
+  };
+
+  // Sound toggle handler
+  const toggleSound = (e) => {
+    e.stopPropagation();
+    setIsMuted((prev) => !prev);
+  };
+
   // Touch gesture handling for mobile
   const handleTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX;
@@ -82,11 +150,18 @@ export default function Hero() {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <div className={styles.slideshowWrapper}>
         <div className={styles.slidesContainer}>
           {slides.map((slide, index) => {
             const isActive = index === currentIndex;
+            const isVideo =
+              slide.type === 'video' ||
+              slide.src?.toLowerCase().endsWith('.mp4') ||
+              slide.src?.toLowerCase().endsWith('.webm');
+
             return (
               <div
                 key={slide.id}
@@ -96,14 +171,59 @@ export default function Hero() {
                 aria-roledescription="slide"
                 aria-label={`Slide ${index + 1} of ${slides.length}`}
               >
-                <img
-                  src={slide.src}
-                  alt={slide.alt}
-                  className={styles.slideImage}
-                  loading={index === 0 ? 'eager' : 'lazy'}
-                  fetchPriority={index === 0 ? 'high' : 'auto'}
-                  decoding="async"
-                />
+                {isVideo ? (
+                  <>
+                    <video
+                      ref={(el) => {
+                        videoRefs.current[index] = el;
+                      }}
+                      src={slide.src}
+                      className={styles.slideVideo}
+                      autoPlay
+                      muted={isMuted}
+                      playsInline
+                      preload="auto"
+                      onEnded={handleVideoEnded}
+                    />
+                    {isActive && (
+                      <button
+                        type="button"
+                        className={styles.soundToggle}
+                        onClick={toggleSound}
+                        aria-label={isMuted ? 'Unmute video audio' : 'Mute video audio'}
+                        title={isMuted ? 'Click to enable audio' : 'Click to mute audio'}
+                      >
+                        {isMuted ? (
+                          <>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                              <line x1="23" y1="9" x2="17" y2="15" />
+                              <line x1="17" y1="9" x2="23" y2="15" />
+                            </svg>
+                            <span>Unmute</span>
+                          </>
+                        ) : (
+                          <>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+                            </svg>
+                            <span>Mute</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <img
+                    src={slide.src}
+                    alt={slide.alt}
+                    className={styles.slideImage}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    fetchPriority={index === 0 ? 'high' : 'auto'}
+                    decoding="async"
+                  />
+                )}
               </div>
             );
           })}
