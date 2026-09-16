@@ -54,7 +54,6 @@ export default function CorporateTraining() {
     const sorted = Array.from(yearSet).sort((a, b) => b.localeCompare(a));
     return sorted[0] || 'All';
   });
-  const [selectedSchool, setSelectedSchool] = useState('All');
 
   // Sync latest records on mount and upon any custom/storage events
   const loadTrainings = () => {
@@ -107,21 +106,11 @@ export default function CorporateTraining() {
     }
   }, [yearTabs, selectedYear]);
 
-  // Extract unique schools dynamically
-  const schoolOptions = useMemo(() => {
-    const set = new Set();
-    trainings.forEach((item) => {
-      if (item.school) set.add(item.school);
-    });
-    return ['All', ...Array.from(set).sort()];
-  }, [trainings]);
-
   // Filtered & Chronologically Sorted dataset
   const filteredData = useMemo(() => {
     return trainings.filter((item) => {
       const itemYear = item.year || getAcademicYearFromDate(item.startDate);
       const matchesYear = selectedYear === 'All' || itemYear === selectedYear;
-      const matchesSchool = selectedSchool === 'All' || item.school === selectedSchool;
 
       const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
@@ -133,9 +122,9 @@ export default function CorporateTraining() {
         (itemYear && itemYear.toLowerCase().includes(q)) ||
         (item.startDate && item.startDate.includes(q));
 
-      return matchesYear && matchesSchool && matchesSearch;
+      return matchesYear && matchesSearch;
     });
-  }, [trainings, searchQuery, selectedYear, selectedSchool]);
+  }, [trainings, searchQuery, selectedYear]);
 
   // Group filtered records by Academic Year (chronologically descending)
   const groupedByYear = useMemo(() => {
@@ -228,28 +217,8 @@ export default function CorporateTraining() {
               )}
             </div>
 
-            {/* Year & School Dropdowns */}
+            {/* Year & Live Counter */}
             <div className={styles.filtersGroup}>
-              {/* School Filter */}
-              <div className={styles.selectWrapper}>
-                <label className={styles.filterLabel}>School:</label>
-                <select
-                  value={selectedSchool}
-                  onChange={(e) => setSelectedSchool(e.target.value)}
-                  className={styles.select}
-                  aria-label="Filter by School or Center"
-                >
-                  <option value="All">All Schools</option>
-                  {schoolOptions
-                    .filter((s) => s !== 'All')
-                    .map((school) => (
-                      <option key={school} value={school}>
-                        {school}
-                      </option>
-                    ))}
-                </select>
-              </div>
-
               {/* Dynamic Live Counter */}
               <div className={styles.countBadge}>
                 Showing <strong>{filteredData.length}</strong> of {trainings.length} Programs
@@ -378,15 +347,13 @@ export default function CorporateTraining() {
               <h3 className={styles.noResultsTitle}>No Corporate Training Records Found</h3>
               <p className={styles.noResultsDesc}>
                 No programs matched your current search <strong>"{searchQuery}"</strong>{' '}
-                {selectedYear !== 'All' && `for year ${selectedYear}`}
-                {selectedSchool !== 'All' && ` in school ${selectedSchool}`}.
+                {selectedYear !== 'All' && `for year ${selectedYear}`}.
               </p>
               <button
                 type="button"
                 onClick={() => {
                   setSearchQuery('');
                   setSelectedYear(yearTabs[0] || 'All');
-                  setSelectedSchool('All');
                 }}
                 className="btn btn-primary"
                 style={{ padding: '0.65rem 1.5rem', marginTop: '0.75rem' }}

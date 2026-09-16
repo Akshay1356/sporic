@@ -112,6 +112,10 @@ export default function Dashboard() {
   const [editPrice, setEditPrice] = useState('');
   const [editStatus, setEditStatus] = useState(COURSE_STATUS.OPEN);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [courseImagePreview, setCourseImagePreview] = useState('');
+  const [courseImageError, setCourseImageError] = useState('');
+  const [editImagePreview, setEditImagePreview] = useState('');
+  const [editImageError, setEditImageError] = useState('');
   const [newCourse, setNewCourse] = useState({
     id: '',
     title: '',
@@ -307,12 +311,15 @@ export default function Dashboard() {
         ...target,
         price: parseFloat(editPrice) || target.price,
         status: editStatus,
+        image: editImagePreview || target.image,
         isCustom: true,
       };
       saveNewCourse(updated);
       refreshAllData();
       setActionSuccess(`Course '${editingCourse.title}' updated.`);
       setEditingCourse(null);
+      setEditImagePreview('');
+      setEditImageError('');
       setTimeout(() => setActionSuccess(''), 4000);
     }
   };
@@ -359,7 +366,7 @@ export default function Dashboard() {
       registrationDeadline: newCourse.registrationDeadline || '2026-11-15',
       startDate: newCourse.startDate || '2026-11-20',
       trainer: newCourse.trainer || 'SpoRIC Certified Specialist',
-      image: newCourse.image || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop',
+      image: courseImagePreview || newCourse.image || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop',
       contactPerson: newCourse.contactPerson || 'Dean, SpoRIC',
       contactEmail: newCourse.contactEmail || 'deancc.sporic@vit.ac.in',
       contactNumber: newCourse.contactNumber || '73587 82571',
@@ -373,6 +380,8 @@ export default function Dashboard() {
     saveNewCourse(courseRecord);
     refreshAllData();
     setShowAddModal(false);
+    setCourseImagePreview('');
+    setCourseImageError('');
     setActionSuccess(`✓ Course '${courseRecord.title}' (${courseRecord.id}) published!`);
     setTimeout(() => setActionSuccess(''), 5000);
   };
@@ -425,6 +434,44 @@ export default function Dashboard() {
       setPhotoImagePreview(compressed);
     } catch {
       setPhotoError('Failed to process image. Try another file.');
+    }
+  };
+
+  const handleCourseImageFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      setCourseImageError('Unsupported file format. Please upload JPG, PNG, or WEBP images.');
+      return;
+    }
+
+    setCourseImageError('');
+    try {
+      const compressed = await compressImageFile(file);
+      setCourseImagePreview(compressed);
+    } catch {
+      setCourseImageError('Failed to process image. Try another file.');
+    }
+  };
+
+  const handleEditCourseImageFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      setEditImageError('Unsupported file format. Please upload JPG, PNG, or WEBP images.');
+      return;
+    }
+
+    setEditImageError('');
+    try {
+      const compressed = await compressImageFile(file);
+      setEditImagePreview(compressed);
+    } catch {
+      setEditImageError('Failed to process image. Try another file.');
     }
   };
 
@@ -867,7 +914,11 @@ export default function Dashboard() {
             <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
               {isAdmin ? (
                 <>
-                  <button className="btn btn-primary" style={{ fontSize: '0.85rem' }} onClick={() => setShowAddModal(true)}>
+                  <button className="btn btn-primary" style={{ fontSize: '0.85rem' }} onClick={() => {
+                    setCourseImagePreview('');
+                    setCourseImageError('');
+                    setShowAddModal(true);
+                  }}>
                     <PlusIcon size={15} />
                     Add Course
                   </button>
@@ -1213,7 +1264,11 @@ export default function Dashboard() {
                         Courses published here appear on <strong>/courses</strong>, <strong>/technology</strong>, <strong>/management</strong>, and <strong>/personality</strong>.
                       </p>
                     </div>
-                    <button className="btn btn-primary" onClick={() => setShowAddModal(true)}>
+                    <button className="btn btn-primary" onClick={() => {
+                      setCourseImagePreview('');
+                      setCourseImageError('');
+                      setShowAddModal(true);
+                    }}>
                       <PlusIcon size={15} />
                       Add New Course
                     </button>
@@ -1265,6 +1320,8 @@ export default function Dashboard() {
                                     setEditingCourse(c);
                                     setEditPrice(c.price || 4999);
                                     setEditStatus(c.status || COURSE_STATUS.OPEN);
+                                    setEditImagePreview(c.image || '');
+                                    setEditImageError('');
                                   }}
                                 >
                                   Edit
@@ -2071,6 +2128,26 @@ export default function Dashboard() {
             </div>
           </div>
 
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Course Image</label>
+            {courseImageError && (
+              <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', padding: '0.5rem 0.8rem', borderRadius: '8px', color: '#B91C1C', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
+                {courseImageError}
+              </div>
+            )}
+            <input type="file" accept="image/*" onChange={handleCourseImageFileChange} className={modalStyles.file} />
+            {courseImagePreview ? (
+              <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
+                <img src={courseImagePreview} alt="Course image preview" className={modalStyles.preview} style={{ height: '72px' }} />
+                <span style={{ fontSize: '0.72rem', color: '#64748B' }}>Choose another image to replace this preview (JPG / PNG / WEBP).</span>
+              </div>
+            ) : (
+              <span style={{ fontSize: '0.72rem', color: '#64748B' }}>
+                Optional. Upload a course image or use a default thumbnail.
+              </span>
+            )}
+          </div>
+
           <div className={modalStyles.row3}>
             <div className={modalStyles.field}>
               <label className={modalStyles.label}>Hours</label>
@@ -2389,6 +2466,29 @@ export default function Dashboard() {
           <div style={{ background: '#0F2252', padding: '1.75rem', borderRadius: '14px', maxWidth: '440px', color: '#FFF', width: '100%' }}>
             <h4>Edit Course: {editingCourse.title}</h4>
             <form onSubmit={handleUpdateCourse}>
+              <div style={{ margin: '1rem 0' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Course Image (optional)</label>
+                {editImageError ? (
+                  <div style={{ background: '#450A0A', border: '1px solid #7F1D1D', padding: '0.5rem 0.75rem', borderRadius: '8px', color: '#FCA5A5', fontSize: '0.78rem', marginBottom: '0.6rem' }}>{editImageError}</div>
+                ) : (
+                  editImagePreview && (
+                    <img
+                      src={editImagePreview}
+                      alt="Course image preview"
+                      style={{ width: '100%', height: '110px', objectFit: 'cover', borderRadius: '10px', border: '1px solid #334155', marginBottom: '0.6rem' }}
+                    />
+                  )
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleEditCourseImageFileChange}
+                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px dashed #334155', background: '#0A1E4F', color: '#CBD5E1', cursor: 'pointer' }}
+                />
+                <span style={{ display: 'block', fontSize: '0.7rem', color: '#94A3B8', marginTop: '0.3rem' }}>
+                  Select an image to replace the current one (JPG / PNG / WEBP).
+                </span>
+              </div>
               <div style={{ margin: '1rem 0' }}>
                 <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Price (₹)</label>
                 <input
