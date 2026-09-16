@@ -15,7 +15,7 @@ const statsData = [
     ),
   },
   {
-    value: 5000,
+    value: 2000,
     suffix: '+',
     label: 'Trained Professionals',
     icon: (
