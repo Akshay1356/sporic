@@ -12,6 +12,7 @@ import Management from './pages/Management';
 import Personality from './pages/Personality';
 import Gallery from './pages/Gallery';
 import CorporateTraining from './pages/CorporateTraining';
+import CorporateTestimonials from './pages/CorporateTestimonials';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
@@ -110,6 +111,7 @@ export default function App() {
 
             {/* Dedicated Corporate Training Organized Page */}
             <Route path="/corporate-training" element={<CorporateTraining />} />
+            <Route path="/corporate-testimonials" element={<CorporateTestimonials />} />
 
             {/* Comprehensive Courses Catalog Page */}
             <Route path="/courses" element={<Courses />} />

@@ -12,10 +12,15 @@ export default function Contact() {
   const isInView = useInView(containerRef, { once: true, margin: '-80px' });
 
   const [formData, setFormData] = useState({
+    organisationName: '',
     name: '',
+    designation: '',
     email: '',
-    subject: '',
-    message: '',
+    phone: '',
+    participants: '',
+    domain: '',
+    mode: '',
+    requirement: '',
   });
   const [status, setStatus] = useState(null);
 
@@ -25,7 +30,17 @@ export default function Contact() {
     // Simulated API Call
     setTimeout(() => {
       setStatus('success');
-      setFormData({ name: '', email: '', subject: '', message: '' });
+      setFormData({
+        organisationName: '',
+        name: '',
+        designation: '',
+        email: '',
+        phone: '',
+        participants: '',
+        domain: '',
+        mode: '',
+        requirement: '',
+      });
     }, 1200);
   };
 
@@ -192,7 +207,7 @@ export default function Contact() {
           </motion.div>
 
           {/* ====================================================
-              RIGHT COLUMN: SEND AN INQUIRY PANEL
+              RIGHT COLUMN: TELL US WHAT YOU NEED PANEL
              ==================================================== */}
           <motion.div
             className={styles.formCard}
@@ -202,15 +217,27 @@ export default function Contact() {
           >
             {/* Form Header */}
             <div className={styles.formHeader}>
-              <h3 className={styles.formTitle}>Send an Inquiry</h3>
+              <h3 className={styles.formTitle}>Tell Us What You Need</h3>
               <p className={styles.formSubtitle}>
-                Tell us how VIT-TEC can support your training or collaboration needs.
+                Have a training requirement? Tell us what your organisation needs.
               </p>
             </div>
 
-            {/* Inquiry Form */}
+            {/* Training Requirement Form */}
             <form onSubmit={handleSubmit} className={styles.form}>
               <div className={styles.formGridTwo}>
+                <div className={styles.inputGroup}>
+                  <label className={styles.formLabel}>Organisation Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.organisationName}
+                    onChange={(e) => setFormData({ ...formData, organisationName: e.target.value })}
+                    placeholder="Your Organisation Name"
+                    className={styles.input}
+                  />
+                </div>
+
                 <div className={styles.inputGroup}>
                   <label className={styles.formLabel}>Name</label>
                   <input
@@ -219,6 +246,20 @@ export default function Contact() {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Your Full Name"
+                    className={styles.input}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formGridTwo}>
+                <div className={styles.inputGroup}>
+                  <label className={styles.formLabel}>Designation</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.designation}
+                    onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
+                    placeholder="e.g. HR Manager, L&D Head"
                     className={styles.input}
                   />
                 </div>
@@ -236,25 +277,70 @@ export default function Contact() {
                 </div>
               </div>
 
-              <div className={styles.inputGroup}>
-                <label className={styles.formLabel}>Subject</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.subject}
-                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  placeholder="e.g. Customized Training / Group Registration"
-                  className={styles.input}
-                />
+              <div className={styles.formGridTwo}>
+                <div className={styles.inputGroup}>
+                  <label className={styles.formLabel}>Phone</label>
+                  <input
+                    type="tel"
+                    required
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="Contact Number"
+                    className={styles.input}
+                  />
+                </div>
+
+                <div className={styles.inputGroup}>
+                  <label className={styles.formLabel}>Number of Participants</label>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={formData.participants}
+                    onChange={(e) => setFormData({ ...formData, participants: e.target.value })}
+                    placeholder="e.g. 25"
+                    className={styles.input}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.formGridTwo}>
+                <div className={styles.inputGroup}>
+                  <label className={styles.formLabel}>Training Domain</label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.domain}
+                    onChange={(e) => setFormData({ ...formData, domain: e.target.value })}
+                    placeholder="e.g. AI/ML, Robotics, Data Science"
+                    className={styles.input}
+                  />
+                </div>
+
+                <div className={styles.inputGroup}>
+                  <label className={styles.formLabel}>Preferred Mode</label>
+                  <select
+                    required
+                    value={formData.mode}
+                    onChange={(e) => setFormData({ ...formData, mode: e.target.value })}
+                    className={styles.select}
+                  >
+                    <option value="" disabled>Select Mode</option>
+                    <option value="On Campus">On Campus</option>
+                    <option value="At Organisation">At Organisation</option>
+                    <option value="Online">Online</option>
+                    <option value="Hybrid">Hybrid</option>
+                  </select>
+                </div>
               </div>
 
               <div className={styles.inputGroup}>
-                <label className={styles.formLabel}>Message</label>
+                <label className={styles.formLabel}>Training Requirement</label>
                 <textarea
                   required
                   rows="4"
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  value={formData.requirement}
+                  onChange={(e) => setFormData({ ...formData, requirement: e.target.value })}
                   placeholder="Describe your corporate training or institutional requirements..."
                   className={styles.textarea}
                 />
@@ -266,7 +352,7 @@ export default function Contact() {
                   disabled={status === 'sending'}
                   className={styles.submitBtn}
                 >
-                  <span>{status === 'sending' ? 'Sending Message...' : 'Send Message'}</span>
+                  <span>{status === 'sending' ? 'Submitting...' : 'Submit Requirement'}</span>
                   <svg className={styles.btnArrow} width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
                     <path d="M4.167 10h11.666M10.833 5l5 5-5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
@@ -275,7 +361,7 @@ export default function Contact() {
 
               {status === 'success' && (
                 <div className={styles.successMsg}>
-                  ✓ Inquiry submitted successfully. We will contact you shortly!
+                  ✓ Requirement submitted successfully. We will contact you shortly!
                 </div>
               )}
             </form>

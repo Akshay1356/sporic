@@ -8,8 +8,9 @@ import styles from './Navbar.module.css';
 const navLinks = [
   { label: 'Home', path: '/' },
   { label: 'About', path: '/about' },
-  { label: 'Courses', path: '/courses' },
-  { label: 'Corporate Training', path: '/corporate-training' },
+  { label: 'Corporate Programs', path: '/courses' },
+  { label: 'Corporate Training Organized', path: '/corporate-training' },
+  { label: 'Corporate Testimonials', path: '/corporate-testimonials' },
   { label: 'Gallery', path: '/gallery' },
   { label: 'Contact', path: '/contact' },
 ];
