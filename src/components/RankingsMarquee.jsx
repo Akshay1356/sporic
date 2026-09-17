@@ -36,8 +36,8 @@ export default function RankingsMarquee() {
     <div className={styles.marqueeWrapper} role="region" aria-label="VIT Industry Partners and Collaborations Ticker">
       {/* Fixed Stationary Badge on Left */}
       <div className={styles.labelBadge}>
-        <span className={styles.labelIcon} role="img" aria-label="Partnerships">🤝</span>
-        <span className={styles.labelText}>Industry Partners &amp; Collaborations</span>
+        
+        <span className={styles.labelText}>INDUSTRY ENGAGEMENT</span>
       </div>
 
       {/* Seamless Scrolling Viewport */}

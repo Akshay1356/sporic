@@ -4,7 +4,7 @@
 const BANNERS_KEY = 'sporic_banners';
 const DELETED_BANNERS_KEY = 'sporic_deleted_banner_ids';
 
-// Seed banners: Video Intro + 4 Official VIT-TEC Homepage Posters
+// Seed banners: Video Intro + 5 Official VIT-TEC Homepage Posters
 export const initialBanners = [
   {
     id: 'banner-intro-video',
@@ -18,47 +18,58 @@ export const initialBanners = [
     createdAt: '2026-01-01T00:00:00.000Z',
   },
   {
-    id: 'banner-corporate-training-v2',
+    id: 'banner-why-organisations-choose-vittec',
     type: 'image',
-    src: '/hero-slides/banner-corporate-training.png',
-    alt: 'VIT-TEC Corporate Training — Skills for a Stronger Tomorrow',
-    title: 'Corporate Training',
-    description: 'Skills for a Stronger Tomorrow — Industry Ready People',
+    src: '/hero-slides/banner-1-why-choose-vittec.jpg',
+    alt: 'Why Organisations Choose VIT-TEC for Corporate Training',
+    title: 'Why Organisations Choose VIT-TEC for Corporate Training',
+    description: 'Corporate Training for a Brighter Tomorrow — Trusted expertise, real-world relevance, measurable impact.',
     isActive: true,
     order: 1,
     createdAt: '2026-01-01T00:00:00.000Z',
   },
   {
-    id: 'banner-programmes-offered',
+    id: 'banner-training-designed-around-organisation',
     type: 'image',
-    src: '/hero-slides/banner-programmes-offered.png',
-    alt: 'Programmes Offered — VIT Corporate Capability Development Programme (VIT-CCDP)',
-    title: 'Programmes Offered',
-    description: 'Technology, Management, Personality, and Leadership Programmes',
+    src: '/hero-slides/banner-2-training-designed-around-organisation.jpg',
+    alt: 'VIT-TEC Corporate Training — Training Designed Around Your Organisation',
+    title: 'Training Designed Around Your Organisation',
+    description: 'Industry-Aligned, Future-Ready, Impact-Driven Corporate Training.',
     isActive: true,
     order: 2,
     createdAt: '2026-01-01T00:00:00.000Z',
   },
   {
-    id: 'banner-rankings-recognition-v2',
+    id: 'banner-programmes-offered-v2',
+    type: 'image',
+    src: '/hero-slides/banner-4-programmes-offered.png',
+    alt: 'Programmes Offered — VIT Corporate Capability Development Programme (VIT-CCDP)',
+    title: 'Programmes Offered',
+    description: 'Technology, Management, Personality, and Leadership Programmes to build future-ready teams.',
+    isActive: true,
+    order: 3,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'banner-corporate-training-v3',
+    type: 'image',
+    src: '/hero-slides/banner-5-corporate-training.png',
+    alt: 'Corporate Training — Skills for a Stronger Tomorrow',
+    title: 'Corporate Training',
+    description: 'Skills for a Stronger Tomorrow — 94+ Programmes Conducted, ₹175.7L Total Revenue Generated.',
+    isActive: true,
+    order: 4,
+    createdAt: '2026-01-01T00:00:00.000Z',
+  },
+  {
+    id: 'banner-rankings-recognition-final',
     type: 'image',
     src: '/hero-slides/banner-rankings-recognition.png',
     alt: 'VIT-TEC Rankings and Recognition — National & International Accreditations',
     title: 'Rankings and Recognition',
     description: 'National Rankings NIRF 2025, International Rankings & QS Accreditations',
     isActive: true,
-    order: 3,
-    createdAt: '2026-01-01T00:00:00.000Z',
-  },
-  {
-    id: 'banner-industry-partners',
-    type: 'image',
-    src: '/hero-slides/banner-industry-partners.png',
-    alt: 'Our Industry Partners — Collaborating for a Skilled and Future-Ready Workforce',
-    title: 'Our Industry Partners',
-    description: 'Collaborating with premier industry leaders for future-ready corporate learning',
-    isActive: true,
-    order: 4,
+    order: 5,
     createdAt: '2026-01-01T00:00:00.000Z',
   },
 ];
@@ -67,7 +78,9 @@ export const initialBanners = [
 
 const LEGACY_SLIDE_IDS = new Set([
   'slide-1', 'slide-2', 'slide-3', 'slide-4', 'slide-5',
-  'banner-corporate-training', 'banner-rankings-recognition', 'banner-our-courses'
+  'banner-corporate-training', 'banner-rankings-recognition', 'banner-our-courses',
+  'banner-corporate-training-v2', 'banner-rankings-recognition-v2',
+  'banner-programmes-offered', 'banner-industry-partners', 'banner-industry-partners-v2'
 ]);
 
 export function getAllBanners() {
