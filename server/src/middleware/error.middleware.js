@@ -8,14 +8,13 @@ export function errorHandler(err, req, res, next) { // eslint-disable-line no-un
     return errorResponse(res, err.message, err.statusCode, err.code, err.details);
   }
 
-  // Handle Prisma Known Request Errors
-  if (err.code === 'P2002') {
-    const target = err.meta?.target ? ` (${err.meta.target})` : '';
-    return errorResponse(res, `A unique constraint violation occurred${target}.`, 409, 'DUPLICATE_ENTRY');
+  // Handle raw Postgres constraint errors surfaced by the pg driver / Drizzle
+  if (err.code === '23505') {
+    return errorResponse(res, 'A unique constraint violation occurred.', 409, 'DUPLICATE_ENTRY');
   }
 
-  if (err.code === 'P2025') {
-    return errorResponse(res, 'The requested record could not be found.', 404, 'RECORD_NOT_FOUND');
+  if (err.code === '23503') {
+    return errorResponse(res, 'This action references a record that does not exist.', 409, 'FOREIGN_KEY_VIOLATION');
   }
 
   // Generic 500

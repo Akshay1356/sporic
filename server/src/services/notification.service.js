@@ -1,16 +1,14 @@
-import prisma from '../config/prisma.js';
+import { eq } from 'drizzle-orm';
+import { db } from '../db/index.js';
+import { notification, user } from '../db/schema/index.js';
 
 export async function createNotification({ userId, title, message, type = 'SYSTEM' }) {
   try {
-    return await prisma.notification.create({
-      data: {
-        userId,
-        title,
-        message,
-        type,
-        isRead: false,
-      },
-    });
+    const [created] = await db
+      .insert(notification)
+      .values({ userId, title, message, type, isRead: false })
+      .returning();
+    return created;
   } catch (err) {
     console.error('Failed to create notification:', err.message);
     return null;
@@ -19,22 +17,19 @@ export async function createNotification({ userId, title, message, type = 'SYSTE
 
 export async function notifyAdmins({ title, message, type = 'SYSTEM' }) {
   try {
-    const admins = await prisma.user.findMany({
-      where: { role: 'ADMIN' },
-      select: { id: true },
-    });
+    const admins = await db.select({ id: user.id }).from(user).where(eq(user.role, 'ADMIN'));
 
-    const notifications = admins.map((admin) => ({
-      userId: admin.id,
-      title,
-      message,
-      type,
-      isRead: false,
-    }));
+    if (admins.length === 0) return null;
 
-    return await prisma.notification.createMany({
-      data: notifications,
-    });
+    return await db.insert(notification).values(
+      admins.map((admin) => ({
+        userId: admin.id,
+        title,
+        message,
+        type,
+        isRead: false,
+      }))
+    );
   } catch (err) {
     console.error('Failed to notify admins:', err.message);
     return null;

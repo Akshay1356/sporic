@@ -5,7 +5,9 @@ import path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { toNodeHandler } from 'better-auth/node';
 
+import { auth } from './lib/auth.js';
 import apiRouter from './routes/index.js';
 import { apiLimiter } from './middleware/rateLimiter.middleware.js';
 import { errorHandler } from './middleware/error.middleware.js';
@@ -31,8 +33,13 @@ app.use(
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: ['set-auth-token'],
   })
 );
+
+// better-auth owns every route under /api/auth/* (sign-up, sign-in, email OTP, sessions, ...).
+// It must be mounted before the JSON body parser, since it parses the raw request itself.
+app.all('/api/auth/*', toNodeHandler(auth));
 
 // Body parsers
 app.use(express.json({ limit: '10mb' }));

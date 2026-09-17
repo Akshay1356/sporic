@@ -1,4 +1,6 @@
-import prisma from '../config/prisma.js';
+import { and, eq, or } from 'drizzle-orm';
+import { db } from '../db/index.js';
+import { course, enrollment, payment } from '../db/schema/index.js';
 import { successResponse, errorResponse } from '../utils/response.js';
 import { createRazorpayOrder, verifyRazorpaySignature } from '../services/razorpay.service.js';
 import { createNotification, notifyAdmins } from '../services/notification.service.js';
@@ -13,28 +15,17 @@ export async function createOrder(req, res, next) {
       return errorResponse(res, 'courseId (or courseCode) is required.', 400, 'MISSING_COURSE_ID');
     }
 
-    const course = await prisma.course.findFirst({
-      where: {
-        OR: [
-          { courseCode: courseId.toUpperCase() },
-          { id: courseId },
-        ],
-      },
+    const foundCourse = await db.query.course.findFirst({
+      where: or(eq(course.courseCode, courseId.toUpperCase()), eq(course.id, courseId)),
     });
 
-
-    if (!course) {
+    if (!foundCourse) {
       throw new AppError('Course not found.', 404, 'COURSE_NOT_FOUND');
     }
 
     // Check if user is already actively enrolled
-    const existingEnrollment = await prisma.enrollment.findUnique({
-      where: {
-        studentId_courseId: {
-          studentId,
-          courseId: course.id,
-        },
-      },
+    const existingEnrollment = await db.query.enrollment.findFirst({
+      where: and(eq(enrollment.studentId, studentId), eq(enrollment.courseId, foundCourse.id)),
     });
 
     if (existingEnrollment && existingEnrollment.status === 'ACTIVE') {
@@ -44,29 +35,30 @@ export async function createOrder(req, res, next) {
     const receiptNumber = `REC-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
     const razorpayOrder = await createRazorpayOrder({
-      amount: course.finalPrice,
+      amount: foundCourse.finalPrice,
       currency: 'INR',
       receipt: receiptNumber,
       notes: {
         studentId,
-        courseId: course.id,
-        courseCode: course.courseCode,
+        courseId: foundCourse.id,
+        courseCode: foundCourse.courseCode,
         batchId: batchId || '',
       },
     });
 
     // Create payment entry in database in PENDING status
-    const payment = await prisma.payment.create({
-      data: {
+    const [createdPayment] = await db
+      .insert(payment)
+      .values({
         studentId,
-        courseId: course.id,
+        courseId: foundCourse.id,
         razorpayOrderId: razorpayOrder.id,
-        amount: course.finalPrice,
+        amount: foundCourse.finalPrice,
         currency: 'INR',
         status: 'PENDING',
         receiptNumber,
-      },
-    });
+      })
+      .returning();
 
     return successResponse(
       res,
@@ -77,12 +69,12 @@ export async function createOrder(req, res, next) {
         receipt: receiptNumber,
         key: process.env.RAZORPAY_KEY_ID || 'rzp_test_SPORIC2026Key',
         course: {
-          id: course.id,
-          code: course.courseCode,
-          title: course.title,
-          finalPrice: course.finalPrice,
+          id: foundCourse.id,
+          code: foundCourse.courseCode,
+          title: foundCourse.title,
+          finalPrice: foundCourse.finalPrice,
         },
-        paymentDbId: payment.id,
+        paymentDbId: createdPayment.id,
       },
       'Razorpay order created successfully',
       201
@@ -101,91 +93,88 @@ export async function verifyPayment(req, res, next) {
       return errorResponse(res, 'Missing Razorpay signature verification parameters.', 400, 'MISSING_PAYMENT_SIGNATURE');
     }
 
-    const isValid = verifyRazorpaySignature({
-      razorpayOrderId,
-      razorpayPaymentId,
-      razorpaySignature,
-    });
+    const isValid = verifyRazorpaySignature({ razorpayOrderId, razorpayPaymentId, razorpaySignature });
 
     if (!isValid) {
-      // Mark payment as FAILED
-      await prisma.payment.updateMany({
-        where: { razorpayOrderId },
-        data: { status: 'FAILED' },
-      });
-
+      await db.update(payment).set({ status: 'FAILED' }).where(eq(payment.razorpayOrderId, razorpayOrderId));
       return errorResponse(res, 'Payment signature verification failed. Untrusted payment transaction.', 400, 'PAYMENT_SIGNATURE_INVALID');
     }
 
     // Find payment record
-    const payment = await prisma.payment.findUnique({
-      where: { razorpayOrderId },
-      include: { course: true, student: true },
+    const foundPayment = await db.query.payment.findFirst({
+      where: eq(payment.razorpayOrderId, razorpayOrderId),
+      with: { course: true, student: true },
     });
 
-    if (!payment) {
+    if (!foundPayment) {
       throw new AppError('Payment record not found for order.', 404, 'PAYMENT_NOT_FOUND');
     }
 
     // Update payment record to SUCCESS
-    const updatedPayment = await prisma.payment.update({
-      where: { id: payment.id },
-      data: {
-        razorpayPaymentId,
-        razorpaySignature,
-        status: 'SUCCESS',
-      },
+    const [updatedPayment] = await db
+      .update(payment)
+      .set({ razorpayPaymentId, razorpaySignature, status: 'SUCCESS' })
+      .where(eq(payment.id, foundPayment.id))
+      .returning();
+
+    // Create or reactivate student enrollment (upsert on studentId+courseId)
+    const existingEnrollment = await db.query.enrollment.findFirst({
+      where: and(eq(enrollment.studentId, studentId), eq(enrollment.courseId, foundPayment.courseId)),
     });
 
-    // Create or reactivate student enrollment
-    const enrollment = await prisma.enrollment.upsert({
-      where: {
-        studentId_courseId: {
+    let enrollmentRecord;
+    if (existingEnrollment) {
+      [enrollmentRecord] = await db
+        .update(enrollment)
+        .set({
+          status: 'ACTIVE',
+          batchId: batchId || null,
+          paymentId: updatedPayment.id,
+          progressPercent: 0.0,
+          enrolledAt: new Date(),
+        })
+        .where(eq(enrollment.id, existingEnrollment.id))
+        .returning();
+    } else {
+      [enrollmentRecord] = await db
+        .insert(enrollment)
+        .values({
           studentId,
-          courseId: payment.courseId,
-        },
-      },
-      update: {
-        status: 'ACTIVE',
-        batchId: batchId || null,
-        paymentId: updatedPayment.id,
-        progressPercent: 0.0,
-        enrolledAt: new Date(),
-      },
-      create: {
-        studentId,
-        courseId: payment.courseId,
-        batchId: batchId || null,
-        paymentId: updatedPayment.id,
-        status: 'ACTIVE',
-        progressPercent: 0.0,
-      },
-      include: {
-        course: { select: { courseCode: true, title: true } },
-      },
-    });
+          courseId: foundPayment.courseId,
+          batchId: batchId || null,
+          paymentId: updatedPayment.id,
+          status: 'ACTIVE',
+          progressPercent: 0.0,
+        })
+        .returning();
+    }
+
+    const enrollmentResult = {
+      ...enrollmentRecord,
+      course: { courseCode: foundPayment.course.courseCode, title: foundPayment.course.title },
+    };
 
     // Send notifications
     await createNotification({
       userId: studentId,
       title: 'Payment Successful & Enrollment Activated',
-      message: `Your payment of INR ${payment.amount} for ${payment.course.title} (${payment.course.courseCode}) was verified. You now have full access to course materials.`,
+      message: `Your payment of INR ${foundPayment.amount} for ${foundPayment.course.title} (${foundPayment.course.courseCode}) was verified. You now have full access to course materials.`,
       type: 'PAYMENT',
     });
 
     await notifyAdmins({
       title: 'New Paid Enrollment',
-      message: `Student ${req.user.name} enrolled in ${payment.course.courseCode} (Receipt: ${payment.receiptNumber}, Amount: INR ${payment.amount}).`,
+      message: `Student ${req.user.name} enrolled in ${foundPayment.course.courseCode} (Receipt: ${foundPayment.receiptNumber}, Amount: INR ${foundPayment.amount}).`,
       type: 'PAYMENT',
     });
 
     return successResponse(
       res,
       {
-        enrollment,
+        enrollment: enrollmentResult,
         payment: {
-          receiptNumber: payment.receiptNumber,
-          amount: payment.amount,
+          receiptNumber: foundPayment.receiptNumber,
+          amount: foundPayment.amount,
           status: 'SUCCESS',
           paymentId: razorpayPaymentId,
         },
@@ -200,18 +189,12 @@ export async function verifyPayment(req, res, next) {
 export async function getMyPaymentHistory(req, res, next) {
   try {
     const studentId = req.user.id;
-    const payments = await prisma.payment.findMany({
-      where: { studentId },
-      orderBy: { createdAt: 'desc' },
-      include: {
+    const payments = await db.query.payment.findMany({
+      where: eq(payment.studentId, studentId),
+      orderBy: (p, { desc }) => [desc(p.createdAt)],
+      with: {
         course: {
-          select: {
-            id: true,
-            courseCode: true,
-            title: true,
-            durationHours: true,
-            trainingMode: true,
-          },
+          columns: { id: true, courseCode: true, title: true, durationHours: true, trainingMode: true },
         },
       },
     });

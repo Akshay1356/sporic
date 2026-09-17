@@ -1,4 +1,6 @@
-import prisma from '../config/prisma.js';
+import { desc, eq } from 'drizzle-orm';
+import { db } from '../db/index.js';
+import { galleryPhoto } from '../db/schema/index.js';
 import { successResponse, errorResponse } from '../utils/response.js';
 
 // Baseline static gallery photos
@@ -89,11 +91,9 @@ export async function getPublicGallery(req, res, next) {
   try {
     let dbPhotos = [];
     try {
-      dbPhotos = await prisma.galleryPhoto.findMany({
-        orderBy: { createdAt: 'desc' },
-      });
+      dbPhotos = await db.select().from(galleryPhoto).orderBy(desc(galleryPhoto.createdAt));
     } catch (e) {
-      console.warn('Prisma GalleryPhoto query warning:', e.message);
+      console.warn('GalleryPhoto query warning:', e.message);
     }
 
     const formattedCustom = dbPhotos.map((p) => ({
@@ -136,14 +136,15 @@ export async function uploadGalleryPhoto(req, res, next) {
       );
     }
 
-    const newPhoto = await prisma.galleryPhoto.create({
-      data: {
+    const [newPhoto] = await db
+      .insert(galleryPhoto)
+      .values({
         src: photoSrc,
         title: title || `${category} Event`,
         category,
         description: String(description).trim(),
-      },
-    });
+      })
+      .returning();
 
     return successResponse(
       res,
@@ -166,9 +167,7 @@ export async function deleteGalleryPhoto(req, res, next) {
       return errorResponse(res, 'Photo ID is required for deletion.', 400);
     }
 
-    await prisma.galleryPhoto.delete({
-      where: { id: targetId },
-    }).catch(() => null);
+    await db.delete(galleryPhoto).where(eq(galleryPhoto.id, targetId)).catch(() => null);
 
     return successResponse(res, { deletedId: targetId }, 'Gallery photograph deleted successfully.');
   } catch (err) {
@@ -187,8 +186,8 @@ export async function updateGalleryPhoto(req, res, next) {
       return errorResponse(res, 'Photo ID is required for update.', 400);
     }
 
-    const existing = await prisma.galleryPhoto.findUnique({
-      where: { id: targetId },
+    const existing = await db.query.galleryPhoto.findFirst({
+      where: eq(galleryPhoto.id, targetId),
     });
 
     if (!existing) {
@@ -203,15 +202,16 @@ export async function updateGalleryPhoto(req, res, next) {
       );
     }
 
-    const updatedPhoto = await prisma.galleryPhoto.update({
-      where: { id: targetId },
-      data: {
+    const [updatedPhoto] = await db
+      .update(galleryPhoto)
+      .set({
         src: src || imageBase64 || existing.src,
         category: category || existing.category,
         description: description ? String(description).trim() : existing.description,
         title: title || (category ? `${category} Event` : existing.title),
-      },
-    });
+      })
+      .where(eq(galleryPhoto.id, targetId))
+      .returning();
 
     return successResponse(
       res,

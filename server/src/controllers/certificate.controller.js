@@ -1,6 +1,6 @@
+import { db } from '../db/index.js';
 import { verifyCertificateByNumber, generateCertificate } from '../services/certificate.service.js';
 import { successResponse, errorResponse } from '../utils/response.js';
-import prisma from '../config/prisma.js';
 
 export async function verifyCertificate(req, res, next) {
   try {
@@ -32,11 +32,11 @@ export async function issueCertificate(req, res, next) {
 
 export async function getAllCertificates(req, res, next) {
   try {
-    const certificates = await prisma.certificate.findMany({
-      orderBy: { issueDate: 'desc' },
-      include: {
-        student: { select: { id: true, name: true, email: true, organization: true } },
-        course: { select: { id: true, courseCode: true, title: true } },
+    const certificates = await db.query.certificate.findMany({
+      orderBy: (c, { desc }) => [desc(c.issueDate)],
+      with: {
+        student: { columns: { id: true, name: true, email: true, organization: true } },
+        course: { columns: { id: true, courseCode: true, title: true } },
       },
     });
 

@@ -1,4 +1,6 @@
-import prisma from '../config/prisma.js';
+import { eq, sql } from 'drizzle-orm';
+import { db } from '../db/index.js';
+import { fundingApplication, fundingOpportunity } from '../db/schema/index.js';
 import { successResponse, errorResponse } from '../utils/response.js';
 import { AppError } from '../utils/errors.js';
 import { createNotification, notifyAdmins } from '../services/notification.service.js';
@@ -6,15 +8,32 @@ import { createNotification, notifyAdmins } from '../services/notification.servi
 export async function getFundingOpportunities(req, res, next) {
   try {
     const { status = 'OPEN' } = req.query;
-    const where = status === 'ALL' && req.user?.role === 'ADMIN' ? {} : { status: 'OPEN' };
+    const whereClause = status === 'ALL' && req.user?.role === 'ADMIN' ? undefined : eq(fundingOpportunity.status, 'OPEN');
 
-    const opportunities = await prisma.fundingOpportunity.findMany({
-      where,
-      orderBy: { deadline: 'asc' },
-      include: {
-        _count: { select: { applications: true } },
-      },
-    });
+    const rows = await db
+      .select({
+        id: fundingOpportunity.id,
+        title: fundingOpportunity.title,
+        description: fundingOpportunity.description,
+        eligibility: fundingOpportunity.eligibility,
+        guidelines: fundingOpportunity.guidelines,
+        deadline: fundingOpportunity.deadline,
+        fundingAmount: fundingOpportunity.fundingAmount,
+        status: fundingOpportunity.status,
+        createdAt: fundingOpportunity.createdAt,
+        updatedAt: fundingOpportunity.updatedAt,
+        applicationCount: sql`count(${fundingApplication.id})`.mapWith(Number),
+      })
+      .from(fundingOpportunity)
+      .leftJoin(fundingApplication, eq(fundingApplication.fundingOpportunityId, fundingOpportunity.id))
+      .where(whereClause)
+      .groupBy(fundingOpportunity.id)
+      .orderBy(fundingOpportunity.deadline);
+
+    const opportunities = rows.map(({ applicationCount, ...rest }) => ({
+      ...rest,
+      _count: { applications: applicationCount },
+    }));
 
     return successResponse(res, opportunities, 'Funding opportunities retrieved');
   } catch (err) {
@@ -30,8 +49,9 @@ export async function createFundingOpportunity(req, res, next) {
       return errorResponse(res, 'All opportunity details are required.', 400, 'MISSING_FIELDS');
     }
 
-    const opportunity = await prisma.fundingOpportunity.create({
-      data: {
+    const [opportunity] = await db
+      .insert(fundingOpportunity)
+      .values({
         title,
         description,
         eligibility,
@@ -39,8 +59,8 @@ export async function createFundingOpportunity(req, res, next) {
         deadline: new Date(deadline),
         fundingAmount: parseFloat(fundingAmount),
         status: 'OPEN',
-      },
-    });
+      })
+      .returning();
 
     return successResponse(res, opportunity, 'Funding opportunity created successfully', 201);
   } catch (err) {
@@ -73,8 +93,8 @@ export async function submitApplication(req, res, next) {
       return errorResponse(res, 'Mandatory proposal information is missing.', 400, 'MISSING_PROPOSAL_DATA');
     }
 
-    const opportunity = await prisma.fundingOpportunity.findUnique({
-      where: { id: fundingOpportunityId },
+    const opportunity = await db.query.fundingOpportunity.findFirst({
+      where: eq(fundingOpportunity.id, fundingOpportunityId),
     });
 
     if (!opportunity) {
@@ -84,8 +104,9 @@ export async function submitApplication(req, res, next) {
     const applicationNumber = `SPORIC-APP-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
     const status = isDraft ? 'DRAFT' : 'SUBMITTED';
 
-    const application = await prisma.fundingApplication.create({
-      data: {
+    const [application] = await db
+      .insert(fundingApplication)
+      .values({
         applicationNumber,
         facultyId,
         fundingOpportunityId,
@@ -104,8 +125,8 @@ export async function submitApplication(req, res, next) {
         documentsUrl,
         status,
         submittedAt: isDraft ? null : new Date(),
-      },
-    });
+      })
+      .returning();
 
     if (!isDraft) {
       await notifyAdmins({
@@ -131,12 +152,12 @@ export async function submitApplication(req, res, next) {
 export async function getMyApplications(req, res, next) {
   try {
     const facultyId = req.user.id;
-    const applications = await prisma.fundingApplication.findMany({
-      where: { facultyId },
-      orderBy: { createdAt: 'desc' },
-      include: {
+    const applications = await db.query.fundingApplication.findMany({
+      where: eq(fundingApplication.facultyId, facultyId),
+      orderBy: (a, { desc }) => [desc(a.createdAt)],
+      with: {
         fundingOpportunity: {
-          select: { title: true, fundingAmount: true, deadline: true, status: true },
+          columns: { title: true, fundingAmount: true, deadline: true, status: true },
         },
       },
     });
@@ -153,8 +174,8 @@ export async function updateApplication(req, res, next) {
     const { id } = req.params;
     const updateData = req.body;
 
-    const existing = await prisma.fundingApplication.findUnique({
-      where: { id },
+    const existing = await db.query.fundingApplication.findFirst({
+      where: eq(fundingApplication.id, id),
     });
 
     if (!existing) {
@@ -169,10 +190,11 @@ export async function updateApplication(req, res, next) {
       return errorResponse(res, 'Only draft applications can be edited by faculty.', 400, 'APPLICATION_ALREADY_SUBMITTED');
     }
 
-    const updated = await prisma.fundingApplication.update({
-      where: { id },
-      data: updateData,
-    });
+    const [updated] = await db
+      .update(fundingApplication)
+      .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(fundingApplication.id, id))
+      .returning();
 
     return successResponse(res, updated, 'Application updated successfully');
   } catch (err) {
@@ -183,13 +205,13 @@ export async function updateApplication(req, res, next) {
 export async function getAllApplications(req, res, next) {
   try {
     const { status } = req.query;
-    const where = status ? { status } : {};
+    const whereClause = status ? eq(fundingApplication.status, status) : undefined;
 
-    const applications = await prisma.fundingApplication.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        faculty: { select: { id: true, name: true, email: true, department: true, designation: true } },
+    const applications = await db.query.fundingApplication.findMany({
+      where: whereClause,
+      orderBy: (a, { desc }) => [desc(a.createdAt)],
+      with: {
+        faculty: { columns: { id: true, name: true, email: true, department: true, designation: true } },
         fundingOpportunity: true,
       },
     });
@@ -209,17 +231,19 @@ export async function reviewApplication(req, res, next) {
       return errorResponse(res, 'Status must be UNDER_REVIEW, APPROVED, or REJECTED.', 400, 'INVALID_REVIEW_STATUS');
     }
 
-    const application = await prisma.fundingApplication.update({
-      where: { id },
-      data: {
-        status,
-        reviewerComments,
-        reviewedAt: new Date(),
-      },
-      include: {
-        faculty: true,
-        fundingOpportunity: true,
-      },
+    const [updated] = await db
+      .update(fundingApplication)
+      .set({ status, reviewerComments, reviewedAt: new Date() })
+      .where(eq(fundingApplication.id, id))
+      .returning();
+
+    if (!updated) {
+      throw new AppError('Application not found.', 404, 'APPLICATION_NOT_FOUND');
+    }
+
+    const application = await db.query.fundingApplication.findFirst({
+      where: eq(fundingApplication.id, id),
+      with: { faculty: true, fundingOpportunity: true },
     });
 
     await createNotification({

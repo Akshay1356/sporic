@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import authRoutes from './auth.routes.js';
 import categoryRoutes from './category.routes.js';
 import courseRoutes from './course.routes.js';
 import paymentRoutes from './payment.routes.js';
@@ -15,7 +14,8 @@ import galleryRoutes from './gallery.routes.js';
 
 const router = Router();
 
-router.use('/auth', authRoutes);
+// Auth (sign-up, sign-in, email OTP, sessions) is handled entirely by better-auth
+// at /api/auth/* — see app.js. It is mounted ahead of this router.
 router.use('/categories', categoryRoutes);
 router.use('/courses', courseRoutes);
 router.use('/payments', paymentRoutes);

@@ -1,98 +1,141 @@
-import prisma from '../config/prisma.js';
+import { and, asc, desc, eq, ilike, inArray, or, sql } from 'drizzle-orm';
+import { db } from '../db/index.js';
+import { category, course, enrollment, learningObjective, module, sessionBatch } from '../db/schema/index.js';
 import { successResponse, errorResponse } from '../utils/response.js';
 import { AppError } from '../utils/errors.js';
 
+async function resolveCategoryIds({ categoryName, domain }) {
+  if (!categoryName && !domain) return null;
+
+  const conditions = [];
+  if (categoryName) conditions.push(eq(category.name, categoryName));
+  if (domain) conditions.push(eq(category.domain, domain));
+
+  const matches = await db
+    .select({ id: category.id })
+    .from(category)
+    .where(and(...conditions));
+
+  return matches.map((m) => m.id);
+}
+
+async function countGroupedBy(table, columnName, ids) {
+  if (ids.length === 0) return new Map();
+  const column = table[columnName];
+  const rows = await db
+    .select({ groupId: column, count: sql`count(*)`.mapWith(Number) })
+    .from(table)
+    .where(inArray(column, ids))
+    .groupBy(column);
+  return new Map(rows.map((r) => [r.groupId, r.count]));
+}
+
+function formatCourseSummary(c, moduleCount, enrollmentCount) {
+  return {
+    id: c.courseCode, // frontend relies on code TECH004
+    dbId: c.id,
+    code: c.courseCode,
+    title: c.title,
+    slug: c.slug,
+    shortDescription: c.shortDescription,
+    fullDescription: c.fullDescription,
+    domain: c.category.domain,
+    category: c.category.name,
+    hours: c.durationHours,
+    mode: c.trainingMode.toLowerCase(),
+    price: c.price,
+    discountPercent: c.discountPercent,
+    finalPrice: c.finalPrice,
+    contactEmail: c.contactEmail,
+    contactPerson: c.contactPerson,
+    contactNumber: c.contactNumber,
+    learn: c.objectives.filter((o) => o.type === 'LEARN').map((o) => o.content),
+    features: c.objectives.filter((o) => o.type === 'FEATURE').map((o) => o.content),
+    sessions: c.sessions.map((s) => ({
+      id: s.id,
+      batch: s.batchNumber,
+      date: s.startDate,
+      status: s.status,
+    })),
+    moduleCount,
+    enrollmentCount,
+    status: c.status,
+  };
+}
+
 export async function getCourses(req, res, next) {
   try {
-    const { search, domain, category, mode, status, sortBy = 'title', sortOrder = 'asc', limit = 50, page = 1 } = req.query;
+    const { search, domain, category: categoryName, mode, status, sortBy = 'title', sortOrder = 'asc', limit = 50, page = 1 } = req.query;
 
-    const where = {};
+    const conditions = [];
 
     // By default public only sees PUBLISHED courses unless admin
     if (status && req.user?.role === 'ADMIN') {
-      where.status = status;
+      conditions.push(eq(course.status, status));
     } else {
-      where.status = 'PUBLISHED';
+      conditions.push(eq(course.status, 'PUBLISHED'));
     }
 
     if (mode) {
-      where.trainingMode = mode.toUpperCase();
+      conditions.push(eq(course.trainingMode, mode.toUpperCase()));
     }
 
-    if (category) {
-      where.category = {
-        name: { equals: category },
-      };
-    } else if (domain) {
-      where.category = {
-        domain: { equals: domain },
-      };
+    const categoryIds = await resolveCategoryIds({ categoryName, domain: categoryName ? undefined : domain });
+    if (categoryIds !== null) {
+      if (categoryIds.length === 0) {
+        return successResponse(res, [], 'Courses retrieved successfully', 200, {
+          total: 0,
+          page: parseInt(page, 10),
+          limit: parseInt(limit, 10),
+          totalPages: 0,
+        });
+      }
+      conditions.push(inArray(course.categoryId, categoryIds));
     }
 
     if (search) {
-      where.OR = [
-        { title: { contains: search } },
-        { shortDescription: { contains: search } },
-        { courseCode: { contains: search } },
-      ];
+      conditions.push(
+        or(
+          ilike(course.title, `%${search}%`),
+          ilike(course.shortDescription, `%${search}%`),
+          ilike(course.courseCode, `%${search}%`)
+        )
+      );
     }
 
     const take = parseInt(limit, 10);
     const skip = (parseInt(page, 10) - 1) * take;
+    const whereClause = and(...conditions);
 
-    let orderBy = { title: 'asc' };
-    if (sortBy === 'duration') orderBy = { durationHours: sortOrder === 'desc' ? 'desc' : 'asc' };
-    if (sortBy === 'price') orderBy = { finalPrice: sortOrder === 'desc' ? 'desc' : 'asc' };
-    if (sortBy === 'code') orderBy = { courseCode: sortOrder === 'desc' ? 'desc' : 'asc' };
-    if (sortBy === 'createdAt') orderBy = { createdAt: 'desc' };
+    let orderBy = [asc(course.title)];
+    if (sortBy === 'duration') orderBy = [sortOrder === 'desc' ? desc(course.durationHours) : asc(course.durationHours)];
+    if (sortBy === 'price') orderBy = [sortOrder === 'desc' ? desc(course.finalPrice) : asc(course.finalPrice)];
+    if (sortBy === 'code') orderBy = [sortOrder === 'desc' ? desc(course.courseCode) : asc(course.courseCode)];
+    if (sortBy === 'createdAt') orderBy = [desc(course.createdAt)];
 
-    const [total, courses] = await Promise.all([
-      prisma.course.count({ where }),
-      prisma.course.findMany({
-        where,
-        skip,
-        take,
+    const [totalRows, courses] = await Promise.all([
+      db.select({ count: sql`count(*)`.mapWith(Number) }).from(course).where(whereClause),
+      db.query.course.findMany({
+        where: whereClause,
+        limit: take,
+        offset: skip,
         orderBy,
-        include: {
-          category: { select: { id: true, name: true, domain: true, slug: true } },
-          objectives: { orderBy: { order: 'asc' } },
-          sessions: { orderBy: { batchNumber: 'asc' } },
-          _count: { select: { modules: true, enrollments: true } },
+        with: {
+          category: { columns: { id: true, name: true, domain: true, slug: true } },
+          objectives: { orderBy: (o, { asc }) => [asc(o.order)] },
+          sessions: { orderBy: (s, { asc }) => [asc(s.batchNumber)] },
         },
       }),
     ]);
 
-    // Format output to be directly compatible with frontend expectations
-    const formatted = courses.map((c) => ({
-      id: c.courseCode, // frontend relies on code TECH004
-      dbId: c.id,
-      code: c.courseCode,
-      title: c.title,
-      slug: c.slug,
-      shortDescription: c.shortDescription,
-      fullDescription: c.fullDescription,
-      domain: c.category.domain,
-      category: c.category.name,
-      hours: c.durationHours,
-      mode: c.trainingMode.toLowerCase(),
-      price: c.price,
-      discountPercent: c.discountPercent,
-      finalPrice: c.finalPrice,
-      contactEmail: c.contactEmail,
-      contactPerson: c.contactPerson,
-      contactNumber: c.contactNumber,
-      learn: c.objectives.filter((o) => o.type === 'LEARN').map((o) => o.content),
-      features: c.objectives.filter((o) => o.type === 'FEATURE').map((o) => o.content),
-      sessions: c.sessions.map((s) => ({
-        id: s.id,
-        batch: s.batchNumber,
-        date: s.startDate,
-        status: s.status,
-      })),
-      moduleCount: c._count.modules,
-      enrollmentCount: c._count.enrollments,
-      status: c.status,
-    }));
+    const total = totalRows[0]?.count ?? 0;
+    const courseIds = courses.map((c) => c.id);
+    const [moduleCounts, enrollmentCounts] = await Promise.all([
+      countGroupedBy(module, 'courseId', courseIds),
+      countGroupedBy(enrollment, 'courseId', courseIds),
+    ]);
+
+    const formatted = courses.map((c) => formatCourseSummary(c, moduleCounts.get(c.id) || 0, enrollmentCounts.get(c.id) || 0));
 
     return successResponse(res, formatted, 'Courses retrieved successfully', 200, {
       total,
@@ -109,21 +152,19 @@ export async function getCourseByCodeOrId(req, res, next) {
   try {
     const { identifier } = req.params;
 
-    const course = await prisma.course.findFirst({
-      where: {
-        OR: [{ courseCode: identifier }, { id: identifier }, { slug: identifier }],
-      },
-      include: {
+    const foundCourse = await db.query.course.findFirst({
+      where: or(eq(course.courseCode, identifier), eq(course.id, identifier), eq(course.slug, identifier)),
+      with: {
         category: true,
-        instructor: { select: { id: true, name: true, designation: true, department: true, email: true } },
-        objectives: { orderBy: { order: 'asc' } },
-        sessions: { orderBy: { batchNumber: 'asc' } },
+        instructor: { columns: { id: true, name: true, designation: true, department: true, email: true } },
+        objectives: { orderBy: (o, { asc }) => [asc(o.order)] },
+        sessions: { orderBy: (s, { asc }) => [asc(s.batchNumber)] },
         modules: {
-          orderBy: { order: 'asc' },
-          include: {
+          orderBy: (m, { asc }) => [asc(m.order)],
+          with: {
             lessons: {
-              orderBy: { order: 'asc' },
-              select: {
+              orderBy: (l, { asc }) => [asc(l.order)],
+              columns: {
                 id: true,
                 title: true,
                 order: true,
@@ -137,41 +178,41 @@ export async function getCourseByCodeOrId(req, res, next) {
       },
     });
 
-    if (!course) {
+    if (!foundCourse) {
       throw new AppError(`Course with identifier '${identifier}' not found.`, 404, 'COURSE_NOT_FOUND');
     }
 
     const formatted = {
-      id: course.courseCode,
-      dbId: course.id,
-      code: course.courseCode,
-      title: course.title,
-      slug: course.slug,
-      shortDescription: course.shortDescription,
-      fullDescription: course.fullDescription,
-      domain: course.category.domain,
-      category: course.category.name,
-      hours: course.durationHours,
-      mode: course.trainingMode.toLowerCase(),
-      price: course.price,
-      discountPercent: course.discountPercent,
-      finalPrice: course.finalPrice,
-      contactEmail: course.contactEmail,
-      contactPerson: course.contactPerson,
-      contactNumber: course.contactNumber,
-      instructor: course.instructor,
-      learn: course.objectives.filter((o) => o.type === 'LEARN').map((o) => o.content),
-      features: course.objectives.filter((o) => o.type === 'FEATURE').map((o) => o.content),
-      modules: course.modules.map((m) => m.title),
-      detailedModules: course.modules,
-      sessions: course.sessions.map((s) => ({
+      id: foundCourse.courseCode,
+      dbId: foundCourse.id,
+      code: foundCourse.courseCode,
+      title: foundCourse.title,
+      slug: foundCourse.slug,
+      shortDescription: foundCourse.shortDescription,
+      fullDescription: foundCourse.fullDescription,
+      domain: foundCourse.category.domain,
+      category: foundCourse.category.name,
+      hours: foundCourse.durationHours,
+      mode: foundCourse.trainingMode.toLowerCase(),
+      price: foundCourse.price,
+      discountPercent: foundCourse.discountPercent,
+      finalPrice: foundCourse.finalPrice,
+      contactEmail: foundCourse.contactEmail,
+      contactPerson: foundCourse.contactPerson,
+      contactNumber: foundCourse.contactNumber,
+      instructor: foundCourse.instructor,
+      learn: foundCourse.objectives.filter((o) => o.type === 'LEARN').map((o) => o.content),
+      features: foundCourse.objectives.filter((o) => o.type === 'FEATURE').map((o) => o.content),
+      modules: foundCourse.modules.map((m) => m.title),
+      detailedModules: foundCourse.modules,
+      sessions: foundCourse.sessions.map((s) => ({
         id: s.id,
         batch: s.batchNumber,
         date: s.startDate,
         status: s.status,
       })),
-      status: course.status,
-      certificateEnabled: course.certificateEnabled,
+      status: foundCourse.status,
+      certificateEnabled: foundCourse.certificateEnabled,
     };
 
     return successResponse(res, formatted, 'Course details retrieved successfully');
@@ -207,10 +248,11 @@ export async function createCourse(req, res, next) {
     }
 
     const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    const finalPrice = price - (price * (discountPercent / 100));
+    const finalPrice = price - price * (discountPercent / 100);
 
-    const course = await prisma.course.create({
-      data: {
+    const [createdCourse] = await db
+      .insert(course)
+      .values({
         courseCode: courseCode.toUpperCase(),
         title,
         slug: `${slug}-${Date.now().toString().slice(-4)}`,
@@ -227,47 +269,43 @@ export async function createCourse(req, res, next) {
         contactNumber,
         facultyId: facultyId || null,
         status: 'PUBLISHED',
-      },
-    });
+      })
+      .returning();
 
-    // Add learn objectives
-    for (let i = 0; i < learn.length; i++) {
-      await prisma.learningObjective.create({
-        data: { courseId: course.id, content: learn[i], type: 'LEARN', order: i + 1 },
-      });
+    if (learn.length > 0) {
+      await db.insert(learningObjective).values(
+        learn.map((content, i) => ({ courseId: createdCourse.id, content, type: 'LEARN', order: i + 1 }))
+      );
     }
 
-    // Add features
-    for (let i = 0; i < features.length; i++) {
-      await prisma.learningObjective.create({
-        data: { courseId: course.id, content: features[i], type: 'FEATURE', order: i + 1 },
-      });
+    if (features.length > 0) {
+      await db.insert(learningObjective).values(
+        features.map((content, i) => ({ courseId: createdCourse.id, content, type: 'FEATURE', order: i + 1 }))
+      );
     }
 
-    // Add sessions
-    for (let i = 0; i < sessions.length; i++) {
-      await prisma.sessionBatch.create({
-        data: {
-          courseId: course.id,
-          batchNumber: sessions[i].batchNumber || i + 1,
-          startDate: sessions[i].startDate || sessions[i].date,
-          status: sessions[i].status || 'UPCOMING',
-        },
-      });
+    if (sessions.length > 0) {
+      await db.insert(sessionBatch).values(
+        sessions.map((s, i) => ({
+          courseId: createdCourse.id,
+          batchNumber: s.batchNumber || i + 1,
+          startDate: s.startDate || s.date,
+          status: s.status || 'UPCOMING',
+        }))
+      );
     }
 
-    // Add modules if provided
-    for (let m = 0; m < modules.length; m++) {
-      await prisma.module.create({
-        data: {
-          courseId: course.id,
-          title: typeof modules[m] === 'string' ? modules[m] : modules[m].title,
-          order: m + 1,
-        },
-      });
+    if (modules.length > 0) {
+      await db.insert(module).values(
+        modules.map((m, i) => ({
+          courseId: createdCourse.id,
+          title: typeof m === 'string' ? m : m.title,
+          order: i + 1,
+        }))
+      );
     }
 
-    return successResponse(res, course, 'Course created successfully', 201);
+    return successResponse(res, createdCourse, 'Course created successfully', 201);
   } catch (err) {
     next(err);
   }
@@ -289,14 +327,16 @@ export async function updateCourse(req, res, next) {
     if (price !== undefined || discountPercent !== undefined) {
       const p = price !== undefined ? parseFloat(price) : 4999;
       const d = discountPercent !== undefined ? parseFloat(discountPercent) : 0;
-      data.finalPrice = p - (p * (d / 100));
+      data.finalPrice = p - p * (d / 100);
     }
     if (status) data.status = status;
+    data.updatedAt = new Date();
 
-    const updated = await prisma.course.update({
-      where: { id },
-      data,
-    });
+    const [updated] = await db.update(course).set(data).where(eq(course.id, id)).returning();
+
+    if (!updated) {
+      throw new AppError('Course not found.', 404, 'COURSE_NOT_FOUND');
+    }
 
     return successResponse(res, updated, 'Course updated successfully');
   } catch (err) {
@@ -307,7 +347,7 @@ export async function updateCourse(req, res, next) {
 export async function deleteCourse(req, res, next) {
   try {
     const { id } = req.params;
-    await prisma.course.delete({ where: { id } });
+    await db.delete(course).where(eq(course.id, id));
     return successResponse(res, null, 'Course deleted successfully');
   } catch (err) {
     next(err);

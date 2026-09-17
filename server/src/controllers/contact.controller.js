@@ -1,4 +1,6 @@
-import prisma from '../config/prisma.js';
+import { desc } from 'drizzle-orm';
+import { db } from '../db/index.js';
+import { contactInquiry } from '../db/schema/index.js';
 import { successResponse, errorResponse } from '../utils/response.js';
 import { notifyAdmins } from '../services/notification.service.js';
 
@@ -10,15 +12,10 @@ export async function submitInquiry(req, res, next) {
       return errorResponse(res, 'All inquiry fields (name, email, subject, message) are required.', 400, 'MISSING_FIELDS');
     }
 
-    const inquiry = await prisma.contactInquiry.create({
-      data: {
-        name,
-        email: email.toLowerCase(),
-        subject,
-        message,
-        status: 'NEW',
-      },
-    });
+    const [inquiry] = await db
+      .insert(contactInquiry)
+      .values({ name, email: email.toLowerCase(), subject, message, status: 'NEW' })
+      .returning();
 
     await notifyAdmins({
       title: 'New SpoRIC Inquiry',
@@ -34,9 +31,7 @@ export async function submitInquiry(req, res, next) {
 
 export async function getInquiries(req, res, next) {
   try {
-    const inquiries = await prisma.contactInquiry.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
+    const inquiries = await db.select().from(contactInquiry).orderBy(desc(contactInquiry.createdAt));
     return successResponse(res, inquiries, 'Contact inquiries retrieved');
   } catch (err) {
     next(err);

@@ -1,21 +1,33 @@
-import prisma from '../config/prisma.js';
+import { eq, sql } from 'drizzle-orm';
+import { db } from '../db/index.js';
+import { category, course } from '../db/schema/index.js';
 import { successResponse, errorResponse } from '../utils/response.js';
 
 export async function getAllCategories(req, res, next) {
   try {
     const { domain } = req.query;
-    const where = {};
-    if (domain) where.domain = domain;
 
-    const categories = await prisma.category.findMany({
-      where,
-      orderBy: { name: 'asc' },
-      include: {
-        _count: {
-          select: { courses: true },
-        },
-      },
-    });
+    const rows = await db
+      .select({
+        id: category.id,
+        name: category.name,
+        slug: category.slug,
+        domain: category.domain,
+        description: category.description,
+        createdAt: category.createdAt,
+        updatedAt: category.updatedAt,
+        courseCount: sql`count(${course.id})`.mapWith(Number),
+      })
+      .from(category)
+      .leftJoin(course, eq(course.categoryId, category.id))
+      .where(domain ? eq(category.domain, domain) : undefined)
+      .groupBy(category.id)
+      .orderBy(category.name);
+
+    const categories = rows.map(({ courseCount, ...rest }) => ({
+      ...rest,
+      _count: { courses: courseCount },
+    }));
 
     return successResponse(res, categories, 'Categories retrieved successfully');
   } catch (err) {
@@ -32,11 +44,9 @@ export async function createCategory(req, res, next) {
 
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
-    const category = await prisma.category.create({
-      data: { name, slug, domain, description },
-    });
+    const [created] = await db.insert(category).values({ name, slug, domain, description }).returning();
 
-    return successResponse(res, category, 'Category created successfully', 201);
+    return successResponse(res, created, 'Category created successfully', 201);
   } catch (err) {
     next(err);
   }
@@ -45,7 +55,7 @@ export async function createCategory(req, res, next) {
 export async function deleteCategory(req, res, next) {
   try {
     const { id } = req.params;
-    await prisma.category.delete({ where: { id } });
+    await db.delete(category).where(eq(category.id, id));
     return successResponse(res, null, 'Category deleted successfully');
   } catch (err) {
     next(err);
