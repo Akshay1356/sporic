@@ -1,0 +1,243 @@
+/* CorporateTestimonials.module.css - Theme 05 Deep Navy & White */
+
+.page {
+  background: #FFFFFF;
+  min-height: 100vh;
+}
+
+/* ====================================================
+   HERO / HEADER
+   ==================================================== */
+.hero {
+  position: relative;
+  padding: 4.5rem 0 4rem;
+  text-align: center;
+  background: #071B4A;
+  background-image: radial-gradient(circle at 50% 0%, rgba(29, 78, 216, 0.3) 0%, transparent 70%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
+  overflow: hidden;
+}
+
+.heroBg {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+  background-size: 26px 26px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-family: var(--font-heading, sans-serif);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #38BDF8;
+  margin-bottom: 0.85rem;
+}
+
+.heroTitle {
+  font-family: var(--font-heading, sans-serif);
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-bottom: 0.85rem;
+  letter-spacing: -0.02em;
+}
+
+.heroSub {
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 620px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.orb1,
+.orb2 {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.orb1 {
+  width: 380px;
+  height: 380px;
+  left: -120px;
+  top: -100px;
+  background: rgba(29, 78, 216, 0.35);
+}
+
+.orb2 {
+  width: 420px;
+  height: 420px;
+  right: -140px;
+  bottom: -160px;
+  background: rgba(56, 189, 248, 0.25);
+}
+
+/* ====================================================
+   TESTIMONIAL CARDS
+   ==================================================== */
+.cardsSection {
+  padding: 4.5rem 1.5rem;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.card {
+  background: #FFFFFF;
+  border: 1px solid #E4E7EC;
+  border-radius: 18px;
+  padding: 2.25rem;
+  box-shadow: 0 10px 30px rgba(11, 42, 111, 0.05), 0 1px 3px rgba(11, 42, 111, 0.02);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(29, 78, 216, 0.28);
+  box-shadow: 0 18px 44px rgba(11, 42, 111, 0.09), 0 4px 14px rgba(11, 42, 111, 0.05);
+}
+
+.quoteIcon {
+  color: #1D4ED8;
+  opacity: 0.9;
+  margin-bottom: 1rem;
+}
+
+.quote {
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: #101828;
+  line-height: 1.6;
+  margin: 0 0 1.75rem;
+  font-style: italic;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  border-top: 1px solid #F2F4F7;
+  padding-top: 1.25rem;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #071B4A;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading, sans-serif);
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-weight: 700;
+  color: #0F172A;
+  font-size: 0.95rem;
+}
+
+.company {
+  font-size: 0.85rem;
+  color: #667085;
+}
+
+/* ====================================================
+   CTA BANNER
+   ==================================================== */
+.cta {
+  background: #071B4A;
+  background-image: radial-gradient(circle at 50% 0%, rgba(29, 78, 216, 0.3) 0%, transparent 70%);
+  padding: 4rem 1.5rem;
+  text-align: center;
+}
+
+.ctaInner {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.ctaTitle {
+  font-family: var(--font-heading, sans-serif);
+  font-size: clamp(1.6rem, 3vw, 2.15rem);
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-bottom: 0.75rem;
+}
+
+.ctaSub {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+  margin-bottom: 1.75rem;
+}
+
+.ctaBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #FFFFFF;
+  color: #071B4A;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.85rem 1.75rem;
+  border-radius: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ctaBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.25);
+}
+
+/* ====================================================
+   RESPONSIVE
+   ==================================================== */
+@media (max-width: 640px) {
+  .hero {
+    padding: 3.5rem 0 3rem;
+  }
+
+  .cardsSection {
+    padding: 3rem 1.25rem;
+  }
+
+  .card {
+    padding: 1.75rem;
+  }
+
+  .cta {
+    padding: 3rem 1.25rem;
+  }
+}

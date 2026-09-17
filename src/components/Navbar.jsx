@@ -10,6 +10,7 @@ const navLinks = [
   { label: 'About', path: '/about' },
   { label: 'Corporate Programs', path: '/courses' },
   { label: 'Corporate Training Organized', path: '/corporate-training' },
+  { label: 'Corporate Testimonials', path: '/corporate-testimonials' },
   { label: 'Gallery', path: '/gallery' },
   { label: 'Contact', path: '/contact' },
 ];
