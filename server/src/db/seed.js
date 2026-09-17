@@ -1,103 +1,110 @@
-// Comprehensive Seed Script for SPORIC / VIT-TEC Platform
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+// Comprehensive seed script for SPORIC / VIT-TEC platform (Drizzle + Neon Postgres).
+// Users are created through better-auth's signUpEmail API so passwords are hashed
+// exactly the way the running server expects; role/status are patched in afterwards
+// since those fields are not client-settable at sign-up.
+import { eq } from 'drizzle-orm';
+import { db } from './index.js';
+import { auth } from '../lib/auth.js';
+import {
+  user,
+  category,
+  course,
+  learningObjective,
+  sessionBatch,
+  module,
+  lesson,
+  payment,
+  enrollment,
+  certificate,
+  fundingOpportunity,
+  fundingApplication,
+  researchProject,
+  patent,
+  publication,
+  notification,
+  contactInquiry,
+} from './schema/index.js';
 
-const prisma = new PrismaClient();
+async function createUser({ email, password, name, role, department, designation, organization, phone }) {
+  const existing = await db.query.user.findFirst({ where: eq(user.email, email) });
+  if (existing) {
+    console.log(`  ↷ ${email} already exists, skipping creation.`);
+    return existing;
+  }
+
+  const { user: created } = await auth.api.signUpEmail({
+    body: { email, password, name, department, designation, organization, phone },
+  });
+
+  const [updated] = await db
+    .update(user)
+    .set({ role, accountStatus: 'ACTIVE', emailVerified: true })
+    .where(eq(user.id, created.id))
+    .returning();
+
+  return updated;
+}
 
 async function main() {
   console.log('🌱 Starting database seed for SPORIC / VIT-TEC platform...');
 
-  // Clear existing data safely
-  await prisma.notification.deleteMany();
-  await prisma.certificate.deleteMany();
-  await prisma.payment.deleteMany();
-  await prisma.enrollment.deleteMany();
-  await prisma.lesson.deleteMany();
-  await prisma.module.deleteMany();
-  await prisma.sessionBatch.deleteMany();
-  await prisma.learningObjective.deleteMany();
-  await prisma.course.deleteMany();
-  await prisma.category.deleteMany();
-  await prisma.fundingApplication.deleteMany();
-  await prisma.fundingOpportunity.deleteMany();
-  await prisma.publication.deleteMany();
-  await prisma.researchProject.deleteMany();
-  await prisma.patent.deleteMany();
-  await prisma.contactInquiry.deleteMany();
-  await prisma.user.deleteMany();
-
-  // 1. Create Core Users with BCrypt Hashed Passwords
-  const adminPassword = await bcrypt.hash('Admin@VIT2026', 10);
-  const adminSporicPassword = await bcrypt.hash('Sp0rIC#2026!vIt9$xK', 10);
-  const facultyPassword = await bcrypt.hash('Faculty@VIT2026', 10);
-  const studentPassword = await bcrypt.hash('Student@VIT2026', 10);
-
-  await prisma.user.create({
-    data: {
-      email: 'admin@vit.ac.in',
-      name: 'Dr. Dean SpoRIC',
-      passwordHash: adminPassword,
-      role: 'ADMIN',
-      department: 'Sponsored Research & Industrial Consultancy',
-      designation: 'Dean, SpoRIC',
-      organization: 'VIT Chennai',
-      phone: '044 3993 1196',
-    },
+  // 1. Core Users
+  const admin1 = await createUser({
+    email: 'admin@vit.ac.in',
+    password: 'Admin@VIT2026',
+    name: 'Dr. Dean SpoRIC',
+    role: 'ADMIN',
+    department: 'Sponsored Research & Industrial Consultancy',
+    designation: 'Dean, SpoRIC',
+    organization: 'VIT Chennai',
+    phone: '044 3993 1196',
   });
 
-  await prisma.user.create({
-    data: {
-      email: 'admin.sporic@vit.ac.in',
-      name: 'Dr. Dean SpoRIC Administration',
-      passwordHash: adminSporicPassword,
-      role: 'ADMIN',
-      department: 'Sponsored Research & Industrial Consultancy',
-      designation: 'Dean, SpoRIC Admin',
-      organization: 'VIT Chennai',
-      phone: '044 3993 1196',
-    },
+  await createUser({
+    email: 'admin.sporic@vit.ac.in',
+    password: 'Sp0rIC#2026!vIt9$xK',
+    name: 'Dr. Dean SpoRIC Administration',
+    role: 'ADMIN',
+    department: 'Sponsored Research & Industrial Consultancy',
+    designation: 'Dean, SpoRIC Admin',
+    organization: 'VIT Chennai',
+    phone: '044 3993 1196',
   });
 
-  const faculty = await prisma.user.create({
-    data: {
-      email: 'faculty@vit.ac.in',
-      name: 'Dr. S. K. Ramanathan',
-      passwordHash: facultyPassword,
-      role: 'FACULTY',
-      department: 'School of Mechanical Engineering (SMEC)',
-      designation: 'Senior Professor & Principal Investigator',
-      organization: 'VIT Chennai',
-      phone: '94878 33044',
-    },
+  const faculty = await createUser({
+    email: 'faculty@vit.ac.in',
+    password: 'Faculty@VIT2026',
+    name: 'Dr. S. K. Ramanathan',
+    role: 'FACULTY',
+    department: 'School of Mechanical Engineering (SMEC)',
+    designation: 'Senior Professor & Principal Investigator',
+    organization: 'VIT Chennai',
+    phone: '94878 33044',
   });
 
-  const student1 = await prisma.user.create({
-    data: {
-      email: 'student1@vit.ac.in',
-      name: 'Arun Kumar',
-      passwordHash: studentPassword,
-      role: 'STUDENT',
-      department: 'Computer Science & Engineering',
-      organization: 'TCS Innovation Labs',
-      phone: '73587 82571',
-    },
+  const student1 = await createUser({
+    email: 'student1@vit.ac.in',
+    password: 'Student@VIT2026',
+    name: 'Arun Kumar',
+    role: 'STUDENT',
+    department: 'Computer Science & Engineering',
+    organization: 'TCS Innovation Labs',
+    phone: '73587 82571',
   });
 
-  const student2 = await prisma.user.create({
-    data: {
-      email: 'student2@vit.ac.in',
-      name: 'Priya Sharma',
-      passwordHash: studentPassword,
-      role: 'STUDENT',
-      department: 'Automotive Technology',
-      organization: 'Hyundai Motor R&D',
-      phone: '98401 23456',
-    },
+  await createUser({
+    email: 'student2@vit.ac.in',
+    password: 'Student@VIT2026',
+    name: 'Priya Sharma',
+    role: 'STUDENT',
+    department: 'Automotive Technology',
+    organization: 'Hyundai Motor R&D',
+    phone: '98401 23456',
   });
 
-  console.log('✅ Created Users: Admin, Faculty, 2 Students.');
+  console.log('✅ Users ready: Admin, Faculty, 2 Students.');
 
-  // 2. Create Categories
+  // 2. Categories
   const categoryDefs = [
     { name: 'Industry 4.0', slug: 'industry-40', domain: 'Technology', description: 'Smart manufacturing, IIoT, and connected industrial automation' },
     { name: 'Electric Vehicles', slug: 'electric-vehicles', domain: 'Technology', description: 'Battery management, powertrain design, and charging infrastructure' },
@@ -118,8 +125,9 @@ async function main() {
 
   const categoryMap = {};
   for (const cat of categoryDefs) {
-    const created = await prisma.category.create({ data: cat });
-    categoryMap[cat.name] = created.id;
+    const existing = await db.query.category.findFirst({ where: eq(category.slug, cat.slug) });
+    const row = existing || (await db.insert(category).values(cat).returning())[0];
+    categoryMap[cat.name] = row.id;
   }
   console.log(`✅ Seeded ${categoryDefs.length} Categories across 3 Domains.`);
 
@@ -137,10 +145,6 @@ async function main() {
       price: 4999.0,
       discountPercent: 10.0,
       finalPrice: 4499.0,
-      contactPerson: 'Dean, SpoRIC',
-      contactEmail: 'deancc.sporic@vit.ac.in',
-      contactNumber: '73587 82571',
-      facultyId: faculty.id,
       learn: [
         'Digitalization of Manufacturing Sector',
         'Intelligent Technologies for Industry 4.0',
@@ -197,10 +201,6 @@ async function main() {
       price: 5499.0,
       discountPercent: 15.0,
       finalPrice: 4674.0,
-      contactPerson: 'Dean, SpoRIC',
-      contactEmail: 'deancc.sporic@vit.ac.in',
-      contactNumber: '73587 82571',
-      facultyId: faculty.id,
       learn: [
         'Complete web development process end-to-end',
         'Build scalable RESTful services with Node.js and Express',
@@ -249,10 +249,6 @@ async function main() {
       price: 3999.0,
       discountPercent: 0.0,
       finalPrice: 3999.0,
-      contactPerson: 'Dean, SpoRIC',
-      contactEmail: 'deancc.sporic@vit.ac.in',
-      contactNumber: '73587 82571',
-      facultyId: faculty.id,
       learn: [
         'Using large language models (LLMs) to improve working culture',
         'Prompt engineering for professional workflow automation',
@@ -291,10 +287,6 @@ async function main() {
       price: 5999.0,
       discountPercent: 10.0,
       finalPrice: 5399.0,
-      contactPerson: 'Dean, SpoRIC',
-      contactEmail: 'deancc.sporic@vit.ac.in',
-      contactNumber: '73587 82571',
-      facultyId: faculty.id,
       learn: [
         'Understand, practice, and apply CFD methods',
         'External vehicle aerodynamics simulation',
@@ -304,19 +296,11 @@ async function main() {
         {
           title: 'Mesh Generation & Boundary Conditions',
           description: 'Structured vs unstructured mesh, boundary layer resolution.',
-          lessons: [
-            { title: 'Domain Discretization & Turbulence Models', durationMinutes: 55, isFreePreview: true },
-          ],
+          lessons: [{ title: 'Domain Discretization & Turbulence Models', durationMinutes: 55, isFreePreview: true }],
         },
       ],
-      features: [
-        'Industry need-based contents with ANSYS Workbench',
-        'Aerodynamic drag reduction case study',
-        'Certification of Completion',
-      ],
-      sessions: [
-        { batchNumber: 1, startDate: '18-04-2024', status: 'COMPLETED' },
-      ],
+      features: ['Industry need-based contents with ANSYS Workbench', 'Aerodynamic drag reduction case study', 'Certification of Completion'],
+      sessions: [{ batchNumber: 1, startDate: '18-04-2024', status: 'COMPLETED' }],
     },
     {
       courseCode: 'TECH015',
@@ -330,10 +314,6 @@ async function main() {
       price: 6999.0,
       discountPercent: 10.0,
       finalPrice: 6299.0,
-      contactPerson: 'Dean, SpoRIC',
-      contactEmail: 'deancc.sporic@vit.ac.in',
-      contactNumber: '73587 82571',
-      facultyId: faculty.id,
       learn: [
         'Electric vehicle powertrain architecture',
         'BMS state-of-charge (SoC) and state-of-health (SoH) algorithms',
@@ -350,14 +330,8 @@ async function main() {
           ],
         },
       ],
-      features: [
-        'Hardware-in-the-loop (HIL) BMS simulation demos',
-        'MATLAB/Simulink drive cycle tests (WLTP, FTP75)',
-        'SpoRIC Certification',
-      ],
-      sessions: [
-        { batchNumber: 1, startDate: '15-11-2026', status: 'UPCOMING' },
-      ],
+      features: ['Hardware-in-the-loop (HIL) BMS simulation demos', 'MATLAB/Simulink drive cycle tests (WLTP, FTP75)', 'SpoRIC Certification'],
+      sessions: [{ batchNumber: 1, startDate: '15-11-2026', status: 'UPCOMING' }],
     },
     {
       courseCode: 'MGMT001',
@@ -371,10 +345,6 @@ async function main() {
       price: 4999.0,
       discountPercent: 0.0,
       finalPrice: 4999.0,
-      contactPerson: 'Dean, SpoRIC',
-      contactEmail: 'deancc.sporic@vit.ac.in',
-      contactNumber: '73587 82571',
-      facultyId: faculty.id,
       learn: [
         'Process mapping, bottleneck analysis & throughput optimization',
         'Total Quality Management (TQM) and DMAIC Six Sigma methodology',
@@ -413,10 +383,6 @@ async function main() {
       price: 5999.0,
       discountPercent: 15.0,
       finalPrice: 5099.0,
-      contactPerson: 'Dean, SpoRIC',
-      contactEmail: 'deancc.sporic@vit.ac.in',
-      contactNumber: '73587 82571',
-      facultyId: faculty.id,
       learn: [
         'Exploratory Data Analysis using Python Pandas and Seaborn',
         'Supervised & Unsupervised Machine Learning algorithms for Business',
@@ -432,11 +398,7 @@ async function main() {
           ],
         },
       ],
-      features: [
-        'Real industry datasets (E-commerce, Banking, Automotive)',
-        'Capstone Business Intelligence project',
-        'SpoRIC Professional Certificate',
-      ],
+      features: ['Real industry datasets (E-commerce, Banking, Automotive)', 'Capstone Business Intelligence project', 'SpoRIC Professional Certificate'],
       sessions: [
         { batchNumber: 1, startDate: '05-12-2023', status: 'COMPLETED' },
         { batchNumber: 2, startDate: '15-02-2024', status: 'COMPLETED' },
@@ -455,10 +417,6 @@ async function main() {
       price: 4499.0,
       discountPercent: 0.0,
       finalPrice: 4499.0,
-      contactPerson: 'Dean, SpoRIC',
-      contactEmail: 'deancc.sporic@vit.ac.in',
-      contactNumber: '73587 82571',
-      facultyId: faculty.id,
       learn: [
         'Transformational vs Situational leadership frameworks',
         'Emotional intelligence in executive decision making',
@@ -488,12 +446,20 @@ async function main() {
     },
   ];
 
+  let firstCourseRow = null;
   for (const c of realCourses) {
     const categoryId = categoryMap[c.categoryName];
     if (!categoryId) continue;
 
-    const course = await prisma.course.create({
-      data: {
+    const existingCourse = await db.query.course.findFirst({ where: eq(course.courseCode, c.courseCode) });
+    if (existingCourse) {
+      if (c.courseCode === 'TECH004') firstCourseRow = existingCourse;
+      continue;
+    }
+
+    const [createdCourse] = await db
+      .insert(course)
+      .values({
         courseCode: c.courseCode,
         title: c.title,
         slug: c.slug,
@@ -505,140 +471,112 @@ async function main() {
         price: c.price,
         discountPercent: c.discountPercent,
         finalPrice: c.finalPrice,
-        contactPerson: c.contactPerson,
-        contactEmail: c.contactEmail,
-        contactNumber: c.contactNumber,
-        facultyId: c.facultyId,
+        facultyId: faculty.id,
         status: 'PUBLISHED',
-      },
-    });
+      })
+      .returning();
 
-    // Learning Objectives
-    for (let i = 0; i < c.learn.length; i++) {
-      await prisma.learningObjective.create({
-        data: { courseId: course.id, content: c.learn[i], type: 'LEARN', order: i + 1 },
-      });
-    }
+    if (c.courseCode === 'TECH004') firstCourseRow = createdCourse;
 
-    // Salient Features
-    for (let i = 0; i < c.features.length; i++) {
-      await prisma.learningObjective.create({
-        data: { courseId: course.id, content: c.features[i], type: 'FEATURE', order: i + 1 },
-      });
-    }
+    await db.insert(learningObjective).values([
+      ...c.learn.map((content, i) => ({ courseId: createdCourse.id, content, type: 'LEARN', order: i + 1 })),
+      ...c.features.map((content, i) => ({ courseId: createdCourse.id, content, type: 'FEATURE', order: i + 1 })),
+    ]);
 
-    // Session Batches
-    for (const s of c.sessions) {
-      await prisma.sessionBatch.create({
-        data: {
-          courseId: course.id,
-          batchNumber: s.batchNumber,
-          startDate: s.startDate,
-          status: s.status,
-        },
-      });
-    }
+    await db.insert(sessionBatch).values(
+      c.sessions.map((s) => ({ courseId: createdCourse.id, batchNumber: s.batchNumber, startDate: s.startDate, status: s.status }))
+    );
 
-    // Modules & Lessons
     for (let mIdx = 0; mIdx < c.modules.length; mIdx++) {
       const mData = c.modules[mIdx];
-      const moduleRecord = await prisma.module.create({
-        data: {
-          courseId: course.id,
-          title: mData.title,
-          description: mData.description,
-          order: mIdx + 1,
-        },
-      });
+      const [moduleRecord] = await db
+        .insert(module)
+        .values({ courseId: createdCourse.id, title: mData.title, description: mData.description, order: mIdx + 1 })
+        .returning();
 
-      for (let lIdx = 0; lIdx < mData.lessons.length; lIdx++) {
-        const lData = mData.lessons[lIdx];
-        await prisma.lesson.create({
-          data: {
-            moduleId: moduleRecord.id,
-            title: lData.title,
-            order: lIdx + 1,
-            durationMinutes: lData.durationMinutes,
-            isFreePreview: lData.isFreePreview,
-            contentType: 'TEXT',
-            textContent: `Welcome to ${lData.title}. In this session, learners analyze industry case studies and execute applied technical exercises.`,
-          },
-        });
-      }
+      await db.insert(lesson).values(
+        mData.lessons.map((lData, lIdx) => ({
+          moduleId: moduleRecord.id,
+          title: lData.title,
+          order: lIdx + 1,
+          durationMinutes: lData.durationMinutes,
+          isFreePreview: lData.isFreePreview,
+          contentType: 'TEXT',
+          textContent: `Welcome to ${lData.title}. In this session, learners analyze industry case studies and execute applied technical exercises.`,
+        }))
+      );
     }
   }
-
   console.log(`✅ Seeded ${realCourses.length} Real VIT-TEC Courses with detailed Modules and Lessons.`);
 
-  // 4. Create Sample Enrollments & Payments
-  const firstCourse = await prisma.course.findFirst({ where: { courseCode: 'TECH004' } });
-  if (firstCourse) {
-    const payment = await prisma.payment.create({
-      data: {
-        studentId: student1.id,
-        courseId: firstCourse.id,
-        razorpayOrderId: 'order_SPORIC2026_001',
-        razorpayPaymentId: 'pay_SPORIC2026_001',
-        razorpaySignature: 'sig_mock_verified_signature_sample_001',
-        amount: firstCourse.finalPrice,
-        currency: 'INR',
-        status: 'SUCCESS',
-        receiptNumber: 'REC-2026-0001',
-      },
-    });
+  // 4. Sample Enrollment & Payment
+  if (firstCourseRow) {
+    const existingPayment = await db.query.payment.findFirst({ where: eq(payment.razorpayOrderId, 'order_SPORIC2026_001') });
+    if (!existingPayment) {
+      const [createdPayment] = await db
+        .insert(payment)
+        .values({
+          studentId: student1.id,
+          courseId: firstCourseRow.id,
+          razorpayOrderId: 'order_SPORIC2026_001',
+          razorpayPaymentId: 'pay_SPORIC2026_001',
+          razorpaySignature: 'sig_mock_verified_signature_sample_001',
+          amount: firstCourseRow.finalPrice,
+          currency: 'INR',
+          status: 'SUCCESS',
+          receiptNumber: 'REC-2026-0001',
+        })
+        .returning();
 
-    await prisma.enrollment.create({
-      data: {
+      await db.insert(enrollment).values({
         studentId: student1.id,
-        courseId: firstCourse.id,
-        paymentId: payment.id,
+        courseId: firstCourseRow.id,
+        paymentId: createdPayment.id,
         status: 'ACTIVE',
         progressPercent: 40.0,
-      },
-    });
+      });
 
-    // Sample Certificate
-    await prisma.certificate.create({
-      data: {
+      await db.insert(certificate).values({
         certificateNumber: 'VITTEC-CERT-2026-1001',
         studentId: student1.id,
-        courseId: firstCourse.id,
+        courseId: firstCourseRow.id,
         studentName: student1.name,
-        courseName: firstCourse.title,
+        courseName: firstCourseRow.title,
         verificationHash: 'vittec_hash_9f83a218_tech004',
         certificateUrl: '/api/certificates/view/VITTEC-CERT-2026-1001',
         status: 'VALID',
-      },
-    });
+      });
+    }
   }
 
-  // 5. Create Funding Opportunities & Sample Application
-  const grant1 = await prisma.fundingOpportunity.create({
-    data: {
-      title: 'SpoRIC Industry Innovation Grant 2026',
-      description: 'Funding for advanced translational engineering research solving industrial sustainability and smart automation challenges in MSME sectors.',
-      eligibility: 'Faculty members of VIT Chennai with min. 2 years active research experience.',
-      guidelines: 'Proposals must demonstrate industrial co-creation or clear prototype commercialization potential within 18 months.',
-      deadline: new Date('2026-12-31T23:59:59Z'),
-      fundingAmount: 1500000.0, // 15 Lakhs INR
-      status: 'OPEN',
-    },
-  });
+  // 5. Funding Opportunities & Sample Application
+  const existingGrant = await db.query.fundingOpportunity.findFirst({ where: eq(fundingOpportunity.title, 'SpoRIC Industry Innovation Grant 2026') });
+  let grant1 = existingGrant;
+  if (!grant1) {
+    [grant1] = await db
+      .insert(fundingOpportunity)
+      .values({
+        title: 'SpoRIC Industry Innovation Grant 2026',
+        description: 'Funding for advanced translational engineering research solving industrial sustainability and smart automation challenges in MSME sectors.',
+        eligibility: 'Faculty members of VIT Chennai with min. 2 years active research experience.',
+        guidelines: 'Proposals must demonstrate industrial co-creation or clear prototype commercialization potential within 18 months.',
+        deadline: new Date('2026-12-31T23:59:59Z'),
+        fundingAmount: 1500000.0,
+        status: 'OPEN',
+      })
+      .returning();
 
-  await prisma.fundingOpportunity.create({
-    data: {
+    await db.insert(fundingOpportunity).values({
       title: 'Green Mobility & EV Battery Research Consortium',
       description: 'Seed grants for research on solid-state battery thermal modeling, fast charging telemetry, and localized supply chain integration.',
       eligibility: 'Faculty and Interdisciplinary research scholars.',
       guidelines: 'Joint application with industry sponsor encouraged.',
       deadline: new Date('2026-11-30T23:59:59Z'),
-      fundingAmount: 2500000.0, // 25 Lakhs INR
+      fundingAmount: 2500000.0,
       status: 'OPEN',
-    },
-  });
+    });
 
-  await prisma.fundingApplication.create({
-    data: {
+    await db.insert(fundingApplication).values({
       applicationNumber: 'SPORIC-APP-2026-001',
       facultyId: faculty.id,
       fundingOpportunityId: grant1.id,
@@ -655,24 +593,26 @@ async function main() {
       status: 'UNDER_REVIEW',
       reviewerComments: 'Solid methodology and strong industry relevance. Awaiting budget breakdown verification.',
       submittedAt: new Date('2026-08-01T10:00:00Z'),
-    },
-  });
+    });
+  }
 
   // 6. Research Projects, Patents & Publications
-  const project1 = await prisma.researchProject.create({
-    data: {
-      title: 'Autonomous Solar Micro-Grids with Dynamic Demand Load Balancing',
-      description: 'Design and deployment of IoT-coordinated rural microgrids utilizing battery storage and adaptive inverter control.',
-      researchArea: 'Renewable Energy & Smart Grids',
-      principalInvestigatorId: faculty.id,
-      startDate: new Date('2025-06-01'),
-      budget: 3500000.0,
-      status: 'ONGOING',
-    },
-  });
+  const existingProject = await db.query.researchProject.findFirst({ where: eq(researchProject.title, 'Autonomous Solar Micro-Grids with Dynamic Demand Load Balancing') });
+  if (!existingProject) {
+    const [project1] = await db
+      .insert(researchProject)
+      .values({
+        title: 'Autonomous Solar Micro-Grids with Dynamic Demand Load Balancing',
+        description: 'Design and deployment of IoT-coordinated rural microgrids utilizing battery storage and adaptive inverter control.',
+        researchArea: 'Renewable Energy & Smart Grids',
+        principalInvestigatorId: faculty.id,
+        startDate: new Date('2025-06-01'),
+        budget: 3500000.0,
+        status: 'ONGOING',
+      })
+      .returning();
 
-  await prisma.patent.create({
-    data: {
+    await db.insert(patent).values({
       title: 'Smart Inverter with Adaptive Harmonic Cancellation for Islanded Solar Microgrids',
       patentNumber: 'IN-PAT-2025-9831',
       applicationNumber: '202541098312',
@@ -682,11 +622,9 @@ async function main() {
       inventors: 'Dr. S. K. Ramanathan, Dr. Dean SpoRIC, VIT Chennai',
       assignee: 'Vellore Institute of Technology',
       abstract: 'A system and method for real-time total harmonic distortion (THD) attenuation in distributed renewable energy conversion systems.',
-    },
-  });
+    });
 
-  await prisma.publication.create({
-    data: {
+    await db.insert(publication).values({
       title: 'Deep Residual Networks for Vibration-Based Bearing Fault Classification in Variable Speed Drives',
       authors: 'S. K. Ramanathan, K. M. Sundaram, A. V. Narayanan',
       journalName: 'IEEE Transactions on Industrial Electronics',
@@ -694,36 +632,31 @@ async function main() {
       doi: '10.1109/TIE.2025.3289104',
       link: 'https://doi.org/10.1109/TIE.2025.3289104',
       projectId: project1.id,
-    },
-  });
+    });
+  }
 
-  // 7. Sample Notifications & Contact Inquiries
-  await prisma.notification.create({
-    data: {
+  // 7. Sample Notifications & Contact Inquiry
+  await db.insert(notification).values([
+    {
       userId: student1.id,
       title: 'Course Enrollment Confirmed',
       message: 'You have been successfully enrolled in Digital Tools for Industry 4.0 (TECH004).',
       type: 'ENROLLMENT',
     },
-  });
-
-  await prisma.notification.create({
-    data: {
+    {
       userId: faculty.id,
       title: 'Funding Proposal Under Review',
       message: 'Your application SPORIC-APP-2026-001 has been assigned to external reviewers.',
       type: 'FUNDING',
     },
-  });
+  ]);
 
-  await prisma.contactInquiry.create({
-    data: {
-      name: 'Rajesh Nambiar',
-      email: 'r.nambiar@auto-components.in',
-      subject: 'Custom Corporate Batch for 40 Engineers in EV Powertrains',
-      message: 'We want to schedule a 3-week blended training program for our design department in Electric Vehicle Battery Management.',
-      status: 'NEW',
-    },
+  await db.insert(contactInquiry).values({
+    name: 'Rajesh Nambiar',
+    email: 'r.nambiar@auto-components.in',
+    subject: 'Custom Corporate Batch for 40 Engineers in EV Powertrains',
+    message: 'We want to schedule a 3-week blended training program for our design department in Electric Vehicle Battery Management.',
+    status: 'NEW',
   });
 
   console.log('🎉 Database seed completed successfully with complete demo data!');
@@ -734,6 +667,6 @@ main()
     console.error('❌ Error during seed:', e);
     process.exit(1);
   })
-  .finally(async () => {
-    await prisma.$disconnect();
+  .finally(() => {
+    process.exit(0);
   });

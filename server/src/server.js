@@ -1,14 +1,15 @@
 import app from './app.js';
 import { config } from './config/index.js';
-import prisma from './config/prisma.js';
+import { db } from './db/index.js';
+import { sql } from 'drizzle-orm';
 
 const PORT = config.port;
 
 async function startServer() {
   try {
     // Verify database connection
-    await prisma.$connect();
-    console.log('✅ Connected to database via Prisma.');
+    await db.execute(sql`select 1`);
+    console.log('✅ Connected to Neon PostgreSQL via Drizzle.');
 
     app.listen(PORT, () => {
       console.log(`🚀 SPORIC / VIT-TEC Backend Server running on http://localhost:${PORT}`);
