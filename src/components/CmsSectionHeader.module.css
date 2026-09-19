@@ -1,0 +1,127 @@
+/* CmsSectionHeader.module.css - Clean, institutional CMS header actions */
+
+.headerWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #E2E8F0;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.textGroup {
+  flex: 1 1 320px;
+  min-width: 260px;
+}
+
+.badgeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.35rem;
+}
+
+.badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.18rem 0.55rem;
+  border-radius: 4px;
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.badgeNote {
+  font-size: 0.78rem;
+  color: #64748B;
+}
+
+.title {
+  color: #0F172A;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
+  letter-spacing: -0.01em;
+  font-family: var(--font-heading, sans-serif);
+}
+
+.description {
+  color: #64748B;
+  font-size: 0.85rem;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.description strong {
+  color: #334155;
+  font-weight: 600;
+}
+
+.actionsGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.viewBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.42rem 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #334155;
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  border-radius: 6px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+  font-family: var(--font-heading, sans-serif);
+}
+
+.viewBtn:hover {
+  background: #F8FAFC;
+  border-color: #94A3B8;
+  color: #0F172A;
+}
+
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.42rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: #1D4ED8;
+  border: 1px solid #1D4ED8;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  white-space: nowrap;
+  font-family: var(--font-heading, sans-serif);
+}
+
+.addBtn:hover {
+  background: #1E40AF;
+  border-color: #1E40AF;
+}
+
+@media (max-width: 640px) {
+  .headerWrapper {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .actionsGroup {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}

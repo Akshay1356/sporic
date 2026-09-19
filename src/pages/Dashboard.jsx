@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import GlassCard from '../components/GlassCard';
 import AdminModal from '../components/AdminModal';
 import modalStyles from '../components/AdminModal.module.css';
+import CmsSectionHeader from '../components/CmsSectionHeader';
 import {
   OverviewIcon,
   BookIcon,
@@ -62,6 +63,20 @@ import {
   deleteCorporateTraining,
   getAcademicYearFromDate,
 } from '../data/corporateTrainingOrganizedData';
+import {
+  getAllTestimonials,
+  saveTestimonial,
+  updateTestimonial,
+  deleteTestimonial,
+} from '../data/testimonialsData';
+import {
+  getNaacData,
+  updateNaacData,
+  getAllRankings,
+  saveRanking,
+  updateRanking,
+  deleteRanking,
+} from '../data/rankingsData';
 import api from '../services/api';
 import styles from './Dashboard.module.css';
 
@@ -177,6 +192,46 @@ export default function Dashboard() {
   const [progError, setProgError] = useState('');
   const [deletingProgram, setDeletingProgram] = useState(null);
 
+  // Corporate Testimonials modal states (ADMIN ONLY)
+  const [testimonialsList, setTestimonialsList] = useState([]);
+  const [showTestimonialModal, setShowTestimonialModal] = useState(false);
+  const [editingTestimonial, setEditingTestimonial] = useState(null);
+  const [testimonialQuote, setTestimonialQuote] = useState('');
+  const [testimonialName, setTestimonialName] = useState('');
+  const [testimonialDesignation, setTestimonialDesignation] = useState('');
+  const [testimonialCompany, setTestimonialCompany] = useState('');
+  const [testimonialError, setTestimonialError] = useState('');
+  const [testimonialSaving, setTestimonialSaving] = useState(false);
+  const [deletingTestimonial, setDeletingTestimonial] = useState(null);
+  const [testimonialSearch, setTestimonialSearch] = useState('');
+
+  // University Rankings & Accreditations states (ADMIN ONLY)
+  const [rankingsListState, setRankingsListState] = useState([]);
+  const [naacDataState, setNaacDataState] = useState(null);
+  const [showRankingModal, setShowRankingModal] = useState(false);
+  const [editingRanking, setEditingRanking] = useState(null);
+  const [rankingAgency, setRankingAgency] = useState('');
+  const [rankingYear, setRankingYear] = useState(new Date().getFullYear().toString());
+  const [rankingValue, setRankingValue] = useState('');
+  const [rankingCategory, setRankingCategory] = useState('');
+  const [rankingScope, setRankingScope] = useState('National');
+  const [rankingDesc, setRankingDesc] = useState('');
+  const [rankingError, setRankingError] = useState('');
+  const [rankingSaving, setRankingSaving] = useState(false);
+  const [deletingRanking, setDeletingRanking] = useState(null);
+  const [rankingSearch, setRankingSearch] = useState('');
+
+  // NAAC Accreditation edit modal states
+  const [showNaacModal, setShowNaacModal] = useState(false);
+  const [naacAgency, setNaacAgency] = useState('');
+  const [naacFullName, setNaacFullName] = useState('');
+  const [naacGrade, setNaacGrade] = useState('');
+  const [naacScore, setNaacScore] = useState('');
+  const [naacCycle, setNaacCycle] = useState('');
+  const [naacDesc, setNaacDesc] = useState('');
+  const [naacError, setNaacError] = useState('');
+  const [naacSaving, setNaacSaving] = useState(false);
+
   // Image compressor helper
   const compressImageFile = (file) => {
     return new Promise((resolve, reject) => {
@@ -230,6 +285,15 @@ export default function Dashboard() {
     const allE = getAllEnquiries();
     setEnquiriesList(allE);
 
+    const allT = getAllTestimonials();
+    setTestimonialsList(allT);
+
+    const allR = getAllRankings();
+    setRankingsListState(allR);
+
+    const naac = getNaacData();
+    setNaacDataState(naac);
+
     if (user?.email) {
       setUserEnquiries(getUserEnquiries(user.email));
       const savedIds = getUserInterestedCourseIds(user.email);
@@ -240,6 +304,26 @@ export default function Dashboard() {
   useEffect(() => {
     refreshAllData();
   }, [user]);
+
+  useEffect(() => {
+    const handleTestimonialsUpdate = () => {
+      setTestimonialsList(getAllTestimonials());
+    };
+    const handleRankingsUpdate = () => {
+      setRankingsListState(getAllRankings());
+      setNaacDataState(getNaacData());
+    };
+    window.addEventListener('sporic_testimonials_updated', handleTestimonialsUpdate);
+    window.addEventListener('sporic_rankings_updated', handleRankingsUpdate);
+    window.addEventListener('storage', handleTestimonialsUpdate);
+    window.addEventListener('storage', handleRankingsUpdate);
+    return () => {
+      window.removeEventListener('sporic_testimonials_updated', handleTestimonialsUpdate);
+      window.removeEventListener('sporic_rankings_updated', handleRankingsUpdate);
+      window.removeEventListener('storage', handleTestimonialsUpdate);
+      window.removeEventListener('storage', handleRankingsUpdate);
+    };
+  }, []);
 
   useEffect(() => {
     async function loadUserData() {
@@ -858,6 +942,198 @@ export default function Dashboard() {
     }
   };
 
+  // --- TESTIMONIALS HANDLERS (ADMIN ONLY) ---
+  const handleOpenAddTestimonial = () => {
+    setEditingTestimonial(null);
+    setTestimonialQuote('');
+    setTestimonialName('');
+    setTestimonialDesignation('');
+    setTestimonialCompany('');
+    setTestimonialError('');
+    setShowTestimonialModal(true);
+  };
+
+  const handleOpenEditTestimonial = (item) => {
+    setEditingTestimonial(item);
+    setTestimonialQuote(item.quote || '');
+    setTestimonialName(item.name || '');
+    setTestimonialDesignation(item.designation || '');
+    setTestimonialCompany(item.company || '');
+    setTestimonialError('');
+    setShowTestimonialModal(true);
+  };
+
+  const handleSaveTestimonialSubmit = async (e) => {
+    e.preventDefault();
+    if (!testimonialQuote.trim() || !testimonialName.trim() || !testimonialCompany.trim()) {
+      setTestimonialError('Please enter quote, executive name, and company.');
+      return;
+    }
+
+    setTestimonialSaving(true);
+    setTestimonialError('');
+
+    try {
+      const payload = {
+        quote: testimonialQuote.trim(),
+        name: testimonialName.trim(),
+        designation: testimonialDesignation.trim() || 'Corporate Executive',
+        company: testimonialCompany.trim(),
+      };
+
+      if (editingTestimonial) {
+        await api.updateTestimonial(editingTestimonial.id, payload);
+        setActionSuccess(`✓ Testimonial from '${testimonialName}' updated successfully.`);
+      } else {
+        await api.addTestimonial(payload);
+        setActionSuccess(`✓ Testimonial from '${testimonialName}' added successfully.`);
+      }
+
+      refreshAllData();
+      setShowTestimonialModal(false);
+      setEditingTestimonial(null);
+      setTimeout(() => setActionSuccess(''), 5000);
+    } catch (err) {
+      setTestimonialError(`Save failed: ${err.message}`);
+    } finally {
+      setTestimonialSaving(false);
+    }
+  };
+
+  const handleConfirmDeleteTestimonial = async () => {
+    if (!deletingTestimonial) return;
+    try {
+      await api.deleteTestimonial(deletingTestimonial.id);
+      refreshAllData();
+      setActionSuccess('Corporate testimonial deleted successfully.');
+      setDeletingTestimonial(null);
+      setTimeout(() => setActionSuccess(''), 4000);
+    } catch (err) {
+      alert(`Delete failed: ${err.message}`);
+    }
+  };
+
+  // --- RANKINGS & NAAC HANDLERS (ADMIN ONLY) ---
+  const handleOpenAddRanking = () => {
+    setEditingRanking(null);
+    setRankingAgency('');
+    setRankingYear(new Date().getFullYear().toString());
+    setRankingValue('');
+    setRankingCategory('');
+    setRankingScope('National');
+    setRankingDesc('');
+    setRankingError('');
+    setShowRankingModal(true);
+  };
+
+  const handleOpenEditRanking = (item) => {
+    setEditingRanking(item);
+    setRankingAgency(item.agency || '');
+    setRankingYear(String(item.year || ''));
+    setRankingValue(item.rank || '');
+    setRankingCategory(item.category || '');
+    setRankingScope(item.scope || 'National');
+    setRankingDesc(item.description || '');
+    setRankingError('');
+    setShowRankingModal(true);
+  };
+
+  const handleSaveRankingSubmit = async (e) => {
+    e.preventDefault();
+    if (!rankingAgency.trim() || !rankingValue.trim() || !rankingCategory.trim()) {
+      setRankingError('Please fill Agency, Rank / Position, and Category.');
+      return;
+    }
+
+    setRankingSaving(true);
+    setRankingError('');
+
+    try {
+      const payload = {
+        agency: rankingAgency.trim(),
+        year: rankingYear.trim() || undefined,
+        rank: rankingValue.trim(),
+        category: rankingCategory.trim(),
+        scope: rankingScope || 'National',
+        description: rankingDesc.trim() || undefined,
+      };
+
+      if (editingRanking) {
+        await api.updateRanking(editingRanking.id, payload);
+        setActionSuccess(`✓ Ranking record '${rankingAgency}' updated successfully.`);
+      } else {
+        await api.addRanking(payload);
+        setActionSuccess(`✓ Ranking record '${rankingAgency}' added successfully.`);
+      }
+
+      refreshAllData();
+      setShowRankingModal(false);
+      setEditingRanking(null);
+      setTimeout(() => setActionSuccess(''), 5000);
+    } catch (err) {
+      setRankingError(`Save failed: ${err.message}`);
+    } finally {
+      setRankingSaving(false);
+    }
+  };
+
+  const handleConfirmDeleteRanking = async () => {
+    if (!deletingRanking) return;
+    try {
+      await api.deleteRanking(deletingRanking.id);
+      refreshAllData();
+      setActionSuccess('Ranking record removed.');
+      setDeletingRanking(null);
+      setTimeout(() => setActionSuccess(''), 4000);
+    } catch (err) {
+      alert(`Delete failed: ${err.message}`);
+    }
+  };
+
+  const handleOpenEditNaac = () => {
+    const current = naacDataState || getNaacData();
+    setNaacAgency(current.agency || 'NAAC');
+    setNaacFullName(current.fullName || 'National Assessment and Accreditation Council');
+    setNaacGrade(current.grade || 'A++');
+    setNaacScore(current.score || '3.66 CGPA out of 4');
+    setNaacCycle(current.cycle || '4th Cycle in 2021');
+    setNaacDesc(current.description || '');
+    setNaacError('');
+    setShowNaacModal(true);
+  };
+
+  const handleSaveNaacSubmit = async (e) => {
+    e.preventDefault();
+    if (!naacGrade.trim() || !naacScore.trim()) {
+      setNaacError('Please enter NAAC Grade and CGPA score.');
+      return;
+    }
+
+    setNaacSaving(true);
+    setNaacError('');
+
+    try {
+      const payload = {
+        agency: naacAgency.trim() || 'NAAC',
+        fullName: naacFullName.trim() || 'National Assessment and Accreditation Council',
+        grade: naacGrade.trim(),
+        score: naacScore.trim(),
+        cycle: naacCycle.trim(),
+        description: naacDesc.trim(),
+      };
+
+      await api.updateNaac(payload);
+      refreshAllData();
+      setShowNaacModal(false);
+      setActionSuccess('✓ NAAC Accreditation record updated successfully.');
+      setTimeout(() => setActionSuccess(''), 5000);
+    } catch (err) {
+      setNaacError(`Save failed: ${err.message}`);
+    } finally {
+      setNaacSaving(false);
+    }
+  };
+
   // --- ENQUIRIES HANDLER ---
   const handleUpdateQueryStatus = (enquiryId, newStatus) => {
     updateEnquiryStatus(enquiryId, newStatus);
@@ -1040,6 +1316,20 @@ export default function Dashboard() {
                   <UsersIcon size={16} />
                   Users ({usersList.length})
                 </button>
+                <button
+                  className={`${styles.tabBtn} ${activeTab === 'testimonials' ? styles.tabBtnActive : ''}`}
+                  onClick={() => setActiveTab('testimonials')}
+                >
+                  <StarIcon size={16} />
+                  Corporate Testimonials ({testimonialsList.length})
+                </button>
+                <button
+                  className={`${styles.tabBtn} ${activeTab === 'rankings' ? styles.tabBtnActive : ''}`}
+                  onClick={() => setActiveTab('rankings')}
+                >
+                  <AwardIcon size={16} />
+                  University Rankings ({rankingsListState.length})
+                </button>
               </div>
 
               {/* TAB 0: Overview Command Center */}
@@ -1181,6 +1471,24 @@ export default function Dashboard() {
                         </div>
                         <span className={styles.actionArrow}>→</span>
                       </div>
+
+                      <div className={styles.actionCard} onClick={() => setActiveTab('testimonials')}>
+                        <div className={styles.actionCardIcon}><StarIcon size={22} /></div>
+                        <div className={styles.actionCardBody}>
+                          <h4 className={styles.actionCardTitle}>Corporate Testimonials</h4>
+                          <p className={styles.actionCardDesc}>Manage executive testimonials and corporate feedback on /corporate-testimonials.</p>
+                        </div>
+                        <span className={styles.actionArrow}>→</span>
+                      </div>
+
+                      <div className={styles.actionCard} onClick={() => setActiveTab('rankings')}>
+                        <div className={styles.actionCardIcon}><AwardIcon size={22} /></div>
+                        <div className={styles.actionCardBody}>
+                          <h4 className={styles.actionCardTitle}>University Rankings</h4>
+                          <p className={styles.actionCardDesc}>Curate institutional rankings (NIRF, QS, THE) and NAAC accreditation on /about.</p>
+                        </div>
+                        <span className={styles.actionArrow}>→</span>
+                      </div>
                     </div>
                   </div>
 
@@ -1257,22 +1565,22 @@ export default function Dashboard() {
               {/* TAB 1: Courses Management */}
               {activeTab === 'courses' && (
                 <GlassCard padding="lg">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-                    <div>
-                      <h3 style={{ color: '#111', fontSize: '1.25rem', fontWeight: 700 }}>Active Course Catalog</h3>
-                      <p style={{ color: '#667085', fontSize: '0.85rem' }}>
+                  <CmsSectionHeader
+                    title="Active Course Catalog"
+                    description={
+                      <>
                         Courses published here appear on <strong>/courses</strong>, <strong>/technology</strong>, <strong>/management</strong>, and <strong>/personality</strong>.
-                      </p>
-                    </div>
-                    <button className="btn btn-primary" onClick={() => {
+                      </>
+                    }
+                    viewLink="/courses"
+                    viewLabel="View Courses"
+                    onAdd={() => {
                       setCourseImagePreview('');
                       setCourseImageError('');
                       setShowAddModal(true);
-                    }}>
-                      <PlusIcon size={15} />
-                      Add New Course
-                    </button>
-                  </div>
+                    }}
+                    addLabel="Add Course"
+                  />
 
                   <div className={styles.tableWrapper}>
                     <table className={styles.dataTable}>
@@ -1348,23 +1656,18 @@ export default function Dashboard() {
               {/* TAB: Corporate Training CMS (ADMIN ONLY) */}
               {activeTab === 'corporate-training' && (
                 <GlassCard padding="lg">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-                    <div>
-                      <h3 style={{ color: '#111', fontSize: '1.25rem', fontWeight: 700 }}>Corporate Training Management</h3>
-                      <p style={{ color: '#667085', fontSize: '0.85rem' }}>
+                  <CmsSectionHeader
+                    title="Corporate Training Management"
+                    description={
+                      <>
                         Add, edit, or delete corporate training records that appear dynamically on <strong>/corporate-training</strong>.
-                      </p>
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                      <Link to="/corporate-training" target="_blank" className="btn btn-secondary">
-                        View /corporate-training ↗
-                      </Link>
-                      <button className="btn btn-primary" onClick={handleOpenAddCorporateTraining}>
-<PlusIcon size={15} />
-                        Add Corporate Training
-                      </button>
-                    </div>
-                  </div>
+                      </>
+                    }
+                    viewLink="/corporate-training"
+                    viewLabel="View Corporate Training"
+                    onAdd={handleOpenAddCorporateTraining}
+                    addLabel="Add Corporate Training"
+                  />
 
                   {/* Admin Search and Year Filter Bar */}
                   <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
@@ -1556,23 +1859,18 @@ export default function Dashboard() {
               {/* TAB 3: Previous Programs Management (ADMIN ONLY) */}
               {activeTab === 'programs' && (
                 <GlassCard padding="lg">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-                    <div>
-                      <h3 style={{ color: '#111', fontSize: '1.25rem', fontWeight: 700 }}>Previous Programs CMS</h3>
-                      <p style={{ color: '#667085', fontSize: '0.85rem' }}>
+                  <CmsSectionHeader
+                    title="Previous Programs CMS"
+                    description={
+                      <>
                         Manage landmark corporate cohorts and training programs displayed on the public <strong>/about</strong> page.
-                      </p>
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.75rem' }}>
-                      <Link to="/about#previous-programs" target="_blank" className="btn btn-secondary">
-                        View on /about ↗
-                      </Link>
-                      <button className="btn btn-primary" onClick={handleOpenAddProgram}>
-                        <PlusIcon size={15} />
-                        Add Previous Program
-                      </button>
-                    </div>
-                  </div>
+                      </>
+                    }
+                    viewLink="/about#previous-programs"
+                    viewLabel="View About Page"
+                    onAdd={handleOpenAddProgram}
+                    addLabel="Add Program"
+                  />
 
                   <div className={styles.tableWrapper}>
                     <table className={styles.dataTable}>
@@ -1635,23 +1933,18 @@ export default function Dashboard() {
               {/* TAB 4: Gallery CMS (ADMIN ONLY) */}
               {activeTab === 'gallery' && (
                 <GlassCard padding="lg">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-                    <div>
-                      <h3 style={{ color: '#111', fontSize: '1.25rem', fontWeight: 700 }}>Gallery CMS</h3>
-                      <p style={{ color: '#667085', fontSize: '0.85rem' }}>
+                  <CmsSectionHeader
+                    title="Gallery CMS"
+                    description={
+                      <>
                         Add, edit, or delete photos that appear on <strong>/gallery</strong>.
-                      </p>
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.75rem' }}>
-                      <Link to="/gallery" target="_blank" className="btn btn-secondary">
-                        View /gallery ↗
-                      </Link>
-                      <button className="btn btn-primary" onClick={handleOpenAddPhoto}>
-                        <PlusIcon size={15} />
-                        Add New Photo
-                      </button>
-                    </div>
-                  </div>
+                      </>
+                    }
+                    viewLink="/gallery"
+                    viewLabel="View Gallery"
+                    onAdd={handleOpenAddPhoto}
+                    addLabel="Add Photo"
+                  />
 
                   <div className={styles.tableWrapper}>
                     <table className={styles.dataTable}>
@@ -1705,23 +1998,18 @@ export default function Dashboard() {
               {/* BANNERS MANAGEMENT */}
               {activeTab === 'banners' && (
                 <GlassCard padding="lg">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-                    <div>
-                      <h3 style={{ color: '#111', fontSize: '1.25rem', fontWeight: 700 }}>Banners</h3>
-                      <p style={{ color: '#667085', fontSize: '0.85rem' }}>
+                  <CmsSectionHeader
+                    title="Banners"
+                    description={
+                      <>
                         Manage the slides shown in the homepage Hero. Only <strong>active</strong> banners appear, ordered by their display order.
-                      </p>
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.75rem' }}>
-                      <Link to="/" target="_blank" className="btn btn-secondary">
-                        View Homepage ↗
-                      </Link>
-                      <button className="btn btn-primary" onClick={handleOpenAddBanner}>
-                        <PlusIcon size={15} />
-                        Add Banner
-                      </button>
-                    </div>
-                  </div>
+                      </>
+                    }
+                    viewLink="/"
+                    viewLabel="View Banners"
+                    onAdd={handleOpenAddBanner}
+                    addLabel="Add Banner"
+                  />
 
                   <div className={styles.tableWrapper}>
                     <table className={styles.dataTable}>
@@ -1830,6 +2118,277 @@ export default function Dashboard() {
                     </table>
                   </div>
                 </GlassCard>
+              )}
+
+              {/* TAB: Corporate Testimonials (ADMIN ONLY) */}
+              {activeTab === 'testimonials' && (
+                <GlassCard padding="lg">
+                  <CmsSectionHeader
+                    title="Corporate Testimonials Management"
+                    description={
+                      <>
+                        Add, edit, or delete corporate client testimonials displayed dynamically on <strong>/corporate-testimonials</strong>.
+                      </>
+                    }
+                    viewLink="/corporate-testimonials"
+                    viewLabel="View Testimonials"
+                    onAdd={handleOpenAddTestimonial}
+                    addLabel="Add Testimonial"
+                  />
+
+                  {/* Search filter */}
+                  <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+                    <input
+                      type="text"
+                      placeholder="Filter by executive name, company, designation, or quote..."
+                      value={testimonialSearch}
+                      onChange={(e) => setTestimonialSearch(e.target.value)}
+                      style={{ flex: '1 1 300px', padding: '0.55rem 0.85rem', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '0.85rem' }}
+                    />
+                  </div>
+
+                  <div className={styles.tableWrapper}>
+                    <table className={styles.dataTable}>
+                      <thead>
+                        <tr>
+                          <th style={{ width: '22%' }}>Executive & Designation</th>
+                          <th style={{ width: '20%' }}>Company / Organization</th>
+                          <th style={{ width: '46%' }}>Testimonial Quote</th>
+                          <th style={{ width: '12%' }}>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {testimonialsList
+                          .filter((item) => {
+                            const q = testimonialSearch.toLowerCase().trim();
+                            if (!q) return true;
+                            return (
+                              item.name?.toLowerCase().includes(q) ||
+                              item.designation?.toLowerCase().includes(q) ||
+                              item.company?.toLowerCase().includes(q) ||
+                              item.quote?.toLowerCase().includes(q)
+                            );
+                          })
+                          .map((item) => (
+                            <tr key={item.id}>
+                              <td>
+                                <strong style={{ color: '#0F172A', display: 'block', fontSize: '0.88rem' }}>
+                                  {item.name}
+                                </strong>
+                                <span style={{ fontSize: '0.76rem', color: '#64748B' }}>
+                                  {item.designation}
+                                </span>
+                              </td>
+                              <td>
+                                <span style={{ fontWeight: 600, color: '#0B2A6F', fontSize: '0.84rem' }}>
+                                  {item.company}
+                                </span>
+                              </td>
+                              <td>
+                                <div style={{ fontSize: '0.82rem', color: '#334155', fontStyle: 'italic', lineHeight: '1.4' }}>
+                                  &ldquo;{item.quote.length > 150 ? item.quote.substring(0, 150) + '...' : item.quote}&rdquo;
+                                </div>
+                              </td>
+                              <td>
+                                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                                  <button
+                                    className="btn btn-secondary"
+                                    style={{ padding: '0.25rem 0.55rem', fontSize: '0.78rem' }}
+                                    onClick={() => handleOpenEditTestimonial(item)}
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    className="btn btn-ghost"
+                                    style={{ padding: '0.25rem 0.55rem', fontSize: '0.78rem', color: '#DC2626' }}
+                                    onClick={() => setDeletingTestimonial(item)}
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        {testimonialsList.length === 0 && (
+                          <tr>
+                            <td colSpan={4} style={{ textAlign: 'center', padding: '2rem', color: '#64748B' }}>
+                              No testimonials found. Click "Add Testimonial" to create your first entry.
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </GlassCard>
+              )}
+
+              {/* TAB: University Rankings & Accreditations (ADMIN ONLY) */}
+              {activeTab === 'rankings' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+                  {/* Top: Featured NAAC Accreditation Card */}
+                  <GlassCard padding="lg">
+                    <CmsSectionHeader
+                      badge="Featured Accreditation"
+                      badgeNote="Displayed in prime hero spotlight on /about"
+                      title={`${(naacDataState || getNaacData()).agency} — ${(naacDataState || getNaacData()).fullName}`}
+                      viewLink="/about#rankings"
+                      viewLabel="View About Page"
+                      onAdd={handleOpenEditNaac}
+                      addLabel="Edit NAAC Accreditation"
+                      addIcon={null}
+                    />
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', background: '#F8FAFC', padding: '1.25rem', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
+                      <div>
+                        <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600, textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Grade Awarded</span>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#D97706' }}>
+                          {(naacDataState || getNaacData()).grade}
+                        </div>
+                      </div>
+                      <div>
+                        <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600, textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Accreditation Score</span>
+                        <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0F2252' }}>
+                          {(naacDataState || getNaacData()).score}
+                        </div>
+                      </div>
+                      <div>
+                        <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600, textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Assessment Cycle / Year</span>
+                        <div style={{ fontSize: '1.05rem', fontWeight: 600, color: '#334155' }}>
+                          {(naacDataState || getNaacData()).cycle}
+                        </div>
+                      </div>
+                      <div style={{ gridColumn: '1 / -1' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 600, textTransform: 'uppercase', display: 'block', marginBottom: '0.25rem' }}>Institutional Citation</span>
+                        <p style={{ margin: 0, fontSize: '0.86rem', color: '#475569', lineHeight: '1.5' }}>
+                          {(naacDataState || getNaacData()).description}
+                        </p>
+                      </div>
+                    </div>
+                  </GlassCard>
+
+                  {/* Lower: Institutional Rankings Records */}
+                  <GlassCard padding="lg">
+                    <CmsSectionHeader
+                      title="National & International Ranking Records"
+                      description={
+                        <>
+                          Manage official rankings (NIRF, QS, Times Higher Education, Shanghai ARWU) shown on <strong>/about#rankings</strong>.
+                        </>
+                      }
+                      viewLink="/about#rankings"
+                      viewLabel="View About Page"
+                      onAdd={handleOpenAddRanking}
+                      addLabel="Add Ranking"
+                    />
+
+                    {/* Search & Scope Filter */}
+                    <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
+                      <input
+                        type="text"
+                        placeholder="Search by ranking agency, rank position, subject, or year..."
+                        value={rankingSearch}
+                        onChange={(e) => setRankingSearch(e.target.value)}
+                        style={{ flex: '1 1 300px', padding: '0.55rem 0.85rem', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '0.85rem' }}
+                      />
+                    </div>
+
+                    <div className={styles.tableWrapper}>
+                      <table className={styles.dataTable}>
+                        <thead>
+                          <tr>
+                            <th style={{ width: '18%' }}>Agency & Year</th>
+                            <th style={{ width: '14%' }}>Rank / Position</th>
+                            <th style={{ width: '18%' }}>Category / Field</th>
+                            <th style={{ width: '14%' }}>Scope</th>
+                            <th style={{ width: '24%' }}>Official Description</th>
+                            <th style={{ width: '12%' }}>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {rankingsListState
+                            .filter((item) => {
+                              const q = rankingSearch.toLowerCase().trim();
+                              if (!q) return true;
+                              return (
+                                item.agency?.toLowerCase().includes(q) ||
+                                String(item.year || '').toLowerCase().includes(q) ||
+                                item.rank?.toLowerCase().includes(q) ||
+                                item.category?.toLowerCase().includes(q) ||
+                                item.scope?.toLowerCase().includes(q) ||
+                                item.description?.toLowerCase().includes(q)
+                              );
+                            })
+                            .map((item) => (
+                              <tr key={item.id}>
+                                <td>
+                                  <strong style={{ color: '#0F172A', display: 'block', fontSize: '0.88rem' }}>
+                                    {item.agency}
+                                  </strong>
+                                  <span style={{ fontSize: '0.76rem', color: '#64748B' }}>
+                                    {item.year || 'Latest'}
+                                  </span>
+                                </td>
+                                <td>
+                                  <span style={{ display: 'inline-block', fontWeight: 800, color: '#0B2A6F', fontSize: '0.92rem', padding: '0.2rem 0.55rem', background: '#EFF6FF', borderRadius: '6px', border: '1px solid #BFDBFE' }}>
+                                    {item.rank}
+                                  </span>
+                                </td>
+                                <td>
+                                  <span style={{ fontWeight: 600, color: '#1E293B', fontSize: '0.84rem' }}>
+                                    {item.category}
+                                  </span>
+                                </td>
+                                <td>
+                                  <span
+                                    className="tag"
+                                    style={{
+                                      fontSize: '0.74rem',
+                                      fontWeight: 600,
+                                      background: item.scope === 'International' ? '#F3E8FF' : '#E0F2FE',
+                                      color: item.scope === 'International' ? '#6B21A8' : '#0369A1',
+                                      border: `1px solid ${item.scope === 'International' ? '#D8B4FE' : '#BAE6FD'}`,
+                                    }}
+                                  >
+                                    {item.scope || 'National'}
+                                  </span>
+                                </td>
+                                <td>
+                                  <div style={{ fontSize: '0.78rem', color: '#475569', lineHeight: '1.4' }}>
+                                    {item.description || '—'}
+                                  </div>
+                                </td>
+                                <td>
+                                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                                    <button
+                                      className="btn btn-secondary"
+                                      style={{ padding: '0.25rem 0.55rem', fontSize: '0.78rem' }}
+                                      onClick={() => handleOpenEditRanking(item)}
+                                    >
+                                      Edit
+                                    </button>
+                                    <button
+                                      className="btn btn-ghost"
+                                      style={{ padding: '0.25rem 0.55rem', fontSize: '0.78rem', color: '#DC2626' }}
+                                      onClick={() => setDeletingRanking(item)}
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          {rankingsListState.length === 0 && (
+                            <tr>
+                              <td colSpan={6} style={{ textAlign: 'center', padding: '2rem', color: '#64748B' }}>
+                                No ranking records found. Click "Add Ranking Record" to create your first entry.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </GlassCard>
+                </div>
               )}
             </>
           )}
@@ -2647,6 +3206,284 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ====================================================
+          MODAL: ADD / EDIT CORPORATE TESTIMONIAL (ADMIN ONLY)
+         ==================================================== */}
+      {showTestimonialModal && (
+        <AdminModal
+          open={showTestimonialModal}
+          onClose={() => setShowTestimonialModal(false)}
+          title="Add Corporate Testimonial"
+          isEdit={!!editingTestimonial}
+          editTitle="Edit Corporate Testimonial"
+          onSubmit={handleSaveTestimonialSubmit}
+          error={testimonialError}
+          submitting={testimonialSaving}
+          submittingLabel="Saving Testimonial..."
+          submitLabel={editingTestimonial ? 'Update Testimonial' : 'Save Testimonial'}
+        >
+          <div className={modalStyles.row2}>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Executive / Author Name *</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Rajesh Kannan / Dr. Priya Sundar"
+                value={testimonialName}
+                onChange={(e) => setTestimonialName(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Designation / Role</label>
+              <input
+                type="text"
+                placeholder="e.g. Senior Vice President / Head of L&D"
+                value={testimonialDesignation}
+                onChange={(e) => setTestimonialDesignation(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+          </div>
+
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Company / Corporate Partner *</label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Tata Consultancy Services / Renault Nissan / L&T"
+              value={testimonialCompany}
+              onChange={(e) => setTestimonialCompany(e.target.value)}
+              className={modalStyles.input}
+            />
+          </div>
+
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Testimonial Quote / Feedback *</label>
+            <textarea
+              required
+              placeholder="Enter the delegate or partner review quote..."
+              value={testimonialQuote}
+              onChange={(e) => setTestimonialQuote(e.target.value)}
+              className={modalStyles.textarea}
+              style={{ minHeight: '100px' }}
+            />
+          </div>
+        </AdminModal>
+      )}
+
+      {/* Delete Testimonial Confirmation */}
+      {deletingTestimonial && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 10001, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: '#0F2252', padding: '1.75rem', borderRadius: '14px', maxWidth: '440px', color: '#FFF' }}>
+            <h4>Delete Corporate Testimonial?</h4>
+            <p style={{ color: '#CBD5E1', fontSize: '0.85rem' }}>
+              Are you sure you want to delete the testimonial from <strong>{deletingTestimonial.name}</strong> ({deletingTestimonial.company})? This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.25rem' }}>
+              <button onClick={() => setDeletingTestimonial(null)} className="btn btn-secondary">Cancel</button>
+              <button onClick={handleConfirmDeleteTestimonial} className="btn btn-primary" style={{ background: '#DC2626' }}>Delete Testimonial</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ====================================================
+          MODAL: ADD / EDIT RANKING RECORD (ADMIN ONLY)
+         ==================================================== */}
+      {showRankingModal && (
+        <AdminModal
+          open={showRankingModal}
+          onClose={() => setShowRankingModal(false)}
+          title="Add Ranking Record"
+          isEdit={!!editingRanking}
+          editTitle="Edit Ranking Record"
+          onSubmit={handleSaveRankingSubmit}
+          error={rankingError}
+          submitting={rankingSaving}
+          submittingLabel="Saving Ranking..."
+          submitLabel={editingRanking ? 'Update Ranking' : 'Save Ranking'}
+        >
+          <div className={modalStyles.row2}>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Ranking Agency *</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. NIRF, QS World, Times Higher Education, ARWU"
+                value={rankingAgency}
+                onChange={(e) => setRankingAgency(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Year</label>
+              <input
+                type="text"
+                placeholder="e.g. 2024, 2023"
+                value={rankingYear}
+                onChange={(e) => setRankingYear(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+          </div>
+
+          <div className={modalStyles.row2}>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Rank / Position / Score *</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. #8, #11, 101-125, Top 200"
+                value={rankingValue}
+                onChange={(e) => setRankingValue(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Scope *</label>
+              <select
+                value={rankingScope}
+                onChange={(e) => setRankingScope(e.target.value)}
+                className={modalStyles.select}
+              >
+                <option value="National">National (India)</option>
+                <option value="International">International (Global / World)</option>
+              </select>
+            </div>
+          </div>
+
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Category / Discipline *</label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. University, Engineering, Research, Computer Science, Overall"
+              value={rankingCategory}
+              onChange={(e) => setRankingCategory(e.target.value)}
+              className={modalStyles.input}
+            />
+          </div>
+
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Official Description / Detail</label>
+            <textarea
+              placeholder="e.g. Ranked 8th in University category by National Institutional Ranking Framework (NIRF)..."
+              value={rankingDesc}
+              onChange={(e) => setRankingDesc(e.target.value)}
+              className={modalStyles.textarea}
+              style={{ minHeight: '70px' }}
+            />
+          </div>
+        </AdminModal>
+      )}
+
+      {/* Delete Ranking Confirmation */}
+      {deletingRanking && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 10001, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: '#0F2252', padding: '1.75rem', borderRadius: '14px', maxWidth: '440px', color: '#FFF' }}>
+            <h4>Delete Ranking Record?</h4>
+            <p style={{ color: '#CBD5E1', fontSize: '0.85rem' }}>
+              Are you sure you want to delete <strong>{deletingRanking.agency} ({deletingRanking.rank})</strong>? This action cannot be undone.
+            </p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.25rem' }}>
+              <button onClick={() => setDeletingRanking(null)} className="btn btn-secondary">Cancel</button>
+              <button onClick={handleConfirmDeleteRanking} className="btn btn-primary" style={{ background: '#DC2626' }}>Delete Record</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ====================================================
+          MODAL: EDIT NAAC ACCREDITATION (ADMIN ONLY)
+         ==================================================== */}
+      {showNaacModal && (
+        <AdminModal
+          open={showNaacModal}
+          onClose={() => setShowNaacModal(false)}
+          title="Edit NAAC Accreditation"
+          isEdit={true}
+          editTitle="Edit Featured NAAC Accreditation"
+          onSubmit={handleSaveNaacSubmit}
+          error={naacError}
+          submitting={naacSaving}
+          submittingLabel="Saving NAAC Data..."
+          submitLabel="Update NAAC Accreditation"
+        >
+          <div className={modalStyles.row2}>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Agency Code</label>
+              <input
+                type="text"
+                required
+                value={naacAgency}
+                onChange={(e) => setNaacAgency(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Full Institutional Body</label>
+              <input
+                type="text"
+                required
+                value={naacFullName}
+                onChange={(e) => setNaacFullName(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+          </div>
+
+          <div className={modalStyles.row2}>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Grade Awarded *</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. A++"
+                value={naacGrade}
+                onChange={(e) => setNaacGrade(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Accreditation Score (CGPA) *</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. 3.66 CGPA out of 4"
+                value={naacScore}
+                onChange={(e) => setNaacScore(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+          </div>
+
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Assessment Cycle & Year *</label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. 4th Cycle in 2021"
+              value={naacCycle}
+              onChange={(e) => setNaacCycle(e.target.value)}
+              className={modalStyles.input}
+            />
+          </div>
+
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Institutional Accreditation Description</label>
+            <textarea
+              required
+              placeholder="Description of the NAAC accreditation..."
+              value={naacDesc}
+              onChange={(e) => setNaacDesc(e.target.value)}
+              className={modalStyles.textarea}
+              style={{ minHeight: '80px' }}
+            />
+          </div>
+        </AdminModal>
       )}
     </div>
   );

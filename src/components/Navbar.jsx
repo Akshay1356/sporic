@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollPosition } from '../hooks/useScrollPosition';
@@ -15,15 +15,18 @@ const navLinks = [
   { label: 'Contact', path: '/contact' },
 ];
 
-const courseLinks = [
+const corporateProgramLinks = [
+  { label: 'All Courses', path: '/courses' },
   { label: 'Technology', path: '/technology' },
   { label: 'Management', path: '/management' },
-  { label: 'Personality', path: '/personality' },
+  { label: 'Leadership & Personality', path: '/personality' },
 ];
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [coursesOpen, setCoursesOpen] = useState(false);
+  const [programsOpen, setProgramsOpen] = useState(false);
+  const [mobileProgramsOpen, setMobileProgramsOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const [currentUser, setCurrentUser] = useState(null);
   const scrollY = useScrollPosition();
   const location = useLocation();
@@ -44,11 +47,23 @@ export default function Navbar() {
     }
   }, [location.pathname]);
 
-  // Close mobile menu on route change
+  // Close mobile menu and dropdowns on route change
   useEffect(() => {
     setMobileOpen(false);
-    setCoursesOpen(false);
+    setProgramsOpen(false);
+    setMobileProgramsOpen(false);
   }, [location.pathname]);
+
+  // Close desktop dropdown on outside click
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setProgramsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
 
   const handleLogout = () => {
     api.logout();
@@ -102,26 +117,52 @@ export default function Navbar() {
              ==================================================== */}
           <nav className={styles.desktopNav} aria-label="Primary navigation">
             {navLinks.map((link) => (
-              link.label === 'Courses' ? (
-                <div className={styles.dropdown} key={link.path}>
+              link.label === 'Corporate Programs' ? (
+                <div
+                  className={styles.dropdown}
+                  key={link.path}
+                  ref={dropdownRef}
+                  onMouseEnter={() => setProgramsOpen(true)}
+                  onMouseLeave={() => setProgramsOpen(false)}
+                >
                   <button
                     type="button"
-                    className={`${styles.navLink} ${location.pathname.startsWith('/courses') || courseLinks.some((item) => location.pathname.startsWith(item.path)) ? styles.navLinkActive : ''}`}
-                    onClick={() => setCoursesOpen((open) => !open)}
-                    aria-expanded={coursesOpen}
+                    className={`${styles.navLink} ${
+                      location.pathname.startsWith('/courses') ||
+                      corporateProgramLinks.some((item) => location.pathname === item.path)
+                        ? styles.navLinkActive
+                        : ''
+                    }`}
+                    onClick={() => setProgramsOpen((open) => !open)}
+                    aria-expanded={programsOpen}
+                    aria-haspopup="true"
                   >
-                    Courses
+                    Corporate Programs <span className={styles.dropdownArrow}>{programsOpen ? '▴' : '▾'}</span>
                   </button>
-                  {coursesOpen && (
-                    <div className={styles.dropdownMenu}>
-                      <NavLink to="/courses" className={styles.dropdownItem}>All Courses</NavLink>
-                      {courseLinks.map((item) => (
-                        <NavLink key={item.path} to={item.path} className={styles.dropdownItem}>
-                          {item.label}
-                        </NavLink>
-                      ))}
-                    </div>
-                  )}
+                  <AnimatePresence>
+                    {programsOpen && (
+                      <motion.div
+                        className={styles.dropdownMenu}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 4 }}
+                        transition={{ duration: 0.15, ease: 'easeOut' }}
+                      >
+                        {corporateProgramLinks.map((item) => (
+                          <NavLink
+                            key={item.path}
+                            to={item.path}
+                            className={({ isActive }) =>
+                              `${styles.dropdownItem} ${isActive ? styles.activeDropdownItem : ''}`
+                            }
+                            onClick={() => setProgramsOpen(false)}
+                          >
+                            {item.label}
+                          </NavLink>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               ) : (
                 <NavLink
@@ -222,26 +263,49 @@ export default function Navbar() {
             >
               <nav className={styles.mobileNav} aria-label="Mobile navigation">
                 {navLinks.map((link) => (
-                  link.label === 'Courses' ? (
+                  link.label === 'Corporate Programs' ? (
                     <div key={link.path} className={styles.mobileDropdown}>
                       <button
                         type="button"
-                        className={styles.mobileNavLink}
-                        onClick={() => setCoursesOpen((open) => !open)}
-                        aria-expanded={coursesOpen}
+                        className={`${styles.mobileNavLink} ${
+                          location.pathname.startsWith('/courses') ||
+                          corporateProgramLinks.some((item) => location.pathname === item.path)
+                            ? styles.mobileNavLinkActive
+                            : ''
+                        }`}
+                        onClick={() => setMobileProgramsOpen((open) => !open)}
+                        aria-expanded={mobileProgramsOpen}
                       >
-                        Courses <span>{coursesOpen ? '⌃' : '⌄'}</span>
+                        <span>Corporate Programs</span>
+                        <span className={styles.mobileDropdownArrow}>{mobileProgramsOpen ? '▴' : '▾'}</span>
                       </button>
-                      {coursesOpen && (
-                        <div className={styles.mobileDropdownMenu}>
-                          <NavLink to="/courses" className={styles.mobileDropdownItem}>All Courses</NavLink>
-                          {courseLinks.map((item) => (
-                            <NavLink key={item.path} to={item.path} className={styles.mobileDropdownItem}>
-                              {item.label}
-                            </NavLink>
-                          ))}
-                        </div>
-                      )}
+                      <AnimatePresence>
+                        {mobileProgramsOpen && (
+                          <motion.div
+                            className={styles.mobileDropdownMenu}
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.2, ease: 'easeOut' }}
+                          >
+                            {corporateProgramLinks.map((item) => (
+                              <NavLink
+                                key={item.path}
+                                to={item.path}
+                                className={({ isActive }) =>
+                                  `${styles.mobileDropdownItem} ${isActive ? styles.mobileDropdownItemActive : ''}`
+                                }
+                                onClick={() => {
+                                  setMobileOpen(false);
+                                  setMobileProgramsOpen(false);
+                                }}
+                              >
+                                {item.label}
+                              </NavLink>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   ) : (
                     <NavLink

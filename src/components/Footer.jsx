@@ -19,8 +19,9 @@ export default function Footer() {
             </p>
             <div className={styles.address}>
               <p className={styles.recipient}>Dean, SpoRIC</p>
-              <p>AB2-102 SMEC Research Scholar Room</p>
-              <p>VIT Chennai Campus, Vandalur-Kelambakkam Road</p>
+              <p>AB3-007</p>
+              <p>VIT, Chennai Campus</p>
+              <p>Vandalur – Kelambakkam Road</p>
               <p>Chennai - 600 127, Tamil Nadu, INDIA</p>
             </div>
           </div>

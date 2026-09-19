@@ -1,16 +1,7 @@
-import { useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
+import { getAllTestimonials } from '../data/testimonialsData';
 import styles from './CorporateTestimonials.module.css';
-
-const testimonials = [
-  {
-    quote:
-      'The program helped our teams develop practical capabilities aligned with our technology roadmap.',
-    name: 'Senior HR / L&D Leader',
-    company: 'Company Name',
-    initial: 'S',
-  },
-];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 32 },
@@ -40,10 +31,21 @@ function QuoteIcon() {
 }
 
 export default function CorporateTestimonials() {
+  const [testimonials, setTestimonials] = useState(() => getAllTestimonials());
   const heroRef = useRef(null);
   const cardsRef = useRef(null);
   const heroInView = useInView(heroRef, { once: true, margin: '-60px' });
   const cardsInView = useInView(cardsRef, { once: true, margin: '-60px' });
+
+  useEffect(() => {
+    const handleUpdate = () => setTestimonials(getAllTestimonials());
+    window.addEventListener('sporic_testimonials_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('sporic_testimonials_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
 
   return (
     <main className={styles.page}>

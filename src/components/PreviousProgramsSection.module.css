@@ -1,96 +1,144 @@
+﻿/* PreviousProgramsSection.module.css - Clean VIT-TEC Institutional Style */
+
 .section {
-  padding: 4.25rem 0;
-  background: linear-gradient(180deg, #071B4A 0%, #0A1938 100%);
+  padding: 5rem 0;
+  background-color: #FFFFFF;
   position: relative;
-  overflow: hidden;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid #E2E8F0;
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .headerWrap {
   text-align: center;
-  max-width: 720px;
-  margin: 0 auto 2.5rem;
+  max-width: 760px;
+  margin: 0 auto 3.25rem auto;
 }
 
 .eyebrow {
   display: inline-block;
+  font-family: var(--font-heading, sans-serif);
   font-size: 0.8rem;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #38BDF8;
-  background: rgba(56, 189, 248, 0.12);
-  border: 1px solid rgba(56, 189, 248, 0.25);
-  padding: 0.3rem 0.85rem;
-  border-radius: 9999px;
-  margin-bottom: 0.75rem;
+  color: var(--primary-light, #1D4ED8);
+  margin-bottom: 0.6rem;
 }
 
 .title {
-  font-size: clamp(1.85rem, 2.5vw, 2.4rem);
+  font-family: var(--font-heading, sans-serif);
+  font-size: clamp(2rem, 3.2vw, 2.6rem);
   font-weight: 800;
-  color: #FFFFFF;
+  color: #071B4A;
   line-height: 1.25;
-  margin: 0 0 1rem;
+  margin: 0 0 0.85rem 0;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
-  font-size: 1rem;
-  color: #94A3B8;
-  line-height: 1.6;
+  font-size: 1.05rem;
+  color: #64748B;
+  line-height: 1.65;
+  margin: 0;
 }
 
+/* Flexbox Program Grid: 3 cards on row 1, 2 centered on row 2 */
 .programsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.75rem;
 }
 
+/* Individual Program Card */
 .programCard {
-  background: linear-gradient(135deg, rgba(15, 34, 82, 0.7) 0%, rgba(7, 27, 74, 0.85) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 16px;
+  width: calc((100% - 3.5rem) / 3);
+  max-width: calc((100% - 3.5rem) / 3);
+  min-width: 320px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 10px -1px rgba(7, 27, 74, 0.04);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .programCard:hover {
-  transform: translateY(-5px);
-  border-color: #38BDF8;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), 0 0 20px rgba(56, 189, 248, 0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px -4px rgba(7, 27, 74, 0.08);
+  border-color: #CBD5E1;
+}
+
+/* Signature Yellow Institutional Accent */
+.yellowAccent {
+  position: absolute;
+  top: 0;
+  left: 1.5rem;
+  width: 36px;
+  height: 3px;
+  background-color: #F59E0B;
+  border-radius: 0 0 2px 2px;
+  z-index: 2;
+  transition: width 0.25s ease;
+}
+
+.programCard:hover .yellowAccent {
+  width: 52px;
 }
 
 .imageWrapper {
-  height: 180px;
+  height: 190px;
   width: 100%;
   position: relative;
   overflow: hidden;
-  background: #0F172A;
+  background-color: #F1F5F9;
 }
 
 .programImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transition: transform 0.45s ease;
 }
 
 .programCard:hover .programImg {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
 .imageOverlay {
   position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(7, 27, 74, 0.2) 0%, rgba(7, 27, 74, 0.85) 100%);
+  top: 0.85rem;
+  left: 0.85rem;
+  right: 0.85rem;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  padding: 0.85rem;
+  align-items: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.categoryPill {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0B2A6F;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(4px);
+}
+
+.yearPill {
+  background: #0B2A6F;
+  color: #FFFFFF;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 .cardBody {
@@ -101,35 +149,55 @@
 }
 
 .clientBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #1D4ED8;
   font-size: 0.75rem;
   font-weight: 700;
-  color: #38BDF8;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.5rem;
 }
 
 .cardTitle {
+  font-family: var(--font-heading, sans-serif);
   font-size: 1.15rem;
-  font-weight: 700;
-  color: #FFFFFF;
+  font-weight: 800;
+  color: #071B4A;
   line-height: 1.35;
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.75rem 0;
+  letter-spacing: -0.01em;
 }
 
 .description {
   font-size: 0.88rem;
-  color: #94A3B8;
+  color: #64748B;
   line-height: 1.6;
-  margin: 0 0 1.25rem;
+  margin: 0 0 1.25rem 0;
+}
+
+.outcomesWrapper {
+  margin-bottom: 1.25rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid #F1F5F9;
+}
+
+.outcomesHeading {
+  font-size: 0.72rem;
+  color: #071B4A;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5rem;
 }
 
 .outcomesList {
   margin: 0;
-  padding-left: 1.2rem;
+  padding-left: 1.15rem;
   font-size: 0.82rem;
-  color: #CBD5E1;
-  line-height: 1.5;
+  color: #475569;
+  line-height: 1.55;
 }
 
 .outcomesList li {
@@ -140,15 +208,131 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid #F1F5F9;
   padding-top: 1rem;
   margin-top: auto;
-  font-size: 0.8rem;
-  color: #94A3B8;
+  font-size: 0.78rem;
+  color: #64748B;
+  font-weight: 500;
+  gap: 0.5rem;
 }
 
-@media (max-width: 640px) {
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Horizontal Gallery CTA Bar */
+.galleryCtaCard {
+  margin-top: 3.25rem;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-left: 4px solid #F59E0B;
+  border-radius: 14px;
+  padding: 1.75rem 2.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0 4px 16px -2px rgba(7, 27, 74, 0.04);
+  text-decoration: none;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.galleryCtaCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -2px rgba(7, 27, 74, 0.08);
+  border-color: #CBD5E1;
+  border-left-color: #D97706;
+}
+
+.ctaContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.ctaTitle {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #071B4A;
+  margin: 0 0 0.3rem 0;
+}
+
+.ctaText {
+  font-size: 0.92rem;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.ctaBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #1D4ED8;
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.8rem 1.6rem;
+  border-radius: 8px;
+  border: none;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.galleryCtaCard:hover .ctaBtn {
+  background-color: #0B2A6F;
+  transform: translateX(2px);
+}
+
+/* Responsive Media Queries */
+@media (max-width: 1040px) {
   .programsGrid {
-    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .programCard {
+    width: calc((100% - 1.25rem) / 2);
+    max-width: calc((100% - 1.25rem) / 2);
+    min-width: 280px;
+  }
+}
+
+@media (max-width: 720px) {
+  .section {
+    padding: 3.5rem 0;
+  }
+
+  .headerWrap {
+    margin-bottom: 2.25rem;
+  }
+
+  .programCard {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .galleryCtaCard {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1.5rem;
+    gap: 1.25rem;
+    text-align: center;
+  }
+
+  .ctaContent {
+    align-items: center;
+    text-align: center;
+  }
+
+  .ctaBtn {
+    justify-content: center;
+    width: 100%;
   }
 }

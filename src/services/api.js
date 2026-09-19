@@ -3,6 +3,8 @@
 import { courses } from '../data/courses';
 import { getAllGalleryItems, saveGalleryItem, updateGalleryItem, deleteGalleryItem } from '../data/galleryData';
 import { getAllCorporateTrainings, saveCorporateTraining, updateCorporateTraining, deleteCorporateTraining } from '../data/corporateTrainingOrganizedData';
+import { getAllTestimonials, saveTestimonial, updateTestimonial, deleteTestimonial } from '../data/testimonialsData';
+import { getNaacData, updateNaacData, getAllRankings, saveRanking, updateRanking, deleteRanking } from '../data/rankingsData';
 import { supabase } from './supabase';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
@@ -852,6 +854,255 @@ class ApiService {
     }
 
     return { success: true };
+  }
+
+  // ==========================================
+  // Corporate Testimonials API
+  // ==========================================
+  async getTestimonials() {
+    const localItems = getAllTestimonials();
+
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('testimonials')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (!error && data && data.length > 0) {
+          return { data };
+        }
+      } catch (err) {
+        console.warn('Supabase fetch testimonials warning:', err);
+      }
+    }
+
+    try {
+      const res = await this.request('/testimonials');
+      const serverData = res?.data || (Array.isArray(res) ? res : []);
+      if (Array.isArray(serverData) && serverData.length > 0) {
+        return { data: serverData };
+      }
+      return { data: localItems };
+    } catch {
+      return { data: localItems };
+    }
+  }
+
+  async addTestimonial(testimonialData) {
+    const saved = saveTestimonial(testimonialData);
+
+    if (supabase) {
+      try {
+        await supabase.from('testimonials').insert([
+          {
+            id: saved.id,
+            quote: saved.quote,
+            name: saved.name,
+            designation: saved.designation,
+            company: saved.company,
+            created_at: saved.createdAt || new Date().toISOString(),
+          },
+        ]);
+      } catch (err) {
+        console.warn('Supabase insert testimonial warning:', err);
+      }
+    }
+
+    try {
+      await this.request('/testimonials', {
+        method: 'POST',
+        body: JSON.stringify(saved),
+      });
+    } catch {
+      // Local fallback active
+    }
+
+    return { success: true, data: saved };
+  }
+
+  async updateTestimonial(id, testimonialData) {
+    const updated = updateTestimonial(id, testimonialData);
+
+    if (supabase) {
+      try {
+        await supabase
+          .from('testimonials')
+          .update({
+            quote: updated.quote,
+            name: updated.name,
+            designation: updated.designation,
+            company: updated.company,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', id);
+      } catch (err) {
+        console.warn('Supabase update testimonial warning:', err);
+      }
+    }
+
+    try {
+      await this.request(`/testimonials/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(updated),
+      });
+    } catch {
+      // Local fallback active
+    }
+
+    return { success: true, data: updated };
+  }
+
+  async deleteTestimonial(id) {
+    deleteTestimonial(id);
+
+    if (supabase) {
+      try {
+        await supabase.from('testimonials').delete().eq('id', id);
+      } catch (err) {
+        console.warn('Supabase delete testimonial warning:', err);
+      }
+    }
+
+    try {
+      await this.request(`/testimonials/${id}`, {
+        method: 'DELETE',
+      });
+    } catch {
+      // Local fallback active
+    }
+
+    return { success: true };
+  }
+
+  // ==========================================
+  // University Rankings & NAAC API
+  // ==========================================
+  async getRankings() {
+    const localItems = getAllRankings();
+
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('rankings')
+          .select('*')
+          .order('id', { ascending: true });
+        if (!error && data && data.length > 0) {
+          return { data };
+        }
+      } catch (err) {
+        console.warn('Supabase fetch rankings warning:', err);
+      }
+    }
+
+    try {
+      const res = await this.request('/rankings');
+      const serverData = res?.data || (Array.isArray(res) ? res : []);
+      if (Array.isArray(serverData) && serverData.length > 0) {
+        return { data: serverData };
+      }
+      return { data: localItems };
+    } catch {
+      return { data: localItems };
+    }
+  }
+
+  async addRanking(rankingData) {
+    const saved = saveRanking(rankingData);
+
+    if (supabase) {
+      try {
+        await supabase.from('rankings').insert([
+          {
+            id: saved.id,
+            agency: saved.agency,
+            year: saved.year,
+            rank: saved.rank,
+            description: saved.description,
+            category: saved.category,
+            scope: saved.scope,
+            created_at: saved.createdAt || new Date().toISOString(),
+          },
+        ]);
+      } catch (err) {
+        console.warn('Supabase insert ranking warning:', err);
+      }
+    }
+
+    try {
+      await this.request('/rankings', {
+        method: 'POST',
+        body: JSON.stringify(saved),
+      });
+    } catch {
+      // Local fallback active
+    }
+
+    return { success: true, data: saved };
+  }
+
+  async updateRanking(id, rankingData) {
+    const updated = updateRanking(id, rankingData);
+
+    if (supabase) {
+      try {
+        await supabase
+          .from('rankings')
+          .update({
+            agency: updated.agency,
+            year: updated.year,
+            rank: updated.rank,
+            description: updated.description,
+            category: updated.category,
+            scope: updated.scope,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', id);
+      } catch (err) {
+        console.warn('Supabase update ranking warning:', err);
+      }
+    }
+
+    try {
+      await this.request(`/rankings/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(updated),
+      });
+    } catch {
+      // Local fallback active
+    }
+
+    return { success: true, data: updated };
+  }
+
+  async deleteRanking(id) {
+    deleteRanking(id);
+
+    if (supabase) {
+      try {
+        await supabase.from('rankings').delete().eq('id', id);
+      } catch (err) {
+        console.warn('Supabase delete ranking warning:', err);
+      }
+    }
+
+    try {
+      await this.request(`/rankings/${id}`, {
+        method: 'DELETE',
+      });
+    } catch {
+      // Local fallback active
+    }
+
+    return { success: true };
+  }
+
+  async getNaac() {
+    return { data: getNaacData() };
+  }
+
+  async updateNaac(naacData) {
+    const updated = updateNaacData(naacData);
+    return { success: true, data: updated };
   }
 }
 
