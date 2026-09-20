@@ -114,6 +114,12 @@
   flex-direction: column;
 }
 
+.fullWidthGroup {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.25rem;
+}
+
 .label {
   font-size: 0.85rem;
   font-weight: 600;

@@ -44,7 +44,11 @@ export default function Profile() {
         'Independent Consultant',
       ];
 
-      if (u.designation && standardDesignations.includes(u.designation)) {
+      const isAdminUser = (u.role || '').toUpperCase() === 'ADMIN';
+      if (isAdminUser) {
+        setDesignation('Other');
+        setCustomDesignation(u.designation || 'Dean, SpoRIC');
+      } else if (u.designation && standardDesignations.includes(u.designation)) {
         setDesignation(u.designation);
       } else if (u.designation) {
         setDesignation('Other');
@@ -58,6 +62,8 @@ export default function Profile() {
     }
   }, [navigate]);
 
+  const isAdmin = (user?.role || '').toUpperCase() === 'ADMIN';
+
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     if (!fullName.trim()) return setError('Please enter your full name.');
@@ -69,7 +75,9 @@ export default function Profile() {
       return setError('Please enter a valid phone number format (e.g. +91 98765 43210).');
     }
 
-    const finalDesignation = designation === 'Other' ? (customDesignation.trim() || 'Professional') : designation;
+    const finalDesignation = isAdmin
+      ? (customDesignation.trim() || user?.designation || 'Dean, SpoRIC')
+      : (designation === 'Other' ? (customDesignation.trim() || 'Professional') : designation);
 
     setLoading(true);
     setError('');
@@ -82,7 +90,7 @@ export default function Profile() {
       phone: phone.trim(),
       designation: finalDesignation,
       organization: organization.trim() || 'Individual',
-      industrySector,
+      industrySector: user?.industrySector || industrySector,
       updatedAt: new Date().toISOString(),
     };
 
@@ -172,80 +180,123 @@ export default function Profile() {
                   </div>
                 </div>
 
-                <div className={styles.formGrid}>
-                  <div className={styles.inputGroup}>
-                    <label className={styles.label}>Phone Number *</label>
-                    <input
-                      type="tel"
-                      required
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+91 98765 43210"
-                      className={styles.input}
-                    />
-                  </div>
+                {isAdmin ? (
+                  <>
+                    <div className={styles.formGrid}>
+                      <div className={styles.inputGroup}>
+                        <label className={styles.label}>Phone Number *</label>
+                        <input
+                          type="tel"
+                          required
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          placeholder="+91 98765 43210"
+                          className={styles.input}
+                        />
+                      </div>
 
-                  <div className={styles.inputGroup}>
-                    <label className={styles.label}>Designation / Professional Role *</label>
-                    <select
-                      value={designation}
-                      onChange={(e) => setDesignation(e.target.value)}
-                      className={styles.select}
-                    >
-                      <option value="Corporate Executive">Corporate Executive</option>
-                      <option value="Senior Manager / Director">Senior Manager / Director</option>
-                      <option value="Software Engineer / IT Specialist">Software Engineer / IT Specialist</option>
-                      <option value="Industrial / Manufacturing Engineer">Industrial / Manufacturing Engineer</option>
-                      <option value="Student / Researcher">Student / Researcher</option>
-                      <option value="Faculty / Academician">Faculty / Academician</option>
-                      <option value="Independent Consultant">Independent Consultant</option>
-                      <option value="Other">Other (Specify below)</option>
-                    </select>
-                  </div>
-                </div>
+                      <div className={styles.inputGroup}>
+                        <label className={styles.label}>Specify Your Designation *</label>
+                        <input
+                          type="text"
+                          required
+                          value={customDesignation}
+                          onChange={(e) => setCustomDesignation(e.target.value)}
+                          placeholder="e.g. Operations Specialist"
+                          className={styles.input}
+                        />
+                      </div>
+                    </div>
 
-                {designation === 'Other' && (
-                  <div className={styles.inputGroup}>
-                    <label className={styles.label}>Specify Your Designation *</label>
-                    <input
-                      type="text"
-                      required
-                      value={customDesignation}
-                      onChange={(e) => setCustomDesignation(e.target.value)}
-                      placeholder="e.g. Operations Specialist"
-                      className={styles.input}
-                    />
-                  </div>
+                    <div className={styles.fullWidthGroup}>
+                      <label className={styles.label}>Company / University Name</label>
+                      <input
+                        type="text"
+                        value={organization}
+                        onChange={(e) => setOrganization(e.target.value)}
+                        placeholder="e.g. Lucas TVS / L&T / VIT Chennai"
+                        className={styles.input}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className={styles.formGrid}>
+                      <div className={styles.inputGroup}>
+                        <label className={styles.label}>Phone Number *</label>
+                        <input
+                          type="tel"
+                          required
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          placeholder="+91 98765 43210"
+                          className={styles.input}
+                        />
+                      </div>
+
+                      <div className={styles.inputGroup}>
+                        <label className={styles.label}>Designation / Professional Role *</label>
+                        <select
+                          value={designation}
+                          onChange={(e) => setDesignation(e.target.value)}
+                          className={styles.select}
+                        >
+                          <option value="Corporate Executive">Corporate Executive</option>
+                          <option value="Senior Manager / Director">Senior Manager / Director</option>
+                          <option value="Software Engineer / IT Specialist">Software Engineer / IT Specialist</option>
+                          <option value="Industrial / Manufacturing Engineer">Industrial / Manufacturing Engineer</option>
+                          <option value="Student / Researcher">Student / Researcher</option>
+                          <option value="Faculty / Academician">Faculty / Academician</option>
+                          <option value="Independent Consultant">Independent Consultant</option>
+                          <option value="Other">Other (Specify below)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {designation === 'Other' && (
+                      <div className={styles.fullWidthGroup}>
+                        <label className={styles.label}>Specify Your Designation *</label>
+                        <input
+                          type="text"
+                          required
+                          value={customDesignation}
+                          onChange={(e) => setCustomDesignation(e.target.value)}
+                          placeholder="e.g. Operations Specialist"
+                          className={styles.input}
+                        />
+                      </div>
+                    )}
+
+                    <div className={styles.formGrid}>
+                      <div className={styles.inputGroup}>
+                        <label className={styles.label}>Company / University Name</label>
+                        <input
+                          type="text"
+                          value={organization}
+                          onChange={(e) => setOrganization(e.target.value)}
+                          placeholder="e.g. Lucas TVS / L&T / VIT Chennai"
+                          className={styles.input}
+                        />
+                      </div>
+
+                      <div className={styles.inputGroup}>
+                        <label className={styles.label}>Industry / Domain Sector</label>
+                        <select
+                          value={industrySector}
+                          onChange={(e) => setIndustrySector(e.target.value)}
+                          className={styles.select}
+                        >
+                          <option value="Automotive & Manufacturing">Automotive & Manufacturing</option>
+                          <option value="Information Technology & Software">Information Technology & Software</option>
+                          <option value="Renewable Energy & Power">Renewable Energy & Power</option>
+                          <option value="Banking & Financial Services">Banking & Financial Services</option>
+                          <option value="Higher Education & Research">Higher Education & Research</option>
+                          <option value="Consulting & Corporate Strategy">Consulting & Corporate Strategy</option>
+                        </select>
+                      </div>
+                    </div>
+                  </>
                 )}
-
-                <div className={styles.formGrid}>
-                  <div className={styles.inputGroup}>
-                    <label className={styles.label}>Company / University Name</label>
-                    <input
-                      type="text"
-                      value={organization}
-                      onChange={(e) => setOrganization(e.target.value)}
-                      placeholder="e.g. Lucas TVS / L&T / VIT Chennai"
-                      className={styles.input}
-                    />
-                  </div>
-
-                  <div className={styles.inputGroup}>
-                    <label className={styles.label}>Industry / Domain Sector</label>
-                    <select
-                      value={industrySector}
-                      onChange={(e) => setIndustrySector(e.target.value)}
-                      className={styles.select}
-                    >
-                      <option value="Automotive & Manufacturing">Automotive & Manufacturing</option>
-                      <option value="Information Technology & Software">Information Technology & Software</option>
-                      <option value="Renewable Energy & Power">Renewable Energy & Power</option>
-                      <option value="Banking & Financial Services">Banking & Financial Services</option>
-                      <option value="Higher Education & Research">Higher Education & Research</option>
-                      <option value="Consulting & Corporate Strategy">Consulting & Corporate Strategy</option>
-                    </select>
-                  </div>
-                </div>
 
                 <div className={styles.btnRow}>
                   <div className={styles.navLinksGroup}>

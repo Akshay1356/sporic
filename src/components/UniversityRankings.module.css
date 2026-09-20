@@ -1,4 +1,4 @@
-﻿/* UniversityRankings.module.css - Authentic Institutional VIT Chennai Style */
+/* UniversityRankings.module.css - Authentic Institutional VIT Chennai Style */
 
 .rankingsSection {
   background-color: #F8FAFC;
@@ -80,40 +80,69 @@
   height: 4px;
   background-color: #F59E0B;
   border-radius: 0 0 3px 3px;
-  transition: width 0.3s ease;
+  transition: width 0.3s ease, box-shadow 0.3s ease;
 }
 
-.naacCard:hover .yellowBar {
+.naacCard:hover .yellowBar,
+.naacCard.activeGlaze .yellowBar {
   width: 72px;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
 }
 
-.naacTop {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+/* Subtle Gold Glaze Overlay & Keyframe Sweep */
+.cardGlaze {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 2;
+  border-radius: inherit;
 }
 
-.naacBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  background-color: #FFFBEB;
-  color: #B45309;
-  border: 1px solid #FDE68A;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 0.25rem 0.65rem;
-  border-radius: 6px;
-  margin-bottom: 1.25rem;
+.activeGlaze .cardGlaze::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 65%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(245, 158, 11, 0) 0%,
+    rgba(245, 158, 11, 0.08) 25%,
+    rgba(251, 191, 36, 0.22) 50%,
+    rgba(245, 158, 11, 0.08) 75%,
+    rgba(245, 158, 11, 0) 100%
+  );
+  transform: skewX(-20deg);
+  animation: sweepGlaze 1.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
-.naacBadgeDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #F59E0B;
+.naacCard.activeGlaze,
+.rankingCard.activeGlaze {
+  border-color: #FCD34D;
+  box-shadow: 0 6px 22px -2px rgba(245, 158, 11, 0.15), 0 2px 8px -1px rgba(7, 27, 74, 0.04);
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+}
+
+@keyframes sweepGlaze {
+  0% {
+    left: -120%;
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    left: 180%;
+    opacity: 0;
+  }
 }
 
 .naacAgency {
@@ -249,11 +278,13 @@
   height: 3px;
   background-color: #F59E0B;
   border-radius: 0 0 2px 2px;
-  transition: width 0.25s ease;
+  transition: width 0.25s ease, box-shadow 0.25s ease;
 }
 
-.rankingCard:hover .cardYellowAccent {
+.rankingCard:hover .cardYellowAccent,
+.rankingCard.activeGlaze .cardYellowAccent {
   width: 52px;
+  box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
 }
 
 .cardHeader {
@@ -348,5 +379,27 @@
 
   .naacCard {
     padding: 1.75rem 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cardGlaze {
+    display: none !important;
+  }
+
+  .naacCard.activeGlaze,
+  .rankingCard.activeGlaze {
+    border-color: #E2E8F0 !important;
+    box-shadow: 0 2px 10px -1px rgba(7, 27, 74, 0.03) !important;
+  }
+
+  .naacCard.activeGlaze .yellowBar {
+    width: 48px !important;
+    box-shadow: none !important;
+  }
+
+  .rankingCard.activeGlaze .cardYellowAccent {
+    width: 36px !important;
+    box-shadow: none !important;
   }
 }

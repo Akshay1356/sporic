@@ -3,13 +3,27 @@
 export const GALLERY_CATEGORIES = [
   'All',
   'Corporate Training',
-  'Technology',
-  'Management',
-  'Leadership & Personality',
-  'Events',
-  'Workshops',
-  'Other',
+  'Industry Engagement',
+  'Workshops & Seminars',
+  'Leadership & Development',
+  'Campus & Institutional',
 ];
+
+export const CATEGORY_MAP = {
+  'Corporate Training': ['Corporate Training'],
+  'Industry Engagement': ['Industry Engagement', 'Technology'],
+  'Workshops & Seminars': ['Workshops & Seminars', 'Workshops'],
+  'Leadership & Development': ['Leadership & Development', 'Leadership & Personality', 'Management'],
+  'Campus & Institutional': ['Campus & Institutional', 'Events', 'Other'],
+};
+
+export function matchesCategory(photoCategory, selectedCategory) {
+  if (!selectedCategory || selectedCategory === 'All') return true;
+  if (photoCategory === selectedCategory) return true;
+  const aliases = CATEGORY_MAP[selectedCategory];
+  if (aliases && aliases.includes(photoCategory)) return true;
+  return false;
+}
 
 // Seed photos from official SpoRIC archives
 export const initialGalleryPhotos = [
@@ -17,7 +31,7 @@ export const initialGalleryPhotos = [
     id: 'corporate-strategy-mindset-workshop',
     src: '/gallery/premier_group_training.jpg',
     title: 'Corporate Strategy & Leadership Mindset Workshop',
-    category: 'Leadership & Personality',
+    category: 'Leadership & Development',
     description: 'Executive leadership, strategic thinking, and team development workshop conducted for corporate management cohorts.',
     companyName: 'Lucas TVS',
     createdAt: '2026-01-15T10:00:00.000Z',
@@ -35,7 +49,7 @@ export const initialGalleryPhotos = [
     id: 'strategic-planning-operations-program',
     src: '/gallery/strategic_planning_industrial_training.png',
     title: 'Strategic Planning & Industrial Operations Program',
-    category: 'Management',
+    category: 'Leadership & Development',
     description: 'Specialized industrial training on strategic planning, financial forecasting, and decision modeling for industry professionals.',
     companyName: 'Brakes India',
     createdAt: '2026-02-18T10:00:00.000Z',
@@ -44,7 +58,7 @@ export const initialGalleryPhotos = [
     id: 'executive-leadership-series',
     src: '/gallery/corporate_executive_leadership_program.jpg',
     title: 'Corporate Executive Leadership & Development Series',
-    category: 'Leadership & Personality',
+    category: 'Leadership & Development',
     description: 'High-impact keynote lecture and corporate capacity building session delivered to industry managers and engineering professionals.',
     companyName: 'Ashok Leyland',
     createdAt: '2026-03-01T10:00:00.000Z',
@@ -53,7 +67,7 @@ export const initialGalleryPhotos = [
     id: 'lab-training-session',
     src: '/gallery/lab_training_session.png',
     title: 'Technical Skill & Computer Lab Training',
-    category: 'Technology',
+    category: 'Industry Engagement',
     description: 'Hands-on practical computational training and workforce development session conducted at VIT-TEC computing facilities.',
     companyName: 'Cognizant',
     createdAt: '2026-03-12T10:00:00.000Z',
@@ -62,7 +76,7 @@ export const initialGalleryPhotos = [
     id: 'certificate-award-ceremony',
     src: '/gallery/certificate_award_ceremony.jpg',
     title: 'Corporate Training Certificate Distribution Ceremony',
-    category: 'Events',
+    category: 'Campus & Institutional',
     description: 'Participants awarded official VIT-TEC certificates of completion at Dr. A.P.J. Abdul Kalam Block.',
     companyName: 'TCS',
     createdAt: '2026-03-20T10:00:00.000Z',
@@ -71,7 +85,7 @@ export const initialGalleryPhotos = [
     id: 'professional-development-workshop',
     src: '/gallery/professional_development_workshop.jpg',
     title: 'Professional Development & Cross-Functional Synergy',
-    category: 'Workshops',
+    category: 'Workshops & Seminars',
     description: 'Interactive corporate training program with industry trainees around the executive conference boardroom.',
     companyName: 'HCL Technologies',
     createdAt: '2026-04-05T10:00:00.000Z',
@@ -89,7 +103,7 @@ export const initialGalleryPhotos = [
     id: 'campus-delegates-group',
     src: '/gallery/campus_delegates_group.jpg',
     title: 'Faculty Coordinators & Industry Delegate Cohort',
-    category: 'Events',
+    category: 'Campus & Institutional',
     description: 'Commemorative cohort gathering of corporate trainees and faculty coordinators in the campus courtyard.',
     companyName: 'Wipro Infrastructure',
     createdAt: '2026-05-02T10:00:00.000Z',

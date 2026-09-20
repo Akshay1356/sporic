@@ -20,7 +20,7 @@ export default function About() {
       </section>
 
       {/* Main Core Components */}
-      <AboutSection />
+      <AboutSection showCta={false} />
       <UniversityRankings />
       <CorporateTrainingTable />
       <PreviousProgramsSection />
