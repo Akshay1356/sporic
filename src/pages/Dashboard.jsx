@@ -1214,18 +1214,22 @@ export default function Dashboard() {
                     Add Training
                   </button>
                   <Link
-  to="/profile"
-  className="btn"
-  style={{
-    fontSize: '0.85rem',
-    background: '#0B2A6F',
-    color: '#FFFFFF',
-    border: '1px solid #1D4ED8',
-  }}
->
-  <UserIcon size={15} />
-  Profile
-</Link>
+                    to="/profile"
+                    className="btn btn-secondary"
+                    style={{
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
+                      color: '#071B4A',
+                      padding: '0.55rem 1.15rem',
+                      gap: '0.55rem',
+                      textDecoration: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <UserIcon size={16} />
+                    Profile
+                  </Link>
                   
                 </>
               ) : (
