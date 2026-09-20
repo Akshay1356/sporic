@@ -5,19 +5,19 @@ import styles from './IndustryTraining.module.css';
 
 export default function IndustryTraining() {
   const containerRef = useRef(null);
-  const isInView = useInView(containerRef, { once: true, margin: '-80px' });
+  const isInView = useInView(containerRef, { once: true, margin: '-60px' });
   const reduceMotion = useReducedMotion();
   const [activeStage, setActiveStage] = useState(null);
 
   const flowReveal = {
-    hidden: { opacity: reduceMotion ? 1 : 0, y: reduceMotion ? 0 : 24 },
+    hidden: { opacity: reduceMotion ? 1 : 0, y: reduceMotion ? 0 : 16 },
     show: (i) => ({
       opacity: 1,
       y: 0,
       transition: {
-        duration: reduceMotion ? 0 : 0.5,
+        duration: reduceMotion ? 0 : 0.45,
         ease: 'easeOut',
-        delay: reduceMotion ? 0 : i * 0.12,
+        delay: reduceMotion ? 0 : i * 0.18,
       },
     }),
   };
@@ -84,8 +84,7 @@ export default function IndustryTraining() {
                 variants={flowReveal}
                 custom={0}
                 initial="hidden"
-                whileInView="show"
-                viewport={{ once: true, amount: 0.2 }}
+                animate={isInView ? "show" : "hidden"}
               >
                 <div
                   className={`${styles.engineCard} ${activeStage === 'engine' ? styles.engineCardActive : ''}`}
@@ -121,8 +120,7 @@ export default function IndustryTraining() {
                   variants={flowReveal}
                   custom={1}
                   initial="hidden"
-                  whileInView="show"
-                  viewport={{ once: true, amount: 0.2 }}
+                  animate={isInView ? "show" : "hidden"}
                 >
                   <div
                     className={`${styles.pipelineNode} ${activeStage === 'needs' ? styles.pipelineNodeActive : ''}`}
@@ -147,8 +145,7 @@ export default function IndustryTraining() {
                   variants={flowReveal}
                   custom={2}
                   initial="hidden"
-                  whileInView="show"
-                  viewport={{ once: true, amount: 0.2 }}
+                  animate={isInView ? "show" : "hidden"}
                 >
                   <div
                     className={`${styles.pipelineNode} ${activeStage === 'gaps' ? styles.pipelineNodeActive : ''}`}
@@ -176,8 +173,7 @@ export default function IndustryTraining() {
                   variants={flowReveal}
                   custom={3}
                   initial="hidden"
-                  whileInView="show"
-                  viewport={{ once: true, amount: 0.2 }}
+                  animate={isInView ? "show" : "hidden"}
                 >
                   <div
                     className={`${styles.pipelineNode} ${activeStage === 'custom' ? styles.pipelineNodeActive : ''}`}
@@ -202,8 +198,7 @@ export default function IndustryTraining() {
                   variants={flowReveal}
                   custom={4}
                   initial="hidden"
-                  whileInView="show"
-                  viewport={{ once: true, amount: 0.2 }}
+                  animate={isInView ? "show" : "hidden"}
                 >
                   <div
                     className={`${styles.pipelineNode} ${activeStage === 'faculty' ? styles.pipelineNodeActive : ''}`}
@@ -231,8 +226,7 @@ export default function IndustryTraining() {
                 variants={flowReveal}
                 custom={5}
                 initial="hidden"
-                whileInView="show"
-                viewport={{ once: true, amount: 0.2 }}
+                animate={isInView ? "show" : "hidden"}
               >
                 <div
                   className={`${styles.impactHighlightNode} ${activeStage === 'impact' ? styles.impactHighlightNodeActive : ''}`}
@@ -242,7 +236,7 @@ export default function IndustryTraining() {
                 >
                   <div className={styles.impactLeft}>
                     <div className={styles.impactIconBox}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                       </svg>
                     </div>
@@ -251,7 +245,7 @@ export default function IndustryTraining() {
                       <p className={styles.impactDesc}>Translate workforce training into accelerated project velocity &amp; innovation.</p>
                     </div>
                   </div>
-                  <span className={styles.impactBadge}>Outcome Guaranteed</span>
+                  <span className={styles.impactBadge}>MEASURABLE OUTCOMES</span>
                 </div>
               </motion.div>
             </div>

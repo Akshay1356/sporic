@@ -1,0 +1,100 @@
+/* GalleryCard.module.css - Clean Institutional VIT-TEC Card Design */
+
+.card {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 4px 12px rgba(15, 23, 42, 0.03);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  cursor: pointer;
+  outline: none;
+  height: 100%;
+  text-align: left;
+  transition: border-color 0.2s ease;
+}
+
+.card:focus-visible {
+  border-color: #1D4ED8;
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.2);
+}
+
+.card:hover {
+  border-color: #CBD5E1;
+}
+
+/* 16:10 Frame to maintain crisp, proportional images */
+.imageWrapper {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  position: relative;
+  overflow: hidden;
+  background: #F1F5F9;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Card Content / Body */
+.content {
+  padding: 1.35rem 1.4rem 1.5rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background: #FFFFFF;
+}
+
+/* Company / Organization Title Wrapper */
+.companyHeadingWrap {
+  margin-bottom: 0.75rem;
+}
+
+/*
+ * Company / Organization highlighted title:
+ * - Dark navy/blue text
+ * - Bold
+ * - Slightly larger than description
+ * - Subtle light-blue background highlight with small border radius
+ * - Clean, institutional, no glow, no animation
+ */
+.companyTitle {
+  display: inline-block;
+  font-family: var(--font-heading, inherit);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0F275C;
+  background: #F0F6FF;
+  border: 1px solid #D8E5F8;
+  border-radius: 6px;
+  padding: 0.35rem 0.75rem;
+  line-height: 1.35;
+  margin: 0;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+/* Card Description */
+.description {
+  font-size: 0.88rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: #475569;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+}

@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { VisionCard, MissionCard } from './VisionMissionCard';
 import { getAllCourses, COURSE_STATUS } from '../data/courses';
 import styles from './About.module.css';
@@ -21,7 +21,9 @@ function formatStartDate(dateStr) {
   return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
-export default function About() {
+export default function About({ showCta }) {
+  const location = useLocation();
+  const shouldShowCta = showCta !== undefined ? showCta : location.pathname !== '/about';
   const containerRef = useRef(null);
   const isInView = useInView(containerRef, { once: true, margin: '-80px' });
   const [upcomingCourses, setUpcomingCourses] = useState(getUpcomingCourses);
@@ -52,14 +54,16 @@ export default function About() {
             <h2 className={styles.title}>
               Building Competence.<br />Creating Impact.
             </h2>
-            <p className={styles.description}>
+            <p className={`${styles.description} ${!shouldShowCta ? styles.noCtaDescription : ''}`}>
               VIT-TEC offers industry-focused programs and solutions designed to bridge
               the gap between academia and industry. We empower learners and professionals
               with future-ready skills and technologies.
             </p>
-            <Link to="/about" className={styles.knowMoreBtn}>
-              Know More About Us →
-            </Link>
+            {shouldShowCta && (
+              <Link to="/about" className={styles.knowMoreBtn}>
+                Know More About Us →
+              </Link>
+            )}
           </motion.div>
 
           {/* Right Column: Campus Image */}
