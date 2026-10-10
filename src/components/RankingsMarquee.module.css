@@ -4,16 +4,15 @@
   position: relative;
   width: 100%;
   height: 46px;
-  margin-top: var(--nav-height, 70px);
-  background: #051336;
-  background: linear-gradient(90deg, #051336 0%, #071B4A 25%, #0B245E 50%, #071B4A 75%, #051336 100%);
-  border-bottom: 1.5px solid rgba(56, 189, 248, 0.28);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: var(--nav-height, 74px);
+  background: #FFFFFF;
+  border-bottom: 1px solid #E2E8F0;
+  border-top: 1px solid #E2E8F0;
   display: flex;
   align-items: center;
   overflow: hidden;
   z-index: 900;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 4px rgba(7, 27, 74, 0.03);
 }
 
 /* Fixed Label on the Left */
@@ -22,26 +21,28 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  height: 100%;
-  padding: 0 1.25rem 0 1.35rem;
-  background: linear-gradient(90deg, #071B4A 80%, rgba(7, 27, 74, 0.95) 100%);
-  border-right: 1.5px solid rgba(56, 189, 248, 0.35);
+  height: calc(100% - 12px);
+  margin: 6px 14px 6px 16px;
+  padding: 0 1.15rem;
+  background: #E0F2FE;
+  border: 1px solid #BAE6FD;
+  border-radius: 8px;
   z-index: 10;
-  box-shadow: 4px 0 14px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 1px 3px rgba(2, 132, 199, 0.08);
 }
 
 .labelIcon {
-  font-size: 1rem;
+  font-size: 0.95rem;
   line-height: 1;
 }
 
 .labelText {
   font-family: var(--font-heading, sans-serif);
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   font-weight: 800;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #38BDF8;
+  color: #0284C7;
   white-space: nowrap;
 }
 
@@ -52,7 +53,7 @@
   bottom: 0;
   left: 0;
   width: 36px;
-  background: linear-gradient(90deg, #071B4A 0%, transparent 100%);
+  background: linear-gradient(90deg, #FFFFFF 0%, transparent 100%);
   z-index: 5;
   pointer-events: none;
 }
@@ -63,7 +64,7 @@
   bottom: 0;
   right: 0;
   width: 48px;
-  background: linear-gradient(270deg, #051336 0%, transparent 100%);
+  background: linear-gradient(270deg, #FFFFFF 0%, transparent 100%);
   z-index: 5;
   pointer-events: none;
 }
@@ -100,28 +101,33 @@
 .tickerItem {
   display: inline-flex;
   align-items: center;
-  gap: 0.42rem;
-  font-family: var(--font-heading, sans-serif);
-  font-size: 0.88rem;
-  color: #E2E8F0;
+  font-family: var(--font-brand, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif);
+  font-size: 0.86rem;
+  color: #071B4A;
   white-space: nowrap;
-  padding: 0 0.65rem;
-  letter-spacing: 0.01em;
+  padding: 0 0.5rem;
+  line-height: 1;
 }
 
 .partnerName {
-  font-family: var(--font-heading, sans-serif);
+  font-family: var(--font-brand, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif);
   font-weight: 600;
-  color: #E2E8F0;
-  letter-spacing: 0.015em;
+  color: #0B2A6F;
+  letter-spacing: 0.012em;
   white-space: nowrap;
+  transition: color 0.2s ease;
 }
 
 .itemDivider {
-  color: rgba(56, 189, 248, 0.45);
-  font-size: 0.85rem;
-  padding: 0 0.6rem;
+  color: #94A3B8;
+  font-size: 0.72rem;
+  padding: 0 0.75rem;
   user-select: none;
+  opacity: 0.75;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 /* Keyframe for continuous Right-to-Left loop */

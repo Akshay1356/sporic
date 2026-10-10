@@ -101,7 +101,7 @@ export default function Navbar() {
              ==================================================== */}
           <Link to="/" className={styles.logo} aria-label="VIT-TEC Home">
             <img
-              src="/vit_logo.png"
+              src="/vit_logo_dark.png"
               alt="Vellore Institute of Technology"
               className={styles.vitLogoImg}
             />
@@ -339,7 +339,7 @@ export default function Navbar() {
                       </Link>
                       <Link
                         to="/dashboard"
-                        className={styles.applyBtn}
+                        className={styles.dashBtn}
                         style={{ width: '100%', textAlign: 'center', justifyContent: 'center' }}
                       >
                         Go to Dashboard →
