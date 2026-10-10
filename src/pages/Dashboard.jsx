@@ -36,6 +36,11 @@ import {
   getUserInterestedCourseIds,
 } from '../data/courses';
 import {
+  saveSyllabusPdf,
+  getSyllabusPdf,
+  deleteSyllabusPdf,
+} from '../services/syllabusStorage';
+import {
   getAllGalleryItems,
   saveGalleryItem,
   updateGalleryItem,
@@ -131,6 +136,12 @@ export default function Dashboard() {
   const [courseImageError, setCourseImageError] = useState('');
   const [editImagePreview, setEditImagePreview] = useState('');
   const [editImageError, setEditImageError] = useState('');
+  const [courseSyllabusFile, setCourseSyllabusFile] = useState(null);
+  const [courseSyllabusError, setCourseSyllabusError] = useState('');
+  const [editSyllabusFile, setEditSyllabusFile] = useState(null);
+  const [editSyllabusInfo, setEditSyllabusInfo] = useState(null);
+  const [editSyllabusRemove, setEditSyllabusRemove] = useState(false);
+  const [editSyllabusError, setEditSyllabusError] = useState('');
   const [newCourse, setNewCourse] = useState({
     id: '',
     title: '',
@@ -384,13 +395,35 @@ export default function Dashboard() {
   }
 
   // --- COURSE MANAGEMENT HANDLERS ---
-  const handleUpdateCourse = (e) => {
+  const handleUpdateCourse = async (e) => {
     e.preventDefault();
     if (!editingCourse) return;
 
     const all = getAllCourses();
     const target = all.find((c) => c.id === editingCourse.id);
     if (target) {
+      let updatedSyllabusPdf = target.syllabusPdf;
+
+      if (editSyllabusFile) {
+        try {
+          await saveSyllabusPdf(target.id, editSyllabusFile);
+          updatedSyllabusPdf = {
+            name: editSyllabusFile.name,
+            size: editSyllabusFile.size,
+            updatedAt: new Date().toISOString(),
+          };
+        } catch (err) {
+          console.error('Failed to update syllabus PDF in storage:', err);
+        }
+      } else if (editSyllabusRemove) {
+        try {
+          await deleteSyllabusPdf(target.id);
+          updatedSyllabusPdf = null;
+        } catch (err) {
+          console.error('Failed to remove syllabus PDF from storage:', err);
+        }
+      }
+
       const updated = {
         ...target,
         price: parseFloat(editPrice) || target.price,
@@ -398,17 +431,28 @@ export default function Dashboard() {
         image: editImagePreview || target.image,
         isCustom: true,
       };
+
+      if (updatedSyllabusPdf) {
+        updated.syllabusPdf = updatedSyllabusPdf;
+      } else {
+        delete updated.syllabusPdf;
+      }
+
       saveNewCourse(updated);
       refreshAllData();
       setActionSuccess(`Course '${editingCourse.title}' updated.`);
       setEditingCourse(null);
       setEditImagePreview('');
       setEditImageError('');
+      setEditSyllabusFile(null);
+      setEditSyllabusInfo(null);
+      setEditSyllabusRemove(false);
+      setEditSyllabusError('');
       setTimeout(() => setActionSuccess(''), 4000);
     }
   };
 
-  const handleCreateNewCourse = (e) => {
+  const handleCreateNewCourse = async (e) => {
     e.preventDefault();
     if (!newCourse.title || !newCourse.category) {
       alert('Please enter a course title and select a category.');
@@ -461,17 +505,37 @@ export default function Dashboard() {
       isCustom: true,
     };
 
+    if (courseSyllabusFile) {
+      try {
+        await saveSyllabusPdf(generatedId, courseSyllabusFile);
+        courseRecord.syllabusPdf = {
+          name: courseSyllabusFile.name,
+          size: courseSyllabusFile.size,
+          updatedAt: new Date().toISOString(),
+        };
+      } catch (err) {
+        console.error('Failed to save syllabus PDF in storage:', err);
+      }
+    }
+
     saveNewCourse(courseRecord);
     refreshAllData();
     setShowAddModal(false);
     setCourseImagePreview('');
     setCourseImageError('');
+    setCourseSyllabusFile(null);
+    setCourseSyllabusError('');
     setActionSuccess(`✓ Course '${courseRecord.title}' (${courseRecord.id}) published!`);
     setTimeout(() => setActionSuccess(''), 5000);
   };
 
-  const handleDeleteCourse = (courseId) => {
+  const handleDeleteCourse = async (courseId) => {
     if (window.confirm(`Are you sure you want to remove course ${courseId}?`)) {
+      try {
+        await deleteSyllabusPdf(courseId);
+      } catch (err) {
+        console.warn('Failed to delete syllabus PDF:', err);
+      }
       deleteCustomCourse(courseId);
       refreshAllData();
       setActionSuccess(`Course ${courseId} removed.`);
@@ -557,6 +621,48 @@ export default function Dashboard() {
     } catch {
       setEditImageError('Failed to process image. Try another file.');
     }
+  };
+
+  const handleCourseSyllabusFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+      setCourseSyllabusError('Invalid file type. Please upload a PDF file (.pdf).');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setCourseSyllabusError('File size exceeds 10MB limit. Please upload a smaller PDF.');
+      return;
+    }
+
+    setCourseSyllabusError('');
+    setCourseSyllabusFile(file);
+  };
+
+  const handleRemoveCourseSyllabus = () => {
+    setCourseSyllabusFile(null);
+    setCourseSyllabusError('');
+  };
+
+  const handleEditSyllabusFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+      setEditSyllabusError('Invalid file type. Please upload a PDF file (.pdf).');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setEditSyllabusError('File size exceeds 10MB limit. Please upload a smaller PDF.');
+      return;
+    }
+
+    setEditSyllabusError('');
+    setEditSyllabusFile(file);
+    setEditSyllabusRemove(false);
   };
 
   const handleSavePhotoSubmit = async (e) => {
@@ -1173,7 +1279,7 @@ export default function Dashboard() {
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.35rem' }}>
                 <span className="section-label" style={{ margin: 0 }}>
-                  {isAdmin ? 'ADMIN CONTROL CENTRE' : 'STUDENT & PROFESSIONAL PORTAL'}
+                  {isAdmin ? 'ADMIN CONTROL CENTRE' : 'CORPORATE TRAINING PORTAL'}
                 </span>
                 
               </div>
@@ -1234,8 +1340,25 @@ export default function Dashboard() {
                 </>
               ) : (
                 <>
-                  <Link to="/profile" className="btn btn-ghost" style={{ fontSize: '0.85rem' }}>
-                    <UserIcon size={15} />
+                  <Link
+                    to="/profile"
+                    className={styles.editProfileBtn}
+                    style={{
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      color: '#FFFFFF',
+                      padding: '0.55rem 1.1rem',
+                      borderRadius: '8px',
+                      background: 'rgba(255, 255, 255, 0.12)',
+                      border: '1px solid rgba(255, 255, 255, 0.28)',
+                      textDecoration: 'none',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    <UserIcon size={15} color="#FFFFFF" />
                     Edit Profile
                   </Link>
                   <Link to="/courses" className="btn btn-primary" style={{ fontSize: '0.85rem' }}>
@@ -1581,6 +1704,8 @@ export default function Dashboard() {
                     onAdd={() => {
                       setCourseImagePreview('');
                       setCourseImageError('');
+                      setCourseSyllabusFile(null);
+                      setCourseSyllabusError('');
                       setShowAddModal(true);
                     }}
                     addLabel="Add Course"
@@ -1634,6 +1759,20 @@ export default function Dashboard() {
                                     setEditStatus(c.status || COURSE_STATUS.OPEN);
                                     setEditImagePreview(c.image || '');
                                     setEditImageError('');
+                                    setEditSyllabusFile(null);
+                                    setEditSyllabusRemove(false);
+                                    setEditSyllabusError('');
+                                    if (c.syllabusPdf) {
+                                      setEditSyllabusInfo(c.syllabusPdf);
+                                    } else {
+                                      getSyllabusPdf(c.id).then((stored) => {
+                                        if (stored) {
+                                          setEditSyllabusInfo({ name: stored.name, size: stored.size });
+                                        } else {
+                                          setEditSyllabusInfo(null);
+                                        }
+                                      }).catch(() => setEditSyllabusInfo(null));
+                                    }
                                   }}
                                 >
                                   Edit
@@ -2711,6 +2850,44 @@ export default function Dashboard() {
             )}
           </div>
 
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Course Syllabus (PDF)</label>
+            {courseSyllabusError && (
+              <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', padding: '0.5rem 0.8rem', borderRadius: '8px', color: '#B91C1C', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
+                {courseSyllabusError}
+              </div>
+            )}
+            <input
+              type="file"
+              accept=".pdf,application/pdf"
+              onChange={handleCourseSyllabusFileChange}
+              className={modalStyles.file}
+            />
+            {courseSyllabusFile ? (
+              <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '0.5rem 0.75rem', borderRadius: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '1.1rem' }}>📄</span>
+                  <div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#1E293B' }}>{courseSyllabusFile.name}</div>
+                    <div style={{ fontSize: '0.72rem', color: '#64748B' }}>{(courseSyllabusFile.size / (1024 * 1024)).toFixed(2)} MB</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRemoveCourseSyllabus}
+                  className="btn btn-ghost"
+                  style={{ color: '#DC2626', fontSize: '0.78rem', padding: '0.2rem 0.5rem' }}
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <span style={{ fontSize: '0.72rem', color: '#64748B' }}>
+                Upload the course syllabus as a PDF.
+              </span>
+            )}
+          </div>
+
           <div className={modalStyles.row3}>
             <div className={modalStyles.field}>
               <label className={modalStyles.label}>Hours</label>
@@ -3050,6 +3227,64 @@ export default function Dashboard() {
                 />
                 <span style={{ display: 'block', fontSize: '0.7rem', color: '#94A3B8', marginTop: '0.3rem' }}>
                   Select an image to replace the current one (JPG / PNG / WEBP).
+                </span>
+              </div>
+              <div style={{ margin: '1rem 0' }}>
+                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Course Syllabus (PDF)</label>
+                {editSyllabusError && (
+                  <div style={{ background: '#450A0A', border: '1px solid #7F1D1D', padding: '0.5rem 0.75rem', borderRadius: '8px', color: '#FCA5A5', fontSize: '0.78rem', marginBottom: '0.6rem' }}>
+                    {editSyllabusError}
+                  </div>
+                )}
+                {editSyllabusFile ? (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#0A1E4F', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid #334155', marginBottom: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{ fontSize: '1.1rem' }}>📄</span>
+                      <div>
+                        <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#F8FAFC' }}>{editSyllabusFile.name} (New)</div>
+                        <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>{(editSyllabusFile.size / (1024 * 1024)).toFixed(2)} MB</div>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setEditSyllabusFile(null)}
+                      className="btn btn-ghost"
+                      style={{ color: '#F87171', fontSize: '0.78rem', padding: '0.2rem 0.5rem' }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (editSyllabusInfo && !editSyllabusRemove) ? (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#0A1E4F', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid #334155', marginBottom: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{ fontSize: '1.1rem' }}>📄</span>
+                      <div>
+                        <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#F8FAFC' }}>{editSyllabusInfo.name || 'Current Syllabus.pdf'}</div>
+                        {editSyllabusInfo.size && (
+                          <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>{(editSyllabusInfo.size / (1024 * 1024)).toFixed(2)} MB</div>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setEditSyllabusRemove(true)}
+                      className="btn btn-ghost"
+                      style={{ color: '#F87171', fontSize: '0.78rem', padding: '0.2rem 0.5rem' }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : null}
+                <input
+                  type="file"
+                  accept=".pdf,application/pdf"
+                  onChange={handleEditSyllabusFileChange}
+                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px dashed #334155', background: '#0A1E4F', color: '#CBD5E1', cursor: 'pointer' }}
+                />
+                <span style={{ display: 'block', fontSize: '0.7rem', color: '#94A3B8', marginTop: '0.3rem' }}>
+                  {editSyllabusInfo && !editSyllabusRemove
+                    ? 'Upload a PDF to replace the current syllabus.'
+                    : 'Upload the course syllabus as a PDF.'}
                 </span>
               </div>
               <div style={{ margin: '1rem 0' }}>

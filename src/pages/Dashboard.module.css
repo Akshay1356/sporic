@@ -36,6 +36,13 @@
   margin: 0;
 }
 
+.editProfileBtn:hover {
+  background: rgba(255, 255, 255, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  color: #FFFFFF !important;
+  transform: translateY(-1px);
+}
+
 /* ====================================================
    2. TAB NAVIGATION
    ==================================================== */

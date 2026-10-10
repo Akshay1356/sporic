@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getCourseById, COURSE_STATUS } from '../data/courses';
+import { getSyllabusPdf } from '../services/syllabusStorage';
 import GlassCard from '../components/GlassCard';
 import CoursePoster from '../components/CoursePoster';
 import CourseEnquiryModal from '../components/CourseEnquiryModal';
@@ -10,6 +11,27 @@ export default function CourseDetails() {
   const { courseId } = useParams();
   const course = getCourseById(courseId);
   const [showEnquiryModal, setShowEnquiryModal] = useState(false);
+  const [syllabusPdf, setSyllabusPdf] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    if (course) {
+      if (course.syllabusUrl) {
+        setSyllabusPdf({ url: course.syllabusUrl, name: course.syllabusPdf?.name || `${course.title}-Syllabus.pdf` });
+      } else if (course.syllabusPdf?.url) {
+        setSyllabusPdf(course.syllabusPdf);
+      } else {
+        getSyllabusPdf(course.id).then((stored) => {
+          if (active && stored) {
+            setSyllabusPdf(stored);
+          }
+        }).catch(() => null);
+      }
+    }
+    return () => {
+      active = false;
+    };
+  }, [course]);
 
   if (!course) {
     return (
@@ -103,7 +125,21 @@ export default function CourseDetails() {
 
               {/* Modules Breakdown */}
               <GlassCard className={styles.detailCard} padding="lg">
-                <h3 className={styles.cardTitle}>Structured Syllabus &amp; Modules</h3>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
+                  <h3 className={styles.cardTitle} style={{ margin: 0 }}>Structured Syllabus &amp; Modules</h3>
+                  {syllabusPdf && (
+                    <a
+                      href={syllabusPdf.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download={syllabusPdf.name || `${course.title}-Syllabus.pdf`}
+                      className="btn btn-secondary"
+                      style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none' }}
+                    >
+                      <span>📄</span> View / Download Syllabus (PDF)
+                    </a>
+                  )}
+                </div>
                 <ol className={styles.orderedList}>
                   {course.modules.map((item, idx) => (
                     <li key={idx}>
@@ -184,6 +220,29 @@ export default function CourseDetails() {
                   >
                     Enroll / Register Now →
                   </Link>
+
+                  {syllabusPdf && (
+                    <a
+                      href={syllabusPdf.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download={syllabusPdf.name || `${course.title}-Syllabus.pdf`}
+                      className="btn btn-secondary"
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem',
+                        fontWeight: 700,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        textDecoration: 'none',
+                        textAlign: 'center',
+                      }}
+                    >
+                      📄 Download Syllabus (PDF)
+                    </a>
+                  )}
 
                   <button
                     type="button"
