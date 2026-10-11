@@ -117,7 +117,7 @@ export default function CourseEnquiryModal({ course, isOpen, onClose, onSuccess 
           transition={{ duration: 0.25, ease: 'easeOut' }}
         >
           <div className={styles.modalHeader}>
-            <div>
+            <div className={styles.headerInfo}>
               <span className={styles.badge}>{course.id} • {course.category}</span>
               <h2 className={styles.title}>Enquire About Course</h2>
               <p className={styles.courseSubtitle}>{course.title}</p>
@@ -127,22 +127,42 @@ export default function CourseEnquiryModal({ course, isOpen, onClose, onSuccess 
             </button>
           </div>
 
-          {success ? (
-            <div className={styles.successBanner}>
-              <h3 style={{ margin: '0 0 0.5rem', color: '#6EE7B7' }}>✓ Enquiry Submitted Successfully!</h3>
-              <p style={{ margin: 0, fontSize: '0.85rem' }}>
-                Thank you, <strong>{name}</strong>. The SpoRIC course coordinator will contact you at <strong>{phone}</strong> / <strong>{email}</strong> regarding your query.
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit}>
-              {currentUser ? (
-                <div className={styles.userNotice}>
-                  <span>👤 Logged in as <strong>{currentUser.email}</strong>. Details auto-filled from your profile.</span>
-                </div>
-              ) : null}
+          <div className={styles.modalBody}>
+            {success ? (
+              <div className={styles.successBanner}>
+                <div className={styles.successIcon}>✓</div>
+                <h3 className={styles.successTitle}>Enquiry Submitted Successfully!</h3>
+                <p className={styles.successText}>
+                  Thank you, <strong>{name}</strong>. The VIT-TEC course coordinator will contact you at <strong>{phone}</strong> / <strong>{email}</strong> regarding your query.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className={styles.form}>
+                {currentUser ? (
+                  <div className={styles.userNotice}>
+                    <svg
+                      className={styles.userNoticeIcon}
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="16" x2="12" y2="12" />
+                      <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                    <span>
+                      Logged in as <strong className={styles.userNoticeEmail}>{currentUser.email}</strong>. Details auto-filled from your profile.
+                    </span>
+                  </div>
+                ) : null}
 
-              {error && <div className={styles.errorBanner}>{error}</div>}
+                {error && <div className={styles.errorBanner}>{error}</div>}
 
               <div className={styles.formGrid}>
                 <div className={styles.inputGroup}>
@@ -240,11 +260,12 @@ export default function CourseEnquiryModal({ course, isOpen, onClose, onSuccess 
                   Cancel
                 </button>
                 <button type="submit" className={styles.submitBtn} disabled={loading}>
-                  {loading ? 'Submitting Enquiry...' : '📩 Submit Course Enquiry'}
+                  {loading ? 'Submitting Enquiry...' : 'Submit Course Enquiry'}
                 </button>
               </div>
             </form>
           )}
+          </div>
         </motion.div>
       </div>
     </AnimatePresence>

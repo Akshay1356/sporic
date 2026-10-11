@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getAllGalleryItems, GALLERY_CATEGORIES, galleryPhotos, galleryCategories } from '../data/galleryData';
+import { getAllGalleryItems, GALLERY_CATEGORIES, matchesCategory, galleryPhotos, galleryCategories } from '../data/galleryData';
 import api from '../services/api';
 import galleryService from '../services/galleryService';
+import GalleryCard from '../components/GalleryCard';
 import styles from './Gallery.module.css';
 
 export default function Gallery() {
@@ -43,10 +44,10 @@ export default function Gallery() {
     return () => window.removeEventListener('storage', handleStorage);
   }, [loadPhotos]);
 
-  // Filtered photos list
+  // Filtered photos list with flexible category matching
   const filteredPhotos = activeCategory === 'All'
     ? photos
-    : photos.filter((p) => p.category === activeCategory);
+    : photos.filter((p) => matchesCategory(p.category, activeCategory));
 
   const openLightbox = (index) => {
     setLightboxIndex(index);
@@ -90,17 +91,13 @@ export default function Gallery() {
       <section className={styles.banner}>
         <div className="grid-bg" style={{ opacity: 0.5 }} />
         <div className="container">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-          >
-            <span className="section-label">Corporate Training & Executive Development</span>
-            <h1 className={styles.title}>GALLERY</h1>
+          <div>
+            <span className={styles.eyebrow}>CORPORATE TRAINING & INDUSTRY ENGAGEMENT</span>
+            <h1 className={styles.title}>Industry Connections in Action</h1>
             <p className={styles.subtitle}>
-              Moments, events and activities at SPORIC
+              Explore moments from our corporate training programmes, industry collaborations and professional learning initiatives.
             </p>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -123,79 +120,15 @@ export default function Gallery() {
           </div>
 
           {/* Photos Grid */}
-          <motion.div 
-            className={styles.photosGrid}
-            layout
-          >
-            <AnimatePresence mode="popLayout">
-              {filteredPhotos.map((photo, index) => (
-                <motion.div
-                  key={photo.id || index}
-                  layout
-                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
-                  className={styles.galleryCard}
-                  onClick={() => openLightbox(index)}
-                  tabIndex={0}
-                  role="button"
-                  aria-label={`View photo: ${photo.title || 'Gallery item'}`}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      openLightbox(index);
-                    }
-                  }}
-                >
-                  {/* Fixed Frame for Image Zoom Effect */}
-                  <div className={styles.imageFrame}>
-                    <img
-                      src={photo.src || photo.imageUrl}
-                      alt={photo.title || 'Corporate Training Photo'}
-                      className={styles.galleryImg}
-                      loading="lazy"
-                    />
-                    
-                    {/* Subtle Hover Overlay */}
-                    <div className={styles.cardOverlay}>
-                      <div className={styles.zoomIconWrap}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <circle cx="11" cy="11" r="8" />
-                          <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                          <line x1="11" y1="8" x2="11" y2="14" />
-                          <line x1="8" y1="11" x2="14" y2="11" />
-                        </svg>
-                      </div>
-                      <div className={styles.overlayBottom}>
-                        <span className={styles.overlayCategory}>{photo.category}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Card Caption Info */}
-                  <div className={styles.cardDetails}>
-                    {photo.companyName ? (
-                      <div className={styles.companyMeta}>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M6 22V4a2 2 0 012-2h8a2 2 0 012 2v18z"/>
-                          <path d="M6 12H4a2 2 0 00-2 2v6a2 2 0 002 2h2"/>
-                          <path d="M18 9h2a2 2 0 012 2v9a2 2 0 01-2 2h-2"/>
-                          <path d="M10 6h4"/>
-                          <path d="M10 10h4"/>
-                          <path d="M10 14h4"/>
-                          <path d="M10 18h4"/>
-                        </svg>
-                        <span className={styles.companyLabel}>Conducted for</span>
-                        <span className={styles.companyName}>{photo.companyName}</span>
-                      </div>
-                    ) : null}
-                    <h3 className={styles.photoTitle}>{photo.title || 'Corporate Training Activity'}</h3>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
+          <div className={styles.photosGrid}>
+            {filteredPhotos.map((photo, index) => (
+              <GalleryCard
+                key={photo.id || index}
+                item={photo}
+                onClick={() => openLightbox(index)}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
@@ -253,28 +186,20 @@ export default function Gallery() {
               >
                 <img
                   src={filteredPhotos[lightboxIndex].src || filteredPhotos[lightboxIndex].imageUrl}
-                  alt={filteredPhotos[lightboxIndex].title || 'Gallery item'}
+                  alt={filteredPhotos[lightboxIndex].companyName || filteredPhotos[lightboxIndex].title || 'Gallery item'}
                   className={styles.lightboxImg}
                 />
                 
                 {/* Caption Bar */}
                 <div className={styles.captionBar}>
-                  <div className={styles.captionMeta}>
-                    <span className={styles.captionTag}>
-                      {filteredPhotos[lightboxIndex].category}
-                    </span>
-                  </div>
-                  {filteredPhotos[lightboxIndex].companyName ? (
-                    <div className={styles.captionCompany}>
-                      Conducted for {filteredPhotos[lightboxIndex].companyName}
-                    </div>
-                  ) : null}
                   <h4 className={styles.captionTitle}>
-                    {filteredPhotos[lightboxIndex].title || 'Corporate Training Activity'}
+                    {filteredPhotos[lightboxIndex].companyName || filteredPhotos[lightboxIndex].title || 'Industry Engagement'}
                   </h4>
-                  <p className={styles.captionDesc}>
-                    {filteredPhotos[lightboxIndex].description}
-                  </p>
+                  {filteredPhotos[lightboxIndex].description && (
+                    <p className={styles.captionDesc}>
+                      {filteredPhotos[lightboxIndex].description}
+                    </p>
+                  )}
                 </div>
               </motion.div>
 

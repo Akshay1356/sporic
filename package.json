@@ -16,7 +16,7 @@
     "@tsparticles/slim": "^4.4.0",
     "framer-motion": "^13.1.0",
     "gsap": "^3.15.0",
-    "nodemailer": "^9.1.0",
+    "nodemailer": "^10.1.0",
     "pg": "^8.23.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

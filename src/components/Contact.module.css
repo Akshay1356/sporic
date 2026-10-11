@@ -98,47 +98,9 @@
   display: grid;
   grid-template-columns: 1fr 1.15fr;
   gap: 2.5rem;
-  align-items: stretch;
+  align-items: start;
   position: relative;
   z-index: 2;
-}
-
-/* Subtle connection graphic in the gap between the two cards */
-.gridConnector {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  pointer-events: none;
-}
-
-.connectorLine {
-  width: 2px;
-  height: 30px;
-  background: linear-gradient(180deg, transparent, rgba(56, 189, 248, 0.5));
-}
-
-.connectorLineDown {
-  background: linear-gradient(0deg, transparent, rgba(56, 189, 248, 0.5));
-}
-
-.connectorNode {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #1D4ED8;
-  box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.12), 0 0 14px rgba(56, 189, 248, 0.8);
-  animation: connectorPulse 3s ease-in-out infinite;
-}
-
-@keyframes connectorPulse {
-  0%, 100% { opacity: 0.65; box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.1), 0 0 10px rgba(56, 189, 248, 0.55); }
-  50% { opacity: 1; box-shadow: 0 0 0 6px rgba(29, 78, 216, 0.16), 0 0 18px rgba(56, 189, 248, 0.9); }
 }
 
 /* ====================================================
@@ -154,8 +116,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  height: auto;
 }
 
 /* Refined top highlight hairline */
@@ -187,66 +148,18 @@
   transition: opacity 0.3s ease;
 }
 
-.hubCard:hover,
 .formCard:hover {
   transform: translateY(-4px);
   border-color: rgba(29, 78, 216, 0.28);
   box-shadow: 0 18px 44px rgba(11, 42, 111, 0.09), 0 4px 14px rgba(11, 42, 111, 0.05);
 }
 
-.hubCard:hover::before,
 .formCard:hover::before {
   opacity: 1;
 }
 
-.hubCard:hover::after,
 .formCard:hover::after {
   opacity: 1;
-}
-
-/* Subtle background connection network geometry */
-.networkBg {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 220px;
-  height: 220px;
-  pointer-events: none;
-  opacity: 0.6;
-  z-index: 0;
-}
-
-.networkLine {
-  stroke: rgba(56, 189, 248, 0.35);
-  stroke-dasharray: 4 4;
-  animation: netDash 15s linear infinite;
-}
-
-@keyframes netDash {
-  0% { stroke-dashoffset: 40; }
-  100% { stroke-dashoffset: 0; }
-}
-
-.networkPulseDot {
-  fill: #1D4ED8;
-  filter: drop-shadow(0 0 4px #38BDF8);
-  animation: netPulse 3s ease-in-out infinite alternate;
-}
-
-@keyframes netPulse {
-  0% { transform: scale(0.85); opacity: 0.5; }
-  100% { transform: scale(1.15); opacity: 1; }
-}
-
-.networkNode {
-  fill: #38BDF8;
-  opacity: 0.85;
-  animation: nodeGlow 4s ease-in-out infinite alternate;
-}
-
-@keyframes nodeGlow {
-  0% { opacity: 0.4; }
-  100% { opacity: 0.95; }
 }
 
 .hubHeader {
@@ -255,23 +168,6 @@
   margin-bottom: 1.5rem;
   padding-bottom: 1.25rem;
   border-bottom: 1px solid #E2E8F0;
-}
-
-.hubEyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-family: var(--font-heading, sans-serif);
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #1D4ED8;
-  background: #EFF6FF;
-  border: 1px solid #DBEAFE;
-  padding: 0.25rem 0.65rem;
-  border-radius: 9999px;
-  margin-bottom: 0.6rem;
 }
 
 .hubTitle {
@@ -300,6 +196,16 @@
   padding: 1.25rem;
   margin-bottom: 1.5rem;
   box-shadow: 0 2px 8px rgba(11, 42, 111, 0.03);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  cursor: default;
+}
+
+@media (hover: hover) {
+  .addressCard:hover {
+    transform: translateY(-2px);
+    border-color: #BFDBFE;
+    box-shadow: 0 6px 18px rgba(11, 42, 111, 0.07);
+  }
 }
 
 .addressHeader {
@@ -352,8 +258,7 @@
   z-index: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.85rem;
-  margin-top: auto;
+  gap: 1rem;
 }
 
 .contactModule {
@@ -365,15 +270,22 @@
   align-items: center;
   gap: 0.75rem;
   text-decoration: none;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
   box-shadow: 0 2px 6px rgba(11, 42, 111, 0.02);
 }
 
-.contactModule:hover {
-  transform: translateY(-2px);
-  border-color: #38BDF8;
-  background: #F0F9FF;
-  box-shadow: 0 6px 16px rgba(29, 78, 216, 0.08);
+@media (hover: hover) {
+  .contactModule:hover {
+    transform: translateY(-2px);
+    border-color: #BFDBFE;
+    background: #F8FAFC;
+    box-shadow: 0 6px 18px rgba(11, 42, 111, 0.07);
+  }
+
+  .contactModule:hover .moduleIconBox {
+    background: #1D4ED8;
+    color: #FFFFFF;
+  }
 }
 
 .moduleIconBox {
@@ -387,14 +299,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
-}
-
-.contactModule:hover .moduleIconBox {
-  background: #1D4ED8;
-  color: #FFFFFF;
-  transform: scale(1.06);
-  box-shadow: 0 0 12px rgba(29, 78, 216, 0.35);
+  transition: background 0.18s ease, color 0.18s ease;
 }
 
 .moduleDetails {
@@ -598,10 +503,6 @@
     grid-template-columns: 1fr;
     gap: 2.25rem;
   }
-
-  .gridConnector {
-    display: none;
-  }
 }
 
 @media (max-width: 640px) {
@@ -641,15 +542,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .networkLine,
-  .networkPulseDot,
-  .networkNode,
-  .particle,
-  .connectorNode {
+  .particle {
     animation: none !important;
   }
 
-  .hubCard,
+  .addressCard,
   .formCard,
   .contactModule,
   .moduleIconBox,

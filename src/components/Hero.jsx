@@ -7,7 +7,6 @@ const IMAGE_SLIDE_DURATION = 5500; // 5.5s per poster slide
 export default function Hero() {
   const [slides, setSlides] = useState(() => getActiveBanners());
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
 
   const videoRefs = useRef({});
@@ -80,8 +79,8 @@ export default function Hero() {
 
     if (slides.length <= 1) return;
 
-    // If current slide is NOT video and not hovered, auto-advance after IMAGE_SLIDE_DURATION
-    if (!isCurrentVideo && !isHovered) {
+    // If current slide is NOT video, auto-advance after IMAGE_SLIDE_DURATION
+    if (!isCurrentVideo) {
       timerRef.current = setTimeout(() => {
         handleNext();
       }, IMAGE_SLIDE_DURATION);
@@ -92,7 +91,7 @@ export default function Hero() {
         clearTimeout(timerRef.current);
       }
     };
-  }, [currentIndex, isCurrentVideo, isHovered, slides.length, handleNext]);
+  }, [currentIndex, isCurrentVideo, slides.length, handleNext]);
 
   // Handle Video completion -> immediately transition to next slide
   const handleVideoEnded = () => {
@@ -150,8 +149,6 @@ export default function Hero() {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
     >
       <div className={styles.slideshowWrapper}>
         <div className={styles.slidesContainer}>

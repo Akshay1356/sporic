@@ -47,6 +47,10 @@
   margin-bottom: 2rem;
 }
 
+.noCtaDescription {
+  margin-bottom: 0;
+}
+
 .knowMoreBtn {
   background-color: var(--primary-light, #1D4ED8) !important;
   color: #FFFFFF !important;

@@ -1,196 +1,52 @@
-/* Benefits.module.css - VIT-TEC / SPoRIC Innovation & Technology Ecosystem */
+/* Benefits.module.css - Refined VIT-TEC Corporate Training Ecosystem on Clean White Background */
 
 .benefitsSection {
   position: relative;
+  width: 100%;
+  background-color: #FFFFFF;
+  padding: 4.5rem 0 5rem 0;
   overflow: hidden;
-  color: #FFFFFF;
-  padding: 5rem 0 4.5rem;
-  isolation: isolate;
-  background:
-    radial-gradient(950px 520px at 50% -4%, rgba(29, 78, 216, 0.2) 0%, rgba(29, 78, 216, 0) 62%),
-    radial-gradient(760px 460px at 50% 112%, rgba(56, 189, 248, 0.06) 0%, rgba(56, 189, 248, 0) 62%),
-    linear-gradient(180deg, #0A1E4F 0%, #071B4A 45%, #071B4A 100%);
-}
-
-/* Technical research atmosphere: faint grid, sparse micro-nodes, soft depth fade */
-.bgGridPattern {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-image:
-    linear-gradient(rgba(125, 211, 252, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(125, 211, 252, 0.05) 1px, transparent 1px),
-    radial-gradient(rgba(125, 211, 252, 0.35) 1px, transparent 1.6px),
-    radial-gradient(rgba(255, 255, 255, 0.22) 1px, transparent 1.6px);
-  background-size: 46px 46px, 46px 46px, 140px 140px, 92px 92px;
-  background-position: -1px -1px, -1px -1px, 11px 15px, 3px 21px;
-  opacity: 0.5;
-  mask-image: radial-gradient(120% 95% at 50% 32%, #000 22%, transparent 78%);
-  -webkit-mask-image: radial-gradient(120% 95% at 50% 32%, #000 22%, transparent 78%);
-  pointer-events: none;
+  border-top: 1px solid #F1F5F9;
+  border-bottom: 1px solid #F1F5F9;
 }
 
 .sectionHeader {
   text-align: center;
-  margin-bottom: 1.3rem;
+  margin-bottom: 3.5rem;
   position: relative;
   z-index: 2;
-}
-
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #7DD3FC;
-  background: rgba(29, 78, 216, 0.18);
-  border: 1px solid rgba(56, 189, 248, 0.32);
-  padding: 0.32rem 0.95rem;
-  border-radius: 9999px;
-  margin-bottom: 1rem;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12), 0 4px 14px rgba(0, 0, 0, 0.2);
-}
-
-.eyebrow::before {
-  content: '';
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #38BDF8;
-  box-shadow: 0 0 8px #38BDF8;
 }
 
 .title {
   font-family: var(--font-heading, sans-serif);
-  font-size: clamp(2rem, 3.5vw, 2.85rem);
+  font-size: clamp(1.85rem, 3vw, 2.35rem);
   font-weight: 800;
-  color: #FFFFFF;
-  margin-bottom: 0.7rem;
+  color: #0F172A;
+  margin: 0 0 0.6rem;
   letter-spacing: -0.02em;
-  text-shadow: 0 0 30px rgba(56, 189, 248, 0.22);
+  line-height: 1.25;
 }
 
 .subtitle {
-  font-size: 1.02rem;
-  color: #A5B4CF;
+  font-size: 1rem;
+  color: #475467;
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
-}
-
-/* ====================================================
-   ECOSYSTEM ASSEMBLY HEADING
-   ==================================================== */
-.ecosystemIntro {
-  position: relative;
-  text-align: center;
-  margin: 0 auto 2.5rem;
-  z-index: 2;
-}
-
-.introLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-family: var(--font-heading, sans-serif);
-  font-size: 0.8rem;
-  font-weight: 800;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: #7DD3FC;
-}
-
-.introLabel::before,
-.introLabel::after {
-  content: '';
-  width: 24px;
-  height: 1px;
-}
-
-.introLabel::before {
-  background: linear-gradient(90deg, transparent, rgba(125, 211, 252, 0.7));
-}
-
-.introLabel::after {
-  background: linear-gradient(90deg, rgba(125, 211, 252, 0.7), transparent);
-}
-
-.introText {
-  margin: 0.55rem auto 0;
-  font-size: 0.95rem;
-  color: #8FA6C8;
-  line-height: 1.55;
-  max-width: 500px;
+  font-weight: 400;
 }
 
 /* ====================================================
    DESKTOP ECOSYSTEM CONTAINER
    ==================================================== */
 .ecosystemWrapper {
-  /* Width must equal the fixed grid width (956px) so the absolutely
-     positioned SVG layer maps its 956x724 viewBox 1:1 onto the grid. */
   position: relative;
-  max-width: 956px;
+  max-width: 1160px;
   margin: 0 auto;
   z-index: 2;
 }
 
-/* Radial illumination seated behind the central VIT-TEC hub */
-.ecosystemWrapper::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(780px, 94%);
-  height: min(640px, 94%);
-  background: radial-gradient(ellipse at center, rgba(29, 78, 216, 0.3) 0%, rgba(56, 189, 248, 0.09) 42%, transparent 72%);
-  pointer-events: none;
-  z-index: 0;
-  animation: coreGlow 8s ease-in-out infinite;
-}
-
-@keyframes coreGlow {
-  0%, 100% { opacity: 0.55; transform: translate(-50%, -50%) scale(1); }
-  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.03); }
-}
-
-/* ====================================================
-   SYMMETRICAL FIXED-TRACK GRID
-   ====================================================
-   Column tracks: [270] [38] [340] [38] [270]   = 956 px
-   Row tracks:    [146] [36] [360] [36] [146]   = 724 px
-
-   Hub centre = (478, 362) = exactly 50% / 50%.
-
-   All connector coordinates (Benefits.jsx geo objects) are
-   derived from these identical track measurements.                   */
-.ecosystemGrid {
-  --card-w: 270px;
-  --card-h: 146px;
-  --hub-w: 340px;
-  --hub-h: 360px;
-  --gap-col: 38px;
-  --gap-row: 36px;
-
-  display: grid;
-  grid-template-columns:
-    var(--card-w) var(--gap-col) var(--hub-w) var(--gap-col) var(--card-w);
-  grid-template-rows:
-    var(--card-h) var(--gap-row) var(--hub-h) var(--gap-row) var(--card-h);
-  width: calc(var(--card-w) * 2 + var(--hub-w) + var(--gap-col) * 2);
-  margin: 0 auto;
-  position: relative;
-  z-index: 2;
-  align-items: center;
-}
-
-/* ====================================================
-   SVG CONNECTOR LAYER
-   ==================================================== */
+/* SVG Connector Lines Layer */
 .connectorSvg {
   position: absolute;
   inset: 0;
@@ -198,607 +54,255 @@
   height: 100%;
   pointer-events: none;
   z-index: 1;
-  overflow: visible;
 }
 
-/* Curved gradient connectors emanating from the hub */
-.connectorBase {
-  fill: none;
-  stroke-width: 1.4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-opacity: 0.9;
-  transition: stroke 0.4s ease, stroke-width 0.4s ease, stroke-opacity 0.4s ease, filter 0.4s ease;
-}
-
-/* Inner flowing strand of dashes riding along the path */
-.connectorFlow {
-  fill: none;
-  stroke: rgba(125, 211, 252, 0.6);
+.connectorTrack {
+  stroke: #E2E8F0;
   stroke-width: 1.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 3 11;
-  opacity: 0.55;
-  animation: flowDash 16s linear infinite;
-  transition: opacity 0.4s ease, stroke 0.4s ease;
 }
 
-@keyframes flowDash {
-  to { stroke-dashoffset: -14; }
+.connectorLine {
+  stroke: #93C5FD;
+  stroke-width: 1.5;
+  stroke-dasharray: 6 8;
+  animation: flowTowardHub 3.5s linear infinite;
+  opacity: 0.75;
+  transition: stroke 0.3s ease, stroke-width 0.3s ease, opacity 0.3s ease;
 }
 
-/* Small static node at the connection endpoint (card-facing edge) */
-.junctionDot {
-  fill: #38BDF8;
-  opacity: 0.9;
-  filter: drop-shadow(0 0 4px rgba(56, 189, 248, 0.6));
-  animation: nodePulse 5s ease-in-out infinite;
+@keyframes flowTowardHub {
+  from {
+    stroke-dashoffset: 28;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
-@keyframes nodePulse {
-  0%, 100% { opacity: 0.45; }
-  50% { opacity: 0.95; }
-}
-
-/* Light particle travelling along the connector */
-.travelNode {
-  fill: #E7F6FF;
-  opacity: 0.9;
-  filter: drop-shadow(0 0 5px rgba(125, 211, 252, 0.9));
-}
-
-/* Occasional soft burst emanating from the hub centre */
-.connectorHalo {
-  fill: none;
-  stroke: #38BDF8;
-  stroke-width: 1;
-  animation: hubBurst 9s ease-out infinite;
-}
-
-@keyframes hubBurst {
-  0% { r: 16; opacity: 0.3; }
-  60% { r: 190; opacity: 0; }
-  100% { r: 190; opacity: 0; }
-}
-
-/* Brightened, reactive connector for the hovered node */
-.connectorGroupActive .connectorBase {
-  stroke: #38BDF8;
-  stroke-width: 2;
-  stroke-opacity: 1;
-  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.55));
-}
-
-.connectorGroupActive .connectorFlow {
-  opacity: 1;
-  stroke: #E7F6FF;
-}
-
-.connectorGroupActive .junctionDot {
-  fill: #7DD3FC;
+.connectorLineActive {
+  stroke: #1D4ED8;
+  stroke-width: 2.2;
+  stroke-dasharray: 6 6;
+  animation: flowTowardHub 1.8s linear infinite;
   opacity: 1;
 }
 
-.pulseDot {
-  fill: #38BDF8;
-  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.9));
-  transform-box: fill-box;
-  transform-origin: center;
-  animation: nodePing 1.8s ease-out infinite;
+.connectorDotCard,
+.connectorDotHub {
+  fill: #CBD5E1;
+  transition: fill 0.3s ease, r 0.3s ease;
 }
 
-@keyframes nodePing {
-  0% { transform: scale(0.8); opacity: 0.9; }
-  55% { transform: scale(2); opacity: 0; }
-  100% { transform: scale(2); opacity: 0; }
+.connectorDotActive {
+  fill: #1D4ED8;
+}
+
+/* Desktop Grid Layout */
+.ecosystemGrid {
+  display: grid;
+  grid-template-columns: 1fr 330px 1fr;
+  grid-template-rows: auto auto auto;
+  gap: 2rem 2.25rem;
+  align-items: center;
+  position: relative;
+  z-index: 2;
 }
 
 /* ====================================================
-   CENTRAL VIT-TEC INNOVATION HUB
+   CENTRAL VIT-TEC HUB
    ==================================================== */
 .centralCore {
-  grid-column: 3;
-  grid-row: 3;
-  align-self: stretch;
-  border-radius: 30px;
-  padding: 1.5rem 1.3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  position: relative;
-  isolation: isolate;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.11) 0%, rgba(255, 255, 255, 0.03) 30%, rgba(255, 255, 255, 0) 48%),
-    radial-gradient(120% 90% at 50% 0%, rgba(29, 78, 216, 0.34) 0%, rgba(29, 78, 216, 0) 60%),
-    linear-gradient(165deg, rgba(20, 47, 108, 0.98) 0%, rgba(10, 30, 82, 0.99) 52%, rgba(6, 18, 56, 1) 100%);
-  border: 1px solid rgba(56, 189, 248, 0.45);
-  box-shadow:
-    0 36px 80px rgba(0, 0, 0, 0.55),
-    0 10px 34px rgba(5, 17, 48, 0.85),
-    0 0 50px rgba(29, 78, 216, 0.3),
-    0 0 100px rgba(56, 189, 248, 0.12),
-    inset 0 1px 1px rgba(255, 255, 255, 0.24);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  transition: transform 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
-}
-
-.centralCoreHighlighted {
-  border-color: #38BDF8;
-  transform: scale(1.015);
-  box-shadow:
-    0 42px 88px rgba(0, 0, 0, 0.62),
-    0 12px 40px rgba(5, 17, 48, 0.9),
-    0 0 64px rgba(56, 189, 248, 0.34),
-    0 0 120px rgba(56, 189, 248, 0.16),
-    inset 0 1px 2px rgba(255, 255, 255, 0.3);
-}
-
-.centralCoreHighlighted .coreRingOuter {
-  border-color: rgba(56, 189, 248, 0.42);
-  box-shadow:
-    0 0 34px rgba(56, 189, 248, 0.16),
-    inset 0 0 24px rgba(29, 78, 216, 0.16);
-}
-
-.centralCoreHighlighted .corePulseRing {
-  box-shadow:
-    0 0 40px rgba(56, 189, 248, 0.2),
-    inset 0 0 30px rgba(29, 78, 216, 0.16);
-}
-
-/* Slow rotating radial energy sweep, extremely subtle */
-.coreSweep {
-  position: absolute;
-  inset: 8px;
-  border-radius: 24px;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.coreSweep::before {
-  content: '';
-  position: absolute;
-  inset: -30%;
-  background: conic-gradient(from 0deg, transparent 0deg, rgba(56, 189, 248, 0.045) 26deg, transparent 58deg);
-  animation: sweepRotate 36s linear infinite;
-}
-
-@keyframes sweepRotate {
-  to { transform: rotate(360deg); }
-}
-
-/* Outermost technical orbit ring with signal ticks */
-.coreRingOuter {
-  position: absolute;
-  inset: -26px;
-  border-radius: 44px;
-  border: 1px solid rgba(56, 189, 248, 0.16);
-  box-shadow: 0 0 0 6px rgba(29, 78, 216, 0.06), inset 0 0 0 1px rgba(56, 189, 248, 0.05);
-  z-index: 1;
-  pointer-events: none;
-  transition: border-color 0.5s ease, box-shadow 0.5s ease;
-}
-
-.coreRingOuter::before,
-.coreRingOuter::after {
-  content: '';
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: #38BDF8;
-  box-shadow: 0 0 9px rgba(56, 189, 248, 0.8);
-  animation: hubTick 7s ease-in-out infinite;
-}
-
-.coreRingOuter::before {
-  top: -5px;
-  left: 50%;
-  margin-left: -2px;
-}
-
-.coreRingOuter::after {
-  bottom: -5px;
-  left: 50%;
-  margin-left: -2px;
-  animation-delay: 3.5s;
-}
-
-@keyframes hubTick {
-  0%, 100% { opacity: 0.25; transform: scale(1); }
-  50% { opacity: 0.95; transform: scale(1.35); }
-}
-
-/* Inner breathing glow ring */
-.corePulseRing {
-  position: absolute;
-  inset: -14px;
-  border-radius: 36px;
-  border: 1px solid rgba(56, 189, 248, 0.22);
-  box-shadow:
-    0 0 34px rgba(56, 189, 248, 0.14),
-    inset 0 0 26px rgba(29, 78, 216, 0.14);
-  z-index: 1;
-  pointer-events: none;
-  animation: hubRing 6s ease-in-out infinite;
-  transition: box-shadow 0.5s ease;
-}
-
-.corePulseRing::before {
-  content: '';
-  position: absolute;
-  inset: 7px;
-  border-radius: 29px;
-  border: 1px solid rgba(56, 189, 248, 0.12);
-  animation: hubRing 6s ease-in-out 0.6s infinite;
-}
-
-@keyframes hubRing {
-  0%, 100% { transform: scale(1); opacity: 0.55; }
-  50% { transform: scale(1.025); opacity: 1; }
-}
-
-/* Inner content panel */
-.corePanel {
-  position: relative;
-  z-index: 3;
+  grid-column: 2;
+  grid-row: 2;
+  background: linear-gradient(155deg, #0F2D6B 0%, #0A1E4A 65%, #071536 100%);
+  border: 1px solid rgba(147, 197, 253, 0.22);
+  border-radius: 20px;
+  padding: 2.25rem 1.75rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
-  padding: 1.8rem 1.5rem 1.5rem;
-  border-radius: 22px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.015) 60%);
-  border: 1px solid rgba(56, 189, 248, 0.16);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.08);
+  text-align: center;
+  box-shadow: 
+    0 16px 36px -8px rgba(10, 30, 74, 0.25),
+    0 4px 12px -2px rgba(10, 30, 74, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  position: relative;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.corePanel::before,
-.corePanel::after {
-  content: '';
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  pointer-events: none;
-}
-
-.corePanel::before {
-  top: 10px;
-  left: 12px;
-  border-top: 1px solid rgba(125, 211, 252, 0.5);
-  border-left: 1px solid rgba(125, 211, 252, 0.5);
-  border-top-left-radius: 5px;
-  opacity: 0.7;
-}
-
-.corePanel::after {
-  bottom: 10px;
-  right: 12px;
-  border-bottom: 1px solid rgba(125, 211, 252, 0.5);
-  border-right: 1px solid rgba(125, 211, 252, 0.5);
-  border-bottom-right-radius: 5px;
-  opacity: 0.7;
+.centralCore:hover,
+.centralCoreHighlighted {
+  border-color: rgba(147, 197, 253, 0.45);
+  transform: translateY(-3px);
+  box-shadow: 
+    0 22px 46px -8px rgba(10, 30, 74, 0.32),
+    0 6px 16px -2px rgba(10, 30, 74, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .coreLogoWrap {
-  width: 76px;
-  height: 76px;
-  border-radius: 22px;
-  background: linear-gradient(180deg, rgba(29, 78, 216, 0.55) 0%, rgba(29, 78, 216, 0.16) 100%);
-  border: 1px solid rgba(56, 189, 248, 0.5);
+  width: 64px;
+  height: 64px;
+  border-radius: 15px;
+  background: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.95);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1.15rem;
-  box-shadow:
-    0 12px 26px rgba(0, 0, 0, 0.35),
-    0 0 22px rgba(56, 189, 248, 0.2),
-    inset 0 1px 1px rgba(255, 255, 255, 0.3);
-  position: relative;
+  margin-bottom: 1.1rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+  padding: 5px;
+  overflow: hidden;
 }
 
 .coreLogoImg {
-  height: 44px;
-  width: auto;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+  display: block;
 }
 
 .coreBadge {
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #7DD3FC;
-  background: linear-gradient(180deg, rgba(56, 189, 248, 0.18), rgba(29, 78, 216, 0.18));
-  border: 1px solid rgba(56, 189, 248, 0.28);
-  padding: 0.3rem 0.75rem;
+  letter-spacing: 0.07em;
+  color: #DBEAFE;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 0.25rem 0.75rem;
   border-radius: 9999px;
   margin-bottom: 0.65rem;
 }
 
 .coreTitle {
   font-family: var(--font-heading, sans-serif);
-  font-size: clamp(1.7rem, 5vw, 2.2rem);
+  font-size: 1.45rem;
   font-weight: 800;
   color: #FFFFFF;
-  letter-spacing: 0.05em;
-  margin: 0 0 0.35rem;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.25rem;
   line-height: 1.15;
-  text-shadow: 0 0 28px rgba(56, 189, 248, 0.35);
 }
 
 .coreSubtitle {
-  font-size: 0.8rem;
-  color: #C7D4E8;
+  font-size: 0.76rem;
+  color: #93C5FD;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   margin: 0;
 }
 
 .coreMeta {
   margin-top: 1.15rem;
-  padding: 0.95rem 1rem 0;
-  border-top: 1px solid rgba(125, 211, 252, 0.14);
-  width: 100%;
-  font-size: 0.75rem;
-  color: #9FB3D2;
-  letter-spacing: 0.02em;
-  line-height: 1.5;
-}
-
-.coreMeta::before {
-  content: '';
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #38BDF8;
-  box-shadow: 0 0 9px rgba(56, 189, 248, 0.9);
-  margin-right: 0.5rem;
-  vertical-align: 1px;
-  animation: nodePulse 4s ease-in-out infinite;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.74rem;
+  color: #CBD5E1;
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
 }
 
 /* ====================================================
-   CAPABILITY NODES (BENEFIT CARDS)
+   BENEFIT CARDS
    ==================================================== */
 .benefitCard {
-  position: relative;
-  overflow: visible;
-  background:
-    radial-gradient(90% 120% at 15% 0%, rgba(29, 78, 216, 0.18) 0%, rgba(29, 78, 216, 0) 55%),
-    linear-gradient(165deg, rgba(20, 46, 102, 0.55) 0%, rgba(11, 32, 78, 0.6) 100%);
-  border: 1px solid rgba(56, 189, 248, 0.24);
-  border-radius: 20px;
-  padding: 1.5rem 1.4rem;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 14px;
+  padding: 1.4rem 1.35rem;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow:
-    0 12px 30px rgba(0, 0, 0, 0.3),
-    inset 0 1px 1px rgba(255, 255, 255, 0.07);
-  transition: transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
+  box-shadow: 
+    0 1px 3px rgba(15, 23, 42, 0.03),
+    0 4px 12px -2px rgba(15, 23, 42, 0.04);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
   cursor: default;
-}
-
-/* Corner technical bracket (top-left) */
-.benefitCard::before {
-  content: '';
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  width: 12px;
-  height: 12px;
-  border-top: 1px solid rgba(125, 211, 252, 0.4);
-  border-left: 1px solid rgba(125, 211, 252, 0.4);
-  border-top-left-radius: 4px;
-  opacity: 0.7;
-  transition: opacity 0.4s ease, border-color 0.4s ease;
-}
-
-/* Fine technical tick (bottom-right) */
-.benefitCard::after {
-  content: '';
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  width: 10px;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(56, 189, 248, 0.5), transparent);
-  opacity: 0.5;
-  transition: opacity 0.4s ease;
 }
 
 .benefitCard:hover,
 .benefitCardActive {
-  background:
-    radial-gradient(90% 120% at 15% 0%, rgba(29, 78, 216, 0.3) 0%, rgba(29, 78, 216, 0) 55%),
-    linear-gradient(165deg, rgba(29, 78, 216, 0.3) 0%, rgba(14, 42, 108, 0.55) 100%);
-  border-color: rgba(56, 189, 248, 0.65);
-  transform: translateY(-6px);
-  box-shadow:
-    0 22px 44px rgba(0, 0, 0, 0.42),
-    0 0 30px rgba(56, 189, 248, 0.14),
-    inset 0 1px 1px rgba(255, 255, 255, 0.14);
+  background: #FFFFFF;
+  border-color: #BFDBFE;
+  transform: translateY(-3px);
+  box-shadow: 
+    0 10px 24px -4px rgba(11, 42, 111, 0.08),
+    0 4px 8px -2px rgba(11, 42, 111, 0.03);
 }
 
-.benefitCard:hover::before,
-.benefitCardActive::before {
-  opacity: 1;
-  border-color: rgba(125, 211, 252, 0.85);
-}
-
-.benefitCard:hover::after,
-.benefitCardActive::after {
-  opacity: 1;
-}
-
-/* Index marker */
-.cardIndex {
-  position: absolute;
-  top: 10px;
-  right: 14px;
-  font-family: var(--font-tech, monospace);
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: rgba(148, 190, 240, 0.6);
-  transition: color 0.4s ease;
-}
-
-.benefitCard:hover .cardIndex,
-.benefitCardActive .cardIndex {
-  color: #7DD3FC;
-}
-
-/* Connection node — straddles the card edge that faces the hub.
-   Half of the dot sits outside the card (overflow:visible),
-   directly on the connector endpoint.  Coordinates are deterministic:
-   they correspond to the fixed grid track boundaries.              */
-.nodeIndicator {
-  position: absolute;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #38BDF8;
-  opacity: 0.85;
-  box-shadow:
-    0 0 8px rgba(56, 189, 248, 0.8),
-    0 0 16px rgba(56, 189, 248, 0.35);
-  transition: opacity 0.4s ease, box-shadow 0.4s ease;
-  z-index: 2;
-  pointer-events: none;
-}
-
-/* Top-row cards — connector exits through the card's bottom edge */
-.posTopLeft .nodeIndicator,
-.posTopRight .nodeIndicator {
-  bottom: -3.5px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-/* Middle-row cards — connector exits through the side facing the hub */
-.posMidLeft .nodeIndicator {
-  right: -3.5px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.posMidRight .nodeIndicator {
-  left: -3.5px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-/* Bottom card — connector enters through the card's top edge */
-.posBottomCenter .nodeIndicator {
-  top: -3.5px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.benefitCard:hover .nodeIndicator,
-.benefitCardActive .nodeIndicator {
-  opacity: 1;
-  box-shadow:
-    0 0 12px rgba(56, 189, 248, 1),
-    0 0 24px rgba(56, 189, 248, 0.5);
-}
-
-/* Icon treatment */
-.cardIconWrap {
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  background: linear-gradient(150deg, rgba(29, 78, 216, 0.5) 0%, rgba(10, 28, 72, 0.7) 100%);
-  border: 1px solid rgba(56, 189, 248, 0.38);
-  color: #7DD3FC;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.16),
-    0 8px 18px rgba(0, 0, 0, 0.28),
-    0 0 0 4px rgba(29, 78, 216, 0.08);
-  transition: color 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease, background 0.4s ease;
-}
-
-.benefitCard:hover .cardIconWrap,
-.benefitCardActive .cardIconWrap {
-  color: #EAF6FF;
-  transform: translateY(-2px) scale(1.06);
-  border-color: rgba(56, 189, 248, 0.8);
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.2),
-    0 10px 24px rgba(0, 0, 0, 0.35),
-    0 0 20px rgba(56, 189, 248, 0.3),
-    0 0 0 4px rgba(29, 78, 216, 0.12);
-}
-
-.cardContent {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-  min-width: 0;
-}
-
-.cardTitle {
-  font-family: var(--font-heading, sans-serif);
-  font-size: 1.06rem;
-  font-weight: 700;
-  color: #FFFFFF;
-  line-height: 1.35;
-  margin: 0 0 0.35rem;
-  letter-spacing: -0.01em;
-}
-
-.cardDesc {
-  font-size: 0.85rem;
-  color: #9FB0CC;
-  line-height: 1.55;
-  margin: 0;
-}
-
-/* ====================================================
-   GRID PLACEMENT — exact symmetric placement
-   ====================================================
-   Grid cells (col / row):
-     card01 = 1 / 1          card03 = 5 / 1
-     card02 = 1 / 3   hub = 3 / 3   card04 = 5 / 3
-                           card05 = 3 / 5            */
+/* Specific Grid Positions on Desktop */
 .posTopLeft {
   grid-column: 1;
   grid-row: 1;
 }
 
+.posMidLeft {
+  grid-column: 1;
+  grid-row: 2;
+}
+
 .posTopRight {
-  grid-column: 5;
+  grid-column: 3;
   grid-row: 1;
 }
 
-.posMidLeft {
-  grid-column: 1;
-  grid-row: 3;
-}
-
 .posMidRight {
-  grid-column: 5;
-  grid-row: 3;
+  grid-column: 3;
+  grid-row: 2;
 }
 
 .posBottomCenter {
-  grid-column: 3;
-  grid-row: 5;
+  grid-column: 2;
+  grid-row: 3;
+}
+
+/* Card Internals */
+.cardIconWrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+  background: #F0F7FF;
+  border: 1px solid #DBEAFE;
+  color: #1D4ED8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.25s ease, transform 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+.benefitCard:hover .cardIconWrap,
+.benefitCardActive .cardIconWrap {
+  background: #0B2A6F;
+  border-color: #0B2A6F;
+  color: #FFFFFF;
+  transform: scale(1.04);
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardTitle {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #0F172A;
+  line-height: 1.35;
+  margin: 0 0 0.3rem;
+  letter-spacing: -0.01em;
+}
+
+.cardDesc {
+  font-size: 0.84rem;
+  color: #475467;
+  line-height: 1.5;
+  margin: 0;
 }
 
 /* ====================================================
@@ -809,16 +313,46 @@
     display: none;
   }
 
-  /* Proportional reduction — same symmetric geometry, tighter tracks */
   .ecosystemGrid {
-    --card-w: 190px;
-    --hub-w: 270px;
-    --gap-col: 20px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto auto;
+    gap: 1.5rem;
   }
 
   .centralCore {
-    grid-column: 3;
+    grid-column: 1 / span 2;
+    grid-row: 1;
+    max-width: 420px;
+    margin: 0 auto 0.75rem;
+    width: 100%;
+  }
+
+  .posTopLeft {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .posTopRight {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .posMidLeft {
+    grid-column: 1;
     grid-row: 3;
+  }
+
+  .posMidRight {
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  .posBottomCenter {
+    grid-column: 1 / span 2;
+    grid-row: 4;
+    max-width: 460px;
+    margin: 0 auto;
+    width: 100%;
   }
 }
 
@@ -831,148 +365,41 @@
   }
 
   .sectionHeader {
-    margin-bottom: 1rem;
-  }
-
-  .ecosystemIntro {
-    margin-bottom: 1.6rem;
-  }
-
-  .introLabel {
-    font-size: 0.72rem;
-  }
-
-  .introText {
-    font-size: 0.88rem;
+    margin-bottom: 2rem;
   }
 
   .connectorSvg {
     display: none;
   }
 
-  /* Glow re-centres behind the hub (now at top of the column) */
-  .ecosystemWrapper::before {
-    top: 10%;
-    transform: translateX(-50%) scale(1);
-    height: 440px;
-    width: 92%;
-    animation: none;
-  }
-
-  .coreRingOuter {
-    inset: -14px;
-    border-radius: 36px;
-    box-shadow: 0 0 0 4px rgba(29, 78, 216, 0.05);
-  }
-
-  .corePulseRing {
-    inset: -10px;
-  }
-
-  /* Vertical ecosystem — re-order the DOM to match the target stack:
-     HUB → Curriculum → Research → Faculty → Placement → Hands-on     */
   .ecosystemGrid {
     display: flex;
     flex-direction: column;
-    width: 100%;
-    gap: 1.5rem;
+    gap: 1rem;
     position: relative;
   }
 
-  /* Connector spine (simplified visual link) */
-  .ecosystemGrid::before {
-    content: '';
-    position: absolute;
-    top: 340px;
-    bottom: 30px;
-    left: 27px;
-    width: 2px;
-    background: repeating-linear-gradient(
-      180deg,
-      rgba(56, 189, 248, 0.85) 0 5px,
-      rgba(56, 189, 248, 0.12) 5px 12px
-    );
-    background-position: 0 0;
-    animation: spineFlow 1.8s linear infinite;
-    z-index: 1;
-  }
-
-  @keyframes spineFlow {
-    to { background-position: 0 12px; }
-  }
-
-  /* Flex orders — enforce the target mobile sequence */
-  .centralCore { order: 0; width: 100%; padding: 1.2rem 1rem; }
-  .posTopLeft { order: 1; }
-  .posTopRight { order: 2; }
-  .posMidLeft { order: 3; }
-  .posMidRight { order: 4; }
-  .posBottomCenter { order: 5; }
-
-  .corePanel {
-    padding: 1.5rem 1.2rem 1.3rem;
-  }
-
-  .coreTitle {
-    font-size: 1.55rem;
+  .centralCore {
+    width: 100%;
+    padding: 1.75rem 1.25rem;
+    margin-bottom: 0.5rem;
   }
 
   .benefitCard {
     width: 100%;
-    padding: 1.3rem 1.1rem;
-    z-index: 2;
-    /* Reset desktop edge-based positioning for vertical layout */
-    overflow: visible;
+    padding: 1.2rem 1rem;
   }
 
   .cardIconWrap {
-    width: 46px;
-    height: 46px;
+    width: 40px;
+    height: 40px;
   }
 
   .cardTitle {
-    font-size: 0.98rem;
+    font-size: 0.95rem;
   }
 
   .cardDesc {
     font-size: 0.82rem;
-  }
-
-  /* Node indicators sit on the spine in mobile */
-  .posTopLeft .nodeIndicator,
-  .posTopRight .nodeIndicator,
-  .posMidLeft .nodeIndicator,
-  .posMidRight .nodeIndicator,
-  .posBottomCenter .nodeIndicator {
-    top: 42px;
-    left: 25px;
-    right: auto;
-    bottom: auto;
-    transform: none;
-  }
-}
-
-/* ====================================================
-   REDUCED MOTION
-   ==================================================== */
-@media (prefers-reduced-motion: reduce) {
-  .connectorFlow,
-  .connectorHalo,
-  .coreSweep::before,
-  .corePulseRing,
-  .corePulseRing::before,
-  .coreRingOuter::before,
-  .coreRingOuter::after,
-  .junctionDot,
-  .coreMeta::before,
-  .ecosystemWrapper::before,
-  .ecosystemGrid::before,
-  .travelNode {
-    animation: none !important;
-  }
-
-  .travelNode,
-  .connectorHalo {
-    display: none;
   }
 }

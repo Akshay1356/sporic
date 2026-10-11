@@ -84,13 +84,6 @@ export default function Contact() {
 
         {/* 2-Column Connected Communication Grid */}
         <div className={styles.grid}>
-          {/* Subtle Connection Graphic Between Cards */}
-          <div className={styles.gridConnector} aria-hidden="true">
-            <span className={styles.connectorLine} />
-            <span className={styles.connectorNode} />
-            <span className={`${styles.connectorLine} ${styles.connectorLineDown}`} />
-          </div>
-
           {/* ====================================================
               LEFT COLUMN: "CONNECT WITH VIT-TEC" HUB
              ==================================================== */}
@@ -100,31 +93,8 @@ export default function Contact() {
             animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -24 }}
             transition={{ duration: 0.6, delay: 0.15 }}
           >
-            {/* Subtle Technical Network Geometry */}
-            <svg className={styles.networkBg} viewBox="0 0 200 200" aria-hidden="true">
-              <circle cx="160" cy="40" r="32" fill="none" stroke="rgba(56, 189, 248, 0.2)" strokeWidth="1" />
-              <circle cx="160" cy="40" r="18" fill="none" stroke="rgba(29, 78, 216, 0.25)" strokeWidth="1" />
-              <line x1="160" y1="40" x2="60" y2="120" className={styles.networkLine} strokeWidth="1.5" />
-              <line x1="160" y1="40" x2="130" y2="170" className={styles.networkLine} strokeWidth="1.5" />
-              <line x1="160" y1="40" x2="185" y2="120" className={styles.networkLine} strokeWidth="1" />
-              <line x1="40" y1="70" x2="160" y2="40" className={styles.networkLine} strokeWidth="1" />
-              <path d="M 40 70 Q 100 100 130 170" fill="none" className={styles.networkLine} strokeWidth="1" />
-              <circle cx="160" cy="40" r="5" className={styles.networkPulseDot} />
-              <circle cx="95" cy="105" r="2.5" className={styles.networkNode} />
-              <circle cx="60" cy="120" r="3.5" fill="#38BDF8" />
-              <circle cx="40" cy="70" r="3" className={styles.networkNode} />
-              <circle cx="185" cy="120" r="3" className={styles.networkNode} />
-              <circle cx="130" cy="170" r="3.5" fill="#38BDF8" />
-            </svg>
-
             {/* Hub Header */}
             <div className={styles.hubHeader}>
-              <span className={styles.hubEyebrow}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                Institutional Hub
-              </span>
               <h3 className={styles.hubTitle}>Connect with VIT-TEC</h3>
               <p className={styles.hubSubtitle}>
                 Let's build meaningful connections across learning, industry and innovation.
