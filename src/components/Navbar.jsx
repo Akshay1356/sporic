@@ -101,7 +101,7 @@ export default function Navbar() {
              ==================================================== */}
           <Link to="/" className={styles.logo} aria-label="VIT-TEC Home">
             <img
-              src="/vit_logo_dark.png"
+              src="/vit_logo.png"
               alt="Vellore Institute of Technology"
               className={styles.vitLogoImg}
             />

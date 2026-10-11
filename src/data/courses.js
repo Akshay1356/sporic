@@ -578,7 +578,8 @@ export function saveNewCourse(courseData) {
       registrationDeadline: courseData.registrationDeadline || '2026-11-15',
       image: courseData.image || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop',
       keywords: courseData.keywords || [courseData.domain, courseData.category],
-      createdAt: now,
+      createdAt: courseData.createdAt || now,
+      updatedAt: now,
       isCustom: true,
     };
     const updated = [record, ...customCourses.filter((c) => c.id !== record.id)];

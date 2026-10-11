@@ -114,50 +114,105 @@ export default function CourseDetails() {
             {/* Left Main Details */}
             <div className={styles.leftCol}>
               {/* Overview / Learn */}
-              <GlassCard className={styles.detailCard} padding="lg">
-                <h3 className={styles.cardTitle}>What You'll Learn &amp; Master</h3>
-                <ul className={styles.list}>
-                  {course.learn.map((item, idx) => (
-                    <li key={idx}>✓ {item}</li>
-                  ))}
-                </ul>
-              </GlassCard>
+              {Array.isArray(course.learn) && course.learn.filter(Boolean).length > 0 && (
+                <GlassCard className={styles.detailCard} padding="lg">
+                  <h3 className={styles.cardTitle}>What You'll Learn &amp; Master</h3>
+                  <ul className={styles.list}>
+                    {course.learn.filter(Boolean).map((item, idx) => (
+                      <li key={idx}>✓ {item}</li>
+                    ))}
+                  </ul>
+                </GlassCard>
+              )}
 
               {/* Modules Breakdown */}
-              <GlassCard className={styles.detailCard} padding="lg">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1rem' }}>
-                  <h3 className={styles.cardTitle} style={{ margin: 0 }}>Structured Syllabus &amp; Modules</h3>
-                  {syllabusPdf && (
-                    <a
-                      href={syllabusPdf.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      download={syllabusPdf.name || `${course.title}-Syllabus.pdf`}
-                      className="btn btn-secondary"
-                      style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none' }}
-                    >
-                      <span>📄</span> View / Download Syllabus (PDF)
-                    </a>
+              {((Array.isArray(course.modules) && course.modules.length > 0) || syllabusPdf) && (
+                <GlassCard className={styles.detailCard} padding="lg">
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: Array.isArray(course.modules) && course.modules.length > 0 ? '1.25rem' : 0 }}>
+                    <h3 className={styles.cardTitle} style={{ margin: 0 }}>Structured Syllabus &amp; Modules</h3>
+                    {syllabusPdf && (
+                      <a
+                        href={syllabusPdf.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        download={syllabusPdf.name || `${course.title}-Syllabus.pdf`}
+                        className="btn btn-secondary"
+                        style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none' }}
+                      >
+                        <span>📄</span> View / Download Syllabus (PDF)
+                      </a>
+                    )}
+                  </div>
+                  {Array.isArray(course.modules) && course.modules.length > 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+                      {course.modules.map((item, idx) => {
+                        const rawTitle = typeof item === 'object' && item !== null ? item.title : String(item || '');
+                        const desc = typeof item === 'object' && item !== null ? item.description : null;
+                        const cleanTitle = (rawTitle || '').replace(/^Module\s*\d+\s*:\s*/i, '').trim();
+
+                        return (
+                          <div
+                            key={idx}
+                            style={{
+                              background: '#F8FAFC',
+                              border: '1px solid #E2E8F0',
+                              borderRadius: '10px',
+                              padding: '1rem 1.15rem',
+                              textAlign: 'left',
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.55rem', marginBottom: desc ? '0.45rem' : 0, flexWrap: 'wrap' }}>
+                              <span
+                                style={{
+                                  background: '#EFF6FF',
+                                  color: '#1D4ED8',
+                                  fontWeight: 700,
+                                  fontSize: '0.78rem',
+                                  padding: '0.2rem 0.55rem',
+                                  borderRadius: '6px',
+                                  border: '1px solid #BFDBFE',
+                                  flexShrink: 0,
+                                }}
+                              >
+                                Module {idx + 1}
+                              </span>
+                              <span style={{ fontWeight: 600, color: '#0F172A', fontSize: '0.98rem' }}>
+                                {cleanTitle}
+                              </span>
+                            </div>
+                            {desc && (
+                              <div
+                                style={{
+                                  color: '#475467',
+                                  fontSize: '0.88rem',
+                                  lineHeight: 1.65,
+                                  whiteSpace: 'pre-line',
+                                  marginTop: '0.35rem',
+                                  paddingLeft: '0.15rem',
+                                }}
+                              >
+                                {desc}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   )}
-                </div>
-                <ol className={styles.orderedList}>
-                  {course.modules.map((item, idx) => (
-                    <li key={idx}>
-                      <strong>Module {idx + 1}:</strong> {item}
-                    </li>
-                  ))}
-                </ol>
-              </GlassCard>
+                </GlassCard>
+              )}
 
               {/* Salient Features */}
-              <GlassCard className={styles.detailCard} padding="lg">
-                <h3 className={styles.cardTitle}>Key Program Highlights</h3>
-                <ul className={styles.list}>
-                  {course.features.map((item, idx) => (
-                    <li key={idx}>⚡ {item}</li>
-                  ))}
-                </ul>
-              </GlassCard>
+              {Array.isArray(course.features) && course.features.filter(Boolean).length > 0 && (
+                <GlassCard className={styles.detailCard} padding="lg">
+                  <h3 className={styles.cardTitle}>Key Program Highlights</h3>
+                  <ul className={styles.list}>
+                    {course.features.filter(Boolean).map((item, idx) => (
+                      <li key={idx}>⚡ {item}</li>
+                    ))}
+                  </ul>
+                </GlassCard>
+              )}
             </div>
 
             {/* Right Column: Enrollment Info Panel */}

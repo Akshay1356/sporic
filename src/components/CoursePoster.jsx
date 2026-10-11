@@ -98,9 +98,9 @@ export default function CoursePoster({ course, className = '' }) {
             <p className={styles.posterTagline}>{course.shortDescription}</p>
 
             {/* Key Outcomes / Highlights */}
-            {course.learn && course.learn.length > 0 && (
+            {Array.isArray(course.learn) && course.learn.filter(Boolean).length > 0 && (
               <div className={styles.outcomesList}>
-                {course.learn.slice(0, 3).map((item, idx) => (
+                {course.learn.filter(Boolean).slice(0, 3).map((item, idx) => (
                   <div key={idx} className={styles.outcomeItem}>
                     <span className={styles.checkIcon}>✓</span>
                     <span className={styles.outcomeText}>{item}</span>
@@ -229,11 +229,11 @@ export default function CoursePoster({ course, className = '' }) {
                     <p className={styles.modalTagline}>{course.shortDescription}</p>
 
                     {/* Learn Highlights Grid */}
-                    {course.learn && course.learn.length > 0 && (
+                    {Array.isArray(course.learn) && course.learn.filter(Boolean).length > 0 && (
                       <div className={styles.modalOutcomesSection}>
                         <h4 className={styles.modalSectionTitle}>KEY LEARNING OUTCOMES</h4>
                         <div className={styles.modalOutcomesGrid}>
-                          {course.learn.map((item, idx) => (
+                          {course.learn.filter(Boolean).map((item, idx) => (
                             <div key={idx} className={styles.modalOutcomeCard}>
                               <span className={styles.checkIcon}>✓</span>
                               <span className={styles.modalOutcomeText}>{item}</span>
@@ -244,15 +244,19 @@ export default function CoursePoster({ course, className = '' }) {
                     )}
 
                     {/* Modules Pills */}
-                    {course.modules && course.modules.length > 0 && (
+                    {Array.isArray(course.modules) && course.modules.length > 0 && (
                       <div className={styles.modalModulesSection}>
                         <h4 className={styles.modalSectionTitle}>CURRICULUM MODULES</h4>
                         <div className={styles.modalModulesWrap}>
-                          {course.modules.map((mod, idx) => (
-                            <span key={idx} className={styles.modalModulePill}>
-                              Module {idx + 1}: {mod}
-                            </span>
-                          ))}
+                          {course.modules.map((mod, idx) => {
+                            const rawTitle = typeof mod === 'object' && mod !== null ? mod.title : String(mod || '');
+                            const cleanTitle = (rawTitle || '').replace(/^Module\s*\d+\s*:\s*/i, '').trim();
+                            return (
+                              <span key={idx} className={styles.modalModulePill}>
+                                Module {idx + 1}: {cleanTitle}
+                              </span>
+                            );
+                          })}
                         </div>
                       </div>
                     )}

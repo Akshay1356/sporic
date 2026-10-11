@@ -83,6 +83,13 @@ import {
   deleteRanking,
 } from '../data/rankingsData';
 import api from '../services/api';
+import CourseContentEditor from '../components/CourseContentEditor';
+import {
+  getDefaultLearnItems,
+  getDefaultModuleItems,
+  getDefaultFeatureItems,
+  sanitizeModuleTitle,
+} from '../utils/courseContentHelpers';
 import styles from './Dashboard.module.css';
 
 export default function Dashboard() {
@@ -129,8 +136,21 @@ export default function Dashboard() {
 
   // Course edit / add modal states
   const [editingCourse, setEditingCourse] = useState(null);
-  const [editPrice, setEditPrice] = useState('');
+  const [editTitle, setEditTitle] = useState('');
+  const [editDomain, setEditDomain] = useState(DOMAINS.TECHNOLOGY);
+  const [editCategory, setEditCategory] = useState('');
+  const [editHours, setEditHours] = useState(20);
+  const [editMode, setEditMode] = useState('online');
+  const [editPrice, setEditPrice] = useState(4999);
   const [editStatus, setEditStatus] = useState(COURSE_STATUS.OPEN);
+  const [editShortDescription, setEditShortDescription] = useState('');
+  const [editTrainer, setEditTrainer] = useState('');
+  const [editDeadline, setEditDeadline] = useState('2026-11-15');
+  const [editLearn, setEditLearn] = useState(getDefaultLearnItems());
+  const [editModules, setEditModules] = useState(getDefaultModuleItems());
+  const [editFeatures, setEditFeatures] = useState(getDefaultFeatureItems());
+  const [editSubmitting, setEditSubmitting] = useState(false);
+
   const [showAddModal, setShowAddModal] = useState(false);
   const [courseImagePreview, setCourseImagePreview] = useState('');
   const [courseImageError, setCourseImageError] = useState('');
@@ -142,6 +162,10 @@ export default function Dashboard() {
   const [editSyllabusInfo, setEditSyllabusInfo] = useState(null);
   const [editSyllabusRemove, setEditSyllabusRemove] = useState(false);
   const [editSyllabusError, setEditSyllabusError] = useState('');
+  const [newCourseLearn, setNewCourseLearn] = useState(getDefaultLearnItems());
+  const [newCourseModules, setNewCourseModules] = useState(getDefaultModuleItems());
+  const [newCourseFeatures, setNewCourseFeatures] = useState(getDefaultFeatureItems());
+  const [newCourseSubmitting, setNewCourseSubmitting] = useState(false);
   const [newCourse, setNewCourse] = useState({
     id: '',
     title: '',
@@ -159,8 +183,6 @@ export default function Dashboard() {
     contactPerson: 'Dean, SpoRIC',
     contactEmail: 'deancc.sporic@vit.ac.in',
     contactNumber: '73587 82571',
-    learn: 'Hands-on industrial tools, Real-world case study benchmarks, Industry-standard framework mastery',
-    modules: 'Module 1: Foundations & Architecture, Module 2: Core Engineering, Module 3: Enterprise Capstone',
   });
 
   // Gallery CMS modal states (ADMIN ONLY)
@@ -395,61 +417,164 @@ export default function Dashboard() {
   }
 
   // --- COURSE MANAGEMENT HANDLERS ---
+  const startEditingCourse = (c) => {
+    setEditingCourse(c);
+    setEditTitle(c.title || '');
+    setEditDomain(c.domain || DOMAINS.TECHNOLOGY);
+    setEditCategory(c.category || '');
+    setEditHours(c.hours || 20);
+    setEditMode(c.mode || 'online');
+    setEditPrice(c.price !== undefined ? c.price : 4999);
+    setEditStatus(c.status || COURSE_STATUS.OPEN);
+    setEditShortDescription(c.shortDescription || '');
+    setEditTrainer(c.trainer || '');
+    setEditDeadline(c.registrationDeadline || '2026-11-15');
+    setEditImagePreview(c.image || '');
+    setEditImageError('');
+    setEditSyllabusFile(null);
+    setEditSyllabusRemove(false);
+    setEditSyllabusError('');
+    if (c.syllabusPdf) {
+      setEditSyllabusInfo(c.syllabusPdf);
+    } else {
+      getSyllabusPdf(c.id).then((stored) => {
+        if (stored) {
+          setEditSyllabusInfo({ name: stored.name, size: stored.size });
+        } else {
+          setEditSyllabusInfo(null);
+        }
+      }).catch(() => setEditSyllabusInfo(null));
+    }
+
+    const popLearn = Array.isArray(c.learn) && c.learn.length > 0
+      ? c.learn.map((str, idx) => ({ id: `edit_learn_${idx}_${Date.now()}`, value: str }))
+      : getDefaultLearnItems();
+    setEditLearn(popLearn);
+
+    const popModules = Array.isArray(c.modules) && c.modules.length > 0
+      ? c.modules.map((m, idx) => {
+          if (typeof m === 'object' && m !== null) {
+            return {
+              id: `edit_mod_${idx}_${Date.now()}`,
+              title: sanitizeModuleTitle(m.title || ''),
+              description: m.description || '',
+            };
+          }
+          return {
+            id: `edit_mod_${idx}_${Date.now()}`,
+            title: sanitizeModuleTitle(String(m || '')),
+            description: '',
+          };
+        })
+      : getDefaultModuleItems();
+    setEditModules(popModules);
+
+    const popFeatures = Array.isArray(c.features) && c.features.length > 0
+      ? c.features.map((str, idx) => ({ id: `edit_feat_${idx}_${Date.now()}`, value: str }))
+      : getDefaultFeatureItems();
+    setEditFeatures(popFeatures);
+  };
+
   const handleUpdateCourse = async (e) => {
     e.preventDefault();
     if (!editingCourse) return;
-
-    const all = getAllCourses();
-    const target = all.find((c) => c.id === editingCourse.id);
-    if (target) {
-      let updatedSyllabusPdf = target.syllabusPdf;
-
-      if (editSyllabusFile) {
-        try {
-          await saveSyllabusPdf(target.id, editSyllabusFile);
-          updatedSyllabusPdf = {
-            name: editSyllabusFile.name,
-            size: editSyllabusFile.size,
-            updatedAt: new Date().toISOString(),
-          };
-        } catch (err) {
-          console.error('Failed to update syllabus PDF in storage:', err);
-        }
-      } else if (editSyllabusRemove) {
-        try {
-          await deleteSyllabusPdf(target.id);
-          updatedSyllabusPdf = null;
-        } catch (err) {
-          console.error('Failed to remove syllabus PDF from storage:', err);
-        }
-      }
-
-      const updated = {
-        ...target,
-        price: parseFloat(editPrice) || target.price,
-        status: editStatus,
-        image: editImagePreview || target.image,
-        isCustom: true,
-      };
-
-      if (updatedSyllabusPdf) {
-        updated.syllabusPdf = updatedSyllabusPdf;
-      } else {
-        delete updated.syllabusPdf;
-      }
-
-      saveNewCourse(updated);
-      refreshAllData();
-      setActionSuccess(`Course '${editingCourse.title}' updated.`);
-      setEditingCourse(null);
-      setEditImagePreview('');
-      setEditImageError('');
-      setEditSyllabusFile(null);
-      setEditSyllabusInfo(null);
-      setEditSyllabusRemove(false);
-      setEditSyllabusError('');
-      setTimeout(() => setActionSuccess(''), 4000);
+    if (!editTitle.trim()) {
+      alert('Course title is required.');
+      return;
     }
+
+    setEditSubmitting(true);
+    const all = getAllCourses();
+    const target = all.find((c) => c.id === editingCourse.id) || editingCourse;
+
+    let updatedSyllabusPdf = target.syllabusPdf;
+
+    if (editSyllabusFile) {
+      try {
+        await saveSyllabusPdf(target.id, editSyllabusFile);
+        updatedSyllabusPdf = {
+          name: editSyllabusFile.name,
+          size: editSyllabusFile.size,
+          updatedAt: new Date().toISOString(),
+        };
+      } catch (err) {
+        console.error('Failed to update syllabus PDF in storage:', err);
+      }
+    } else if (editSyllabusRemove) {
+      try {
+        await deleteSyllabusPdf(target.id);
+        updatedSyllabusPdf = null;
+      } catch (err) {
+        console.error('Failed to remove syllabus PDF from storage:', err);
+      }
+    }
+
+    const cleanLearn = editLearn
+      .map((item) => item.value.trim())
+      .filter(Boolean);
+
+    const cleanModules = editModules
+      .map((item) => ({
+        title: sanitizeModuleTitle(item.title),
+        description: item.description.trim(),
+      }))
+      .filter((item) => item.title || item.description);
+
+    const cleanFeatures = editFeatures
+      .map((item) => item.value.trim())
+      .filter(Boolean);
+
+    const updated = {
+      ...target,
+      title: editTitle.trim(),
+      domain: editDomain,
+      category: editCategory.trim() || target.category,
+      hours: parseInt(editHours, 10) || target.hours || 20,
+      mode: editMode || target.mode,
+      price: parseFloat(editPrice) || target.price,
+      status: editStatus,
+      shortDescription: editShortDescription.trim() || target.shortDescription,
+      trainer: editTrainer.trim() || target.trainer,
+      registrationDeadline: editDeadline || target.registrationDeadline,
+      image: editImagePreview || target.image,
+      learn: cleanLearn,
+      modules: cleanModules,
+      features: cleanFeatures,
+      isCustom: true,
+    };
+
+    if (updatedSyllabusPdf) {
+      updated.syllabusPdf = updatedSyllabusPdf;
+    } else {
+      delete updated.syllabusPdf;
+    }
+
+    saveNewCourse(updated);
+
+    let serverSaved = false;
+    try {
+      const apiRes = await api.updateCourse(target.id, updated);
+      serverSaved = Boolean(apiRes?.serverSaved);
+    } catch {
+      serverSaved = false;
+    }
+
+    refreshAllData();
+    setEditingCourse(null);
+    setEditImagePreview('');
+    setEditImageError('');
+    setEditSyllabusFile(null);
+    setEditSyllabusInfo(null);
+    setEditSyllabusRemove(false);
+    setEditSyllabusError('');
+    setEditSubmitting(false);
+
+    if (serverSaved) {
+      setActionSuccess(`✓ Course '${updated.title}' updated on server and saved locally.`);
+    } else {
+      setActionSuccess(`✓ Course '${updated.title}' updated locally (offline / local development mode).`);
+    }
+    setTimeout(() => setActionSuccess(''), 4000);
   };
 
   const handleCreateNewCourse = async (e) => {
@@ -470,14 +595,19 @@ export default function Dashboard() {
       generatedId = `${prefix}${Math.floor(100 + Math.random() * 900)}`;
     }
 
-    const learnArray = newCourse.learn
-      .split(/,|\n/)
-      .map((s) => s.trim())
+    const cleanLearn = newCourseLearn
+      .map((item) => item.value.trim())
       .filter(Boolean);
 
-    const modulesArray = newCourse.modules
-      .split(/,|\n/)
-      .map((s) => s.trim())
+    const cleanModules = newCourseModules
+      .map((item) => ({
+        title: sanitizeModuleTitle(item.title),
+        description: item.description.trim(),
+      }))
+      .filter((item) => item.title || item.description);
+
+    const cleanFeatures = newCourseFeatures
+      .map((item) => item.value.trim())
       .filter(Boolean);
 
     const courseRecord = {
@@ -498,12 +628,14 @@ export default function Dashboard() {
       contactPerson: newCourse.contactPerson || 'Dean, SpoRIC',
       contactEmail: newCourse.contactEmail || 'deancc.sporic@vit.ac.in',
       contactNumber: newCourse.contactNumber || '73587 82571',
-      learn: learnArray.length > 0 ? learnArray : ['Comprehensive Industry Training'],
-      modules: modulesArray.length > 0 ? modulesArray : ['Core Curriculum Module 1'],
-      features: ['Certification of Completion', 'Live Interactive Lab Sessions', 'Industry Curriculum'],
-      sessions: [{ batch: 1, date: newCourse.startDate }],
+      learn: cleanLearn,
+      modules: cleanModules,
+      features: cleanFeatures,
+      sessions: [{ batch: 1, date: newCourse.startDate || '2026-11-20' }],
       isCustom: true,
     };
+
+    setNewCourseSubmitting(true);
 
     if (courseSyllabusFile) {
       try {
@@ -519,13 +651,31 @@ export default function Dashboard() {
     }
 
     saveNewCourse(courseRecord);
+
+    let serverSaved = false;
+    try {
+      const apiRes = await api.createCourse(courseRecord);
+      serverSaved = Boolean(apiRes?.serverSaved);
+    } catch {
+      serverSaved = false;
+    }
+
     refreshAllData();
     setShowAddModal(false);
     setCourseImagePreview('');
     setCourseImageError('');
     setCourseSyllabusFile(null);
     setCourseSyllabusError('');
-    setActionSuccess(`✓ Course '${courseRecord.title}' (${courseRecord.id}) published!`);
+    setNewCourseLearn(getDefaultLearnItems());
+    setNewCourseModules(getDefaultModuleItems());
+    setNewCourseFeatures(getDefaultFeatureItems());
+    setNewCourseSubmitting(false);
+
+    if (serverSaved) {
+      setActionSuccess(`✓ Course '${courseRecord.title}' (${courseRecord.id}) published to server and saved locally!`);
+    } else {
+      setActionSuccess(`✓ Course '${courseRecord.title}' (${courseRecord.id}) saved locally (offline / local development mode).`);
+    }
     setTimeout(() => setActionSuccess(''), 5000);
   };
 
@@ -1753,27 +1903,7 @@ export default function Dashboard() {
                                 <button
                                   className="btn btn-secondary"
                                   style={{ padding: '0.25rem 0.55rem', fontSize: '0.78rem' }}
-                                  onClick={() => {
-                                    setEditingCourse(c);
-                                    setEditPrice(c.price || 4999);
-                                    setEditStatus(c.status || COURSE_STATUS.OPEN);
-                                    setEditImagePreview(c.image || '');
-                                    setEditImageError('');
-                                    setEditSyllabusFile(null);
-                                    setEditSyllabusRemove(false);
-                                    setEditSyllabusError('');
-                                    if (c.syllabusPdf) {
-                                      setEditSyllabusInfo(c.syllabusPdf);
-                                    } else {
-                                      getSyllabusPdf(c.id).then((stored) => {
-                                        if (stored) {
-                                          setEditSyllabusInfo({ name: stored.name, size: stored.size });
-                                        } else {
-                                          setEditSyllabusInfo(null);
-                                        }
-                                      }).catch(() => setEditSyllabusInfo(null));
-                                    }
-                                  }}
+                                  onClick={() => startEditingCourse(c)}
                                 >
                                   Edit
                                 </button>
@@ -2792,6 +2922,9 @@ export default function Dashboard() {
           title="Add New Training Course"
           onSubmit={handleCreateNewCourse}
           submitLabel="Publish Course"
+          submitting={newCourseSubmitting}
+          submittingLabel="Publishing Course..."
+          maxWidth="760px"
         >
           <div className={modalStyles.field}>
             <label className={modalStyles.label}>Course Title *</label>
@@ -2952,6 +3085,15 @@ export default function Dashboard() {
               style={{ minHeight: '60px' }}
             />
           </div>
+
+          <CourseContentEditor
+            learnItems={newCourseLearn}
+            setLearnItems={setNewCourseLearn}
+            moduleItems={newCourseModules}
+            setModuleItems={setNewCourseModules}
+            featureItems={newCourseFeatures}
+            setFeatureItems={setNewCourseFeatures}
+          />
         </AdminModal>
       )}
 
@@ -3200,121 +3342,216 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Edit Course Modal */}
+      {/* ====================================================
+          MODAL: EDIT COURSE (ADMIN ONLY - WHITE THEME)
+         ==================================================== */}
       {editingCourse && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 10001, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: '#0F2252', padding: '1.75rem', borderRadius: '14px', maxWidth: '440px', color: '#FFF', width: '100%' }}>
-            <h4>Edit Course: {editingCourse.title}</h4>
-            <form onSubmit={handleUpdateCourse}>
-              <div style={{ margin: '1rem 0' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Course Image (optional)</label>
-                {editImageError ? (
-                  <div style={{ background: '#450A0A', border: '1px solid #7F1D1D', padding: '0.5rem 0.75rem', borderRadius: '8px', color: '#FCA5A5', fontSize: '0.78rem', marginBottom: '0.6rem' }}>{editImageError}</div>
-                ) : (
-                  editImagePreview && (
-                    <img
-                      src={editImagePreview}
-                      alt="Course image preview"
-                      style={{ width: '100%', height: '110px', objectFit: 'cover', borderRadius: '10px', border: '1px solid #334155', marginBottom: '0.6rem' }}
-                    />
-                  )
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleEditCourseImageFileChange}
-                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px dashed #334155', background: '#0A1E4F', color: '#CBD5E1', cursor: 'pointer' }}
-                />
-                <span style={{ display: 'block', fontSize: '0.7rem', color: '#94A3B8', marginTop: '0.3rem' }}>
-                  Select an image to replace the current one (JPG / PNG / WEBP).
-                </span>
-              </div>
-              <div style={{ margin: '1rem 0' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Course Syllabus (PDF)</label>
-                {editSyllabusError && (
-                  <div style={{ background: '#450A0A', border: '1px solid #7F1D1D', padding: '0.5rem 0.75rem', borderRadius: '8px', color: '#FCA5A5', fontSize: '0.78rem', marginBottom: '0.6rem' }}>
-                    {editSyllabusError}
-                  </div>
-                )}
-                {editSyllabusFile ? (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#0A1E4F', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid #334155', marginBottom: '0.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span style={{ fontSize: '1.1rem' }}>📄</span>
-                      <div>
-                        <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#F8FAFC' }}>{editSyllabusFile.name} (New)</div>
-                        <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>{(editSyllabusFile.size / (1024 * 1024)).toFixed(2)} MB</div>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setEditSyllabusFile(null)}
-                      className="btn btn-ghost"
-                      style={{ color: '#F87171', fontSize: '0.78rem', padding: '0.2rem 0.5rem' }}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                ) : (editSyllabusInfo && !editSyllabusRemove) ? (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#0A1E4F', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid #334155', marginBottom: '0.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span style={{ fontSize: '1.1rem' }}>📄</span>
-                      <div>
-                        <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#F8FAFC' }}>{editSyllabusInfo.name || 'Current Syllabus.pdf'}</div>
-                        {editSyllabusInfo.size && (
-                          <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>{(editSyllabusInfo.size / (1024 * 1024)).toFixed(2)} MB</div>
-                        )}
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setEditSyllabusRemove(true)}
-                      className="btn btn-ghost"
-                      style={{ color: '#F87171', fontSize: '0.78rem', padding: '0.2rem 0.5rem' }}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ) : null}
-                <input
-                  type="file"
-                  accept=".pdf,application/pdf"
-                  onChange={handleEditSyllabusFileChange}
-                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px dashed #334155', background: '#0A1E4F', color: '#CBD5E1', cursor: 'pointer' }}
-                />
-                <span style={{ display: 'block', fontSize: '0.7rem', color: '#94A3B8', marginTop: '0.3rem' }}>
-                  {editSyllabusInfo && !editSyllabusRemove
-                    ? 'Upload a PDF to replace the current syllabus.'
-                    : 'Upload the course syllabus as a PDF.'}
-                </span>
-              </div>
-              <div style={{ margin: '1rem 0' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Price (₹)</label>
-                <input
-                  type="number"
-                  value={editPrice}
-                  onChange={(e) => setEditPrice(e.target.value)}
-                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                />
-              </div>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <label style={{ display: 'block', fontSize: '0.82rem', marginBottom: '0.3rem' }}>Status</label>
-                <select
-                  value={editStatus}
-                  onChange={(e) => setEditStatus(e.target.value)}
-                  style={{ width: '100%', padding: '0.65rem', borderRadius: '8px', border: '1px solid #334155', background: '#071B4A', color: '#FFF' }}
-                >
-                  <option value={COURSE_STATUS.OPEN}>Open for Registration</option>
-                  <option value={COURSE_STATUS.UPCOMING}>Upcoming</option>
-                  <option value={COURSE_STATUS.CLOSED}>Registration Closed</option>
-                </select>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
-                <button type="button" onClick={() => setEditingCourse(null)} className="btn btn-secondary">Cancel</button>
-                <button type="submit" className="btn btn-primary">Update Course</button>
-              </div>
-            </form>
+        <AdminModal
+          open={Boolean(editingCourse)}
+          onClose={() => setEditingCourse(null)}
+          title={`Edit Course: ${editingCourse.title || editingCourse.id}`}
+          isEdit={true}
+          onSubmit={handleUpdateCourse}
+          submitEditLabel={editSubmitting ? 'Saving Changes...' : 'Save Changes'}
+          submitting={editSubmitting}
+          maxWidth="760px"
+        >
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Course Title *</label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Applied Python Programming for Data Analytics"
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              className={modalStyles.input}
+            />
           </div>
-        </div>
+
+          <div className={modalStyles.row2}>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Department</label>
+              <select
+                value={editDomain}
+                onChange={(e) => setEditDomain(e.target.value)}
+                className={modalStyles.select}
+              >
+                <option value={DOMAINS.TECHNOLOGY}>Technology</option>
+                <option value={DOMAINS.MANAGEMENT}>Management</option>
+                <option value={DOMAINS.LEADERSHIP}>Leadership & Personality</option>
+              </select>
+            </div>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Category</label>
+              <input
+                type="text"
+                placeholder="e.g. Industry 4.0 / Data Science"
+                value={editCategory}
+                onChange={(e) => setEditCategory(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+          </div>
+
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Course Image</label>
+            {editImageError && (
+              <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', padding: '0.5rem 0.8rem', borderRadius: '8px', color: '#B91C1C', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
+                {editImageError}
+              </div>
+            )}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleEditCourseImageFileChange}
+              className={modalStyles.file}
+            />
+            {editImagePreview ? (
+              <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>
+                <img src={editImagePreview} alt="Course preview" className={modalStyles.preview} style={{ height: '72px', borderRadius: '8px', objectFit: 'cover' }} />
+                <span style={{ fontSize: '0.72rem', color: '#64748B' }}>Choose another image to replace this preview (JPG / PNG / WEBP).</span>
+              </div>
+            ) : (
+              <span style={{ fontSize: '0.72rem', color: '#64748B' }}>
+                Optional. Upload a course image to replace the current thumbnail.
+              </span>
+            )}
+          </div>
+
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Course Syllabus (PDF)</label>
+            {editSyllabusError && (
+              <div style={{ background: '#FEE2E2', border: '1px solid #FECACA', padding: '0.5rem 0.8rem', borderRadius: '8px', color: '#B91C1C', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
+                {editSyllabusError}
+              </div>
+            )}
+            {editSyllabusFile ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#F8FAFC', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid #E2E8F0', marginBottom: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '1.1rem' }}>📄</span>
+                  <div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#1E293B' }}>{editSyllabusFile.name} (New)</div>
+                    <div style={{ fontSize: '0.72rem', color: '#64748B' }}>{(editSyllabusFile.size / (1024 * 1024)).toFixed(2)} MB</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditSyllabusFile(null)}
+                  className="btn btn-ghost"
+                  style={{ color: '#DC2626', fontSize: '0.78rem', padding: '0.2rem 0.5rem' }}
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (editSyllabusInfo && !editSyllabusRemove) ? (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#F8FAFC', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid #E2E8F0', marginBottom: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '1.1rem' }}>📄</span>
+                  <div>
+                    <div style={{ fontSize: '0.82rem', fontWeight: 600, color: '#1E293B' }}>{editSyllabusInfo.name || 'Current Syllabus.pdf'}</div>
+                    {editSyllabusInfo.size && (
+                      <div style={{ fontSize: '0.72rem', color: '#64748B' }}>{(editSyllabusInfo.size / (1024 * 1024)).toFixed(2)} MB</div>
+                    )}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditSyllabusRemove(true)}
+                  className="btn btn-ghost"
+                  style={{ color: '#DC2626', fontSize: '0.78rem', padding: '0.2rem 0.5rem' }}
+                >
+                  Remove
+                </button>
+              </div>
+            ) : null}
+            <input
+              type="file"
+              accept=".pdf,application/pdf"
+              onChange={handleEditSyllabusFileChange}
+              className={modalStyles.file}
+            />
+            <span style={{ display: 'block', fontSize: '0.72rem', color: '#64748B', marginTop: '0.3rem' }}>
+              {editSyllabusInfo && !editSyllabusRemove
+                ? 'Upload a PDF to replace the current syllabus.'
+                : 'Upload the course syllabus as a PDF.'}
+            </span>
+          </div>
+
+          <div className={modalStyles.row3}>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Hours</label>
+              <input
+                type="number"
+                value={editHours}
+                onChange={(e) => setEditHours(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Price (₹)</label>
+              <input
+                type="number"
+                value={editPrice}
+                onChange={(e) => setEditPrice(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Status</label>
+              <select
+                value={editStatus}
+                onChange={(e) => setEditStatus(e.target.value)}
+                className={modalStyles.select}
+              >
+                <option value={COURSE_STATUS.OPEN}>Open for Registration</option>
+                <option value={COURSE_STATUS.UPCOMING}>Upcoming</option>
+                <option value={COURSE_STATUS.CLOSED}>Registration Closed</option>
+              </select>
+            </div>
+          </div>
+
+          <div className={modalStyles.row2}>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Registration Deadline</label>
+              <input
+                type="date"
+                value={editDeadline}
+                onChange={(e) => setEditDeadline(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+            <div className={modalStyles.field}>
+              <label className={modalStyles.label}>Trainer / Faculty</label>
+              <input
+                type="text"
+                placeholder="e.g. Dr. A. Sundaram"
+                value={editTrainer}
+                onChange={(e) => setEditTrainer(e.target.value)}
+                className={modalStyles.input}
+              />
+            </div>
+          </div>
+
+          <div className={modalStyles.field}>
+            <label className={modalStyles.label}>Short Description</label>
+            <textarea
+              value={editShortDescription}
+              onChange={(e) => setEditShortDescription(e.target.value)}
+              className={modalStyles.textarea}
+              style={{ minHeight: '60px' }}
+            />
+          </div>
+
+          {/* Reusable Course Content & Learning Outcomes Editor */}
+          <CourseContentEditor
+            learnItems={editLearn}
+            setLearnItems={setEditLearn}
+            moduleItems={editModules}
+            setModuleItems={setEditModules}
+            featureItems={editFeatures}
+            setFeatureItems={setEditFeatures}
+          />
+        </AdminModal>
       )}
 
       {/* ====================================================

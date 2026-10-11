@@ -493,6 +493,36 @@ class ApiService {
     return await this.request(`/categories${domain ? `?domain=${encodeURIComponent(domain)}` : ''}`);
   }
 
+  async createCourse(courseData) {
+    try {
+      const res = await this.request('/courses', {
+        method: 'POST',
+        body: JSON.stringify(courseData),
+      });
+      return { success: true, serverSaved: true, data: res.data || res };
+    } catch (err) {
+      if (this.isNetworkError(err)) {
+        return { success: false, serverSaved: false, error: err.message, networkError: true };
+      }
+      throw err;
+    }
+  }
+
+  async updateCourse(courseId, courseData) {
+    try {
+      const res = await this.request(`/courses/${courseId}`, {
+        method: 'PUT',
+        body: JSON.stringify(courseData),
+      });
+      return { success: true, serverSaved: true, data: res.data || res };
+    } catch (err) {
+      if (this.isNetworkError(err)) {
+        return { success: false, serverSaved: false, error: err.message, networkError: true };
+      }
+      throw err;
+    }
+  }
+
   // --- Payments & Razorpay ---
   async createPaymentOrder(courseId, batchId) {
     return await this.request('/payments/create-order', {
