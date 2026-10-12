@@ -61,17 +61,6 @@ export const initialBanners = [
     order: 4,
     createdAt: '2026-01-01T00:00:00.000Z',
   },
-  {
-    id: 'banner-rankings-recognition-final',
-    type: 'image',
-    src: '/hero-slides/banner-rankings-recognition.png',
-    alt: 'VIT-TEC Rankings and Recognition — National & International Accreditations',
-    title: 'Rankings and Recognition',
-    description: 'National Rankings NIRF 2025, International Rankings & QS Accreditations',
-    isActive: true,
-    order: 5,
-    createdAt: '2026-01-01T00:00:00.000Z',
-  },
 ];
 
 // --- DYNAMIC CMS HELPER FUNCTIONS ---
@@ -80,7 +69,8 @@ const LEGACY_SLIDE_IDS = new Set([
   'slide-1', 'slide-2', 'slide-3', 'slide-4', 'slide-5',
   'banner-corporate-training', 'banner-rankings-recognition', 'banner-our-courses',
   'banner-corporate-training-v2', 'banner-rankings-recognition-v2',
-  'banner-programmes-offered', 'banner-industry-partners', 'banner-industry-partners-v2'
+  'banner-programmes-offered', 'banner-industry-partners', 'banner-industry-partners-v2',
+  'banner-rankings-recognition-final'
 ]);
 
 export function getAllBanners() {

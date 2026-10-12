@@ -12,15 +12,13 @@ import Contact from '../components/Contact';
 export default function Home() {
   return (
     <main>
-      <div className="hero-stats-layout">
-        <div className="stats-left">
-          <Stats />
-        </div>
+      <section className="homepage-hero-wrapper" aria-label="VIT-TEC Featured Slideshow">
+        <Hero />
+      </section>
 
-        <div className="hero-right">
-          <Hero />
-        </div>
-      </div>
+      <section className="homepage-stats-wrapper" aria-label="Key Platform Statistics">
+        <Stats />
+      </section>
       <Domains />
       <About />
       <CorporateTrainingGraph />

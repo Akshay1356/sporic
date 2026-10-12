@@ -29,7 +29,7 @@
   justify-content: space-around;
   gap: 2rem;
   min-width: 100%;
-  animation: scrollMarquee 28s linear infinite;
+  animation: scrollMarquee 65s linear infinite;
 }
 
 .reverse .group {

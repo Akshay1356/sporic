@@ -72,21 +72,6 @@ export default function Navbar() {
     navigate('/');
   };
 
-  const rawName = (
-    currentUser?.fullName ||
-    currentUser?.name ||
-    currentUser?.email?.split('@')[0] ||
-    'User'
-  ).split(' ')[0];
-  const displayName = rawName.length > 10 ? rawName.slice(0, 9) + '…' : rawName;
-
-  const avatarInitial = (
-    currentUser?.fullName ||
-    currentUser?.name ||
-    currentUser?.email ||
-    'U'
-  )[0].toUpperCase();
-
   const isAdmin = currentUser?.role === 'ADMIN';
 
   return (
@@ -185,19 +170,6 @@ export default function Navbar() {
           <div className={styles.navActions}>
             {currentUser ? (
               <div className={styles.accountGroup}>
-                {/* Profile Badge Pill */}
-                <Link
-                  to="/profile"
-                  className={styles.profilePill}
-                  title="View Account Profile Settings"
-                >
-                  <div className={styles.avatarMini}>{avatarInitial}</div>
-                  <span className={styles.userName}>{displayName}</span>
-                  <span className={isAdmin ? styles.badgeAdmin : styles.badgeRole}>
-                    {isAdmin ? 'ADMIN' : currentUser.role || 'USER'}
-                  </span>
-                </Link>
-
                 {/* Dashboard Action */}
                 <Link to="/dashboard" className={styles.dashBtn}>
                   Dashboard

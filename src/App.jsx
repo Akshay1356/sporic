@@ -96,7 +96,7 @@ export default function App() {
       <ScrollToTop />
 
       {/* Dynamic Main App Container */}
-      <div style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', overflowX: 'hidden' }}>
+      <div style={{ position: 'relative', minHeight: '100vh', display: 'flex', flexDirection: 'column', overflowX: 'clip' }}>
         {/* Floating Header Navbar */}
         <Navbar />
 

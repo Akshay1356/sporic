@@ -101,8 +101,22 @@ export default function Hero() {
   // Sound toggle handler
   const toggleSound = (e) => {
     e.stopPropagation();
-    setIsMuted((prev) => !prev);
+    setIsMuted((prev) => {
+      const next = !prev;
+      const vid = videoRefs.current[currentIndex];
+      if (vid) {
+        vid.muted = next;
+      }
+      return next;
+    });
   };
+
+  useEffect(() => {
+    const vid = videoRefs.current[currentIndex];
+    if (vid) {
+      vid.muted = isMuted;
+    }
+  }, [isMuted, currentIndex]);
 
   // Touch gesture handling for mobile
   const handleTouchStart = (e) => {
