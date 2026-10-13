@@ -183,7 +183,7 @@ export default function Hero() {
                 aria-label={`Slide ${index + 1} of ${slides.length}`}
               >
                 {isVideo ? (
-                  <>
+                  <div className={styles.videoWrapper}>
                     <video
                       ref={(el) => {
                         videoRefs.current[index] = el;
@@ -224,16 +224,30 @@ export default function Hero() {
                         )}
                       </button>
                     )}
-                  </>
+                  </div>
                 ) : (
-                  <img
-                    src={slide.src}
-                    alt={slide.alt}
-                    className={styles.slideImage}
-                    loading={index === 0 ? 'eager' : 'lazy'}
-                    fetchPriority={index === 0 ? 'high' : 'auto'}
-                    decoding="async"
-                  />
+                  <div className={styles.imageWrapper}>
+                    <img
+                      src={slide.src}
+                      alt=""
+                      aria-hidden="true"
+                      className={styles.slideImageBg}
+                    />
+                    <img
+                      src={slide.src}
+                      alt={slide.alt}
+                      className={styles.slideImage}
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                      fetchPriority={index === 0 ? 'high' : 'auto'}
+                      decoding="async"
+                    />
+                    {slide.showOverlay && (slide.title || slide.description) && (
+                      <div className={styles.slideOverlay}>
+                        {slide.title && <h2 className={styles.slideOverlayTitle}>{slide.title}</h2>}
+                        {slide.description && <p className={styles.slideOverlayDesc}>{slide.description}</p>}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             );

@@ -76,7 +76,7 @@
   /* Spacing */
   --section-padding: 4.25rem 0;
   --container-max: 1280px;
-  --nav-height: 76px;
+  --nav-height: 66px;
 
   /* Transitions */
   --transition-fast: 0.15s ease;
@@ -88,6 +88,12 @@
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --nav-height: 58px;
+  }
 }
 
 /* ---------- Reset ---------- */
@@ -386,36 +392,37 @@ img {
 /* ---------- Homepage Full-Width Hero + Statistics Layout ---------- */
 .homepage-hero-wrapper {
   width: 100%;
-  max-width: 1920px;
-  margin: 0 auto;
-  padding: 16px 20px 8px 20px;
-  background: #FFFFFF;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  background: #051336;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .homepage-stats-wrapper {
   width: 100%;
   max-width: 1920px;
   margin: 0 auto;
-  padding: 8px 20px 24px 20px;
+  padding: 0;
   background: #FFFFFF;
   box-sizing: border-box;
 }
 
 @media (max-width: 991px) {
   .homepage-hero-wrapper {
-    padding: 12px 16px 6px 16px;
+    padding: 0;
   }
   .homepage-stats-wrapper {
-    padding: 6px 16px 20px 16px;
+    padding: 0;
   }
 }
 
 @media (max-width: 640px) {
   .homepage-hero-wrapper {
-    padding: 10px 12px 4px 12px;
+    padding: 0;
   }
   .homepage-stats-wrapper {
-    padding: 4px 12px 16px 12px;
+    padding: 0;
   }
 }
