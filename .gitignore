@@ -40,4 +40,3 @@ server/uploads/*
 *.sln
 *.sw?
 .freebuff/
-config.bat
