@@ -39,4 +39,3 @@ server/uploads/*
 *.njsproj
 *.sln
 *.sw?
-config.bat
